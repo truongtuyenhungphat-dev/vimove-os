@@ -8,6 +8,11 @@ Hệ thống nội bộ hiện có [VimoveCRM](../VimoveCRM) (đang chạy produ
 VIMOVE** — không đụng vào, VIMOVE OS build mới hoàn toàn và chỉ nối qua Legacy Adapter khi cần di
 trú dữ liệu cụ thể (xem docs).
 
+> 📓 Đang tiếp tục dự án từ máy khác, hoặc cần thông tin hạ tầng/deploy production
+> (Vercel, Neon, biến môi trường, tài khoản...)? Đọc
+> [NHAT-KY-KIEN-TRUC.md](NHAT-KY-KIEN-TRUC.md) trước — đó là nguồn thông tin vận hành
+> đầy đủ nhất, luôn được cập nhật kèm số version ở cuối file.
+
 ## Trạng thái hiện tại
 
 **Phase 1 — Foundation: hoàn thành.** Đăng nhập, RBAC server-side, quản trị Người dùng/Phòng
