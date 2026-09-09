@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vimove-os-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vimove
+      POSTGRES_PASSWORD: vimove
+      POSTGRES_DB: vimove_os
+    ports:
+      - "5437:5432"
+    volumes:
+      - vimove_os_pgdata:/var/lib/postgresql/data
+
+volumes:
+  vimove_os_pgdata:

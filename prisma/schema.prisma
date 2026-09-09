@@ -1,0 +1,1938 @@
+// VIMOVE OS — Prisma schema
+// Phase 1 (Foundation): CORE group only. Xem docs/00-phuong-an-trien-khai.md.
+// Quy ước: mọi bảng nghiệp vụ có organizationId (§21 đặc tả) — kể cả khi hệ thống
+// hiện chỉ chạy single-org (seed sẵn 1 organization mặc định).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// CORE
+// ---------------------------------------------------------------------------
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  departments Department[]
+  teams       Team[]
+  roles       Role[]
+  auditLogs   AuditLog[]
+  tasks       Task[]
+  tags        Tag[]
+  taskTemplates TaskTemplate[]
+  projects        Project[]
+  projectTemplates ProjectTemplate[]
+  workflows       Workflow[]
+  workflowRuns    WorkflowRun[]
+  approvalRequests ApprovalRequest[]
+  pipelines       Pipeline[]
+  customers       Customer[]
+  leads           Lead[]
+  products        Product[]
+  salesChannels   SalesChannel[]
+  orders          Order[]
+  campaigns       Campaign[]
+  contents        Content[]
+  socialAccounts  SocialAccount[]
+  socialPosts     SocialPost[]
+  landingPages    LandingPage[]
+  emailCampaigns  EmailCampaign[]
+  adConnections   AdConnection[]
+  events          Event[]
+  attributionTouchpoints AttributionTouchpoint[]
+  attributionEvents      AttributionEvent[]
+  dailyMetrics    DailyMetric[]
+  reports         Report[]
+  dataQualityIssues DataQualityIssue[]
+  aiConversations AiConversation[]
+  aiInsights      AiInsight[]
+  aiRecommendations AiRecommendation[]
+  aiActions       AiAction[]
+  errorLogs       ErrorLog[]
+
+  @@map("organizations")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  INVITED
+}
+
+model User {
+  id             String     @id @default(cuid())
+  organizationId String
+  email          String     @unique
+  passwordHash   String
+  name           String
+  avatarUrl      String?
+  status         UserStatus @default(ACTIVE)
+  departmentId   String?
+  title          String?
+  lastLoginAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  userRoles     UserRole[]
+  teamMembers   TeamMember[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  assignedTasks   Task[]           @relation("TaskAssignee")
+  createdTasks    Task[]           @relation("TaskCreator")
+  taskComments    TaskComment[]
+  taskAttachments TaskAttachment[]
+  taskWatches     TaskWatcher[]
+  taskActivities  TaskActivity[]
+  taskTimeLogs    TaskTimeLog[]
+  taskTemplates   TaskTemplate[]
+
+  ownedProjects       Project[]          @relation("ProjectOwner")
+  projectMemberships  ProjectMember[]
+  projectFiles        ProjectFile[]
+  projectTemplates    ProjectTemplate[]
+  createdWorkflows    Workflow[]
+  createdWorkflowVersions WorkflowVersion[]
+  createdWorkflowRuns WorkflowRun[]
+  requestedApprovals  ApprovalRequest[]  @relation("ApprovalRequestedBy")
+  approvalSteps       ApprovalStep[]     @relation("ApprovalApprover")
+  escalatedApprovalSteps ApprovalStep[]  @relation("ApprovalEscalatedTo")
+
+  ownedCustomers    Customer[]     @relation("CustomerOwner")
+  ownedLeads        Lead[]         @relation("LeadOwner")
+  leadActivities    LeadActivity[] @relation("LeadActivityActor")
+  ownedOrders       Order[]        @relation("OrderOwner")
+
+  createdCampaigns   Campaign[]       @relation("CampaignCreator")
+  createdContents    Content[]        @relation("ContentCreator")
+  assignedContents   Content[]        @relation("ContentAssignee")
+  contentAssets      ContentAsset[]
+  createdSocialPosts SocialPost[]     @relation("SocialPostCreator")
+  createdLandingPages LandingPage[]   @relation("LandingPageCreator")
+  createdEmailCampaigns EmailCampaign[] @relation("EmailCampaignCreator")
+  connectedAdConnections AdConnection[] @relation("AdConnectionConnectedBy")
+  createdReports         Report[]       @relation("ReportCreator")
+  aiConversations        AiConversation[]
+  approvedAiActions      AiAction[]     @relation("AiActionApprovedBy")
+
+  @@index([organizationId])
+  @@index([departmentId])
+  @@map("users")
+}
+
+model Department {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  parentId       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent       Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Department[] @relation("DepartmentHierarchy")
+
+  users User[]
+  teams Team[]
+
+  @@index([organizationId])
+  @@map("departments")
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  organizationId String
+  departmentId   String?
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  members      TeamMember[]
+  tasks        Task[]
+
+  @@index([organizationId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+// Danh mục vai trò chuẩn hoá theo §21 đặc tả — dùng làm `key` cho Role seed sẵn.
+enum RoleKey {
+  SUPER_ADMIN
+  ADMIN
+  DIRECTOR
+  MANAGER
+  MARKETING_MANAGER
+  MARKETING_STAFF
+  SALES_MANAGER
+  SALES
+  CONTENT
+  ANALYST
+  STAFF
+  VIEWER
+}
+
+model Role {
+  id             String   @id @default(cuid())
+  organizationId String
+  key            RoleKey
+  name           String
+  description    String?
+  isSystem       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@unique([organizationId, key])
+  @@index([organizationId])
+  @@map("roles")
+}
+
+// Permission là danh mục toàn cục (resource.action), không thuộc organization —
+// giống cách route/permission key là hằng số trong code (lib/permissions).
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique // vd: "tasks.create", "ads.manage"
+  resource    String // vd: "tasks"
+  action      String // vd: "create"
+  description String?
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([resource])
+  @@map("permissions")
+}
+
+// Phase 10 — Scale: "advanced scoped permissions" (tương tự VimoveCRM Phase 9/12).
+// Chỉ có ý nghĩa với permission nào thật sự lọc theo hàng dữ liệu sở hữu được (xem
+// SCOPABLE_PERMISSIONS trong lib/permissions/catalog.ts) — permission khác luôn coi
+// như ALL bất kể giá trị field này. Không tự tạo khái niệm mới ở tầng RBAC (vẫn
+// resource.action như cũ), scope chỉ THU HẸP THÊM tập hàng nhìn thấy sau khi đã có
+// permission gốc, không bao giờ mở rộng quyền.
+enum PermissionScope {
+  ALL // Thấy toàn bộ tổ chức (mặc định, hành vi giống trước Phase 10)
+  DEPARTMENT // Chỉ thấy hàng gắn với user cùng phòng ban
+  OWN // Chỉ thấy hàng của chính user (assignee/owner)
+}
+
+model RolePermission {
+  id           String           @id @default(cuid())
+  roleId       String
+  permissionId String
+  scope        PermissionScope  @default(ALL)
+  createdAt    DateTime         @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+enum NotificationType {
+  SYSTEM
+  TASK
+  APPROVAL
+  MENTION
+  ALERT
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  userId    String
+  type      NotificationType  @default(SYSTEM)
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// Append-only audit trail (§22). Không có updatedAt/delete — ghi lịch sử thuần.
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  actorId        String?
+  action         String // vd: "user.create", "role.permission.update"
+  entityType     String
+  entityId       String
+  before         Json?
+  after          Json?
+  requestId      String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor        User?        @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// Phase 10 — Scale: observability thật, KHÔNG phụ thuộc Sentry DSN hay bất kỳ dịch vụ
+// ngoài nào (khác nhóm bị chặn Ads/Claude API) — ghi lỗi Server Action/Route
+// Handler/React error boundary thật vào DB, xem được ngay tại /admin/observability.
+// `organizationId` nullable vì lỗi có thể xảy ra trước khi biết được tổ chức (vd lỗi
+// ở middleware/lúc chưa đăng nhập).
+model ErrorLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  userId         String?
+  level          String // "error" | "warn" — xem lib/observability/logger.ts
+  message        String
+  stack          String?
+  path           String? // route/URL nơi lỗi xảy ra
+  context        Json? // metadata bổ sung thật (vd requestId, actionName)
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@map("error_logs")
+}
+
+// ---------------------------------------------------------------------------
+// WORK HUB (Phase 2) — xem docs/02-work-hub.md
+// Quy ước dependency: chỉ finish-to-start (dependsOnTask phải xong trước khi
+// task này bắt đầu). Kanban dùng cột cố định theo TaskStatus (không có board
+// tuỳ biến). Attachment ở phase này chỉ là link ngoài (chưa nối Vercel Blob).
+// ---------------------------------------------------------------------------
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskActivityType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  RESCHEDULED
+  PRIORITY_CHANGED
+  UPDATED
+  COMMENTED
+  CHECKLIST_ITEM_ADDED
+  CHECKLIST_ITEM_TOGGLED
+  CHECKLIST_ITEM_REMOVED
+  ATTACHMENT_ADDED
+  ATTACHMENT_REMOVED
+  DEPENDENCY_ADDED
+  DEPENDENCY_REMOVED
+  WATCHER_ADDED
+  WATCHER_REMOVED
+  TIME_LOGGED
+}
+
+model Task {
+  id             String       @id @default(cuid())
+  organizationId String
+  title          String
+  description    String?
+  status         TaskStatus   @default(TODO)
+  priority       TaskPriority @default(MEDIUM)
+  assigneeId     String?
+  creatorId      String
+  teamId         String?
+  projectId      String?
+  startAt        DateTime?
+  dueAt          DateTime?
+  completedAt    DateTime?
+  estimateHours  Float?
+  position       Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator      User         @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  checklistItems TaskChecklistItem[]
+  comments       TaskComment[]
+  attachments    TaskAttachment[]
+  watchers       TaskWatcher[]
+  activities     TaskActivity[]
+  timeLogs       TaskTimeLog[]
+  tags           TaskTag[]
+
+  dependsOn  TaskDependency[] @relation("TaskDependsOn")
+  dependents TaskDependency[] @relation("TaskDependents")
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([assigneeId])
+  @@index([teamId])
+  @@index([projectId])
+  @@map("tasks")
+}
+
+model TaskChecklistItem {
+  id        String   @id @default(cuid())
+  taskId    String
+  title     String
+  isDone    Boolean  @default(false)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("task_checklist_items")
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("task_comments")
+}
+
+// Link-only ở Phase 2 (name + URL ngoài) — chưa nối Vercel Blob (§ scope decision
+// trong docs/02-work-hub.md). Upload file thật là follow-up khi có BLOB token.
+model TaskAttachment {
+  id         String   @id @default(cuid())
+  taskId     String
+  uploaderId String
+  label      String
+  url        String
+  createdAt  DateTime @default(now())
+
+  task     Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploader User @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("task_attachments")
+}
+
+model TaskDependency {
+  id              String   @id @default(cuid())
+  taskId          String
+  dependsOnTaskId String
+  createdAt       DateTime @default(now())
+
+  task          Task @relation("TaskDependsOn", fields: [taskId], references: [id], onDelete: Cascade)
+  dependsOnTask Task @relation("TaskDependents", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, dependsOnTaskId])
+  @@index([dependsOnTaskId])
+  @@map("task_dependencies")
+}
+
+model TaskWatcher {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId])
+  @@index([userId])
+  @@map("task_watchers")
+}
+
+// Timeline riêng cho Task Detail (khác AuditLog toàn hệ thống ở admin).
+model TaskActivity {
+  id        String            @id @default(cuid())
+  taskId    String
+  actorId   String?
+  type      TaskActivityType
+  payload   Json?
+  createdAt DateTime          @default(now())
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+  @@map("task_activities")
+}
+
+model TaskTimeLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  minutes   Int
+  note      String?
+  loggedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("task_time_logs")
+}
+
+model Tag {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  color          String   @default("#6366F1")
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  taskTags     TaskTag[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("tags")
+}
+
+model TaskTag {
+  id        String   @id @default(cuid())
+  taskId    String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, tagId])
+  @@index([tagId])
+  @@map("task_tags")
+}
+
+// Mẫu công việc: checklistItems là JSON copy-on-instantiate (không phải quan hệ
+// sống) — "Tạo từ mẫu" chỉ điền sẵn form tạo task, không giữ liên kết về sau.
+model TaskTemplate {
+  id              String       @id @default(cuid())
+  organizationId  String
+  name            String
+  description     String?
+  defaultPriority TaskPriority @default(MEDIUM)
+  checklistItems  Json?
+  createdById     String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("task_templates")
+}
+
+// ---------------------------------------------------------------------------
+// PROJECT & PROCESS (Phase 3) — xem docs/03-project-process.md
+// ---------------------------------------------------------------------------
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectMemberRole {
+  OWNER
+  MEMBER
+  VIEWER
+}
+
+enum MilestoneStatus {
+  PENDING
+  DONE
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  status         ProjectStatus @default(PLANNING)
+  ownerId        String
+  startAt        DateTime?
+  endAt          DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  owner        User         @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  members    ProjectMember[]
+  milestones ProjectMilestone[]
+  files      ProjectFile[]
+  tasks      Task[]
+  campaigns  Campaign[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@map("projects")
+}
+
+model ProjectMember {
+  id        String            @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectMemberRole @default(MEMBER)
+  createdAt DateTime          @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+model ProjectMilestone {
+  id        String          @id @default(cuid())
+  projectId String
+  name      String
+  dueAt     DateTime?
+  status    MilestoneStatus @default(PENDING)
+  position  Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_milestones")
+}
+
+// Link-only (giống TaskAttachment Phase 2) — chưa nối Vercel Blob.
+model ProjectFile {
+  id         String   @id @default(cuid())
+  projectId  String
+  uploaderId String
+  label      String
+  url        String
+  createdAt  DateTime @default(now())
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader User    @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_files")
+}
+
+model ProjectTemplate {
+  id                String   @id @default(cuid())
+  organizationId    String
+  name              String
+  description       String?
+  defaultMilestones Json?
+  createdById       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("project_templates")
+}
+
+// ---------------------------------------------------------------------------
+// WORKFLOW BUILDER (Phase 3)
+// `definition` (Json) lưu nodes+edges dạng React Flow. Version bất biến khi đã
+// publish (không sửa version đang currentVersion của 1 workflow đang active) —
+// sửa = tạo version mới. Run đi tuần tự theo graph, mỗi node ghi 1 WorkflowRunStep.
+// ---------------------------------------------------------------------------
+
+enum WorkflowNodeType {
+  TRIGGER
+  ACTION
+  CONDITION
+  APPROVAL
+  DELAY
+  PARALLEL
+  WEBHOOK
+  AI
+}
+
+enum WorkflowRunStatus {
+  PENDING
+  RUNNING
+  AWAITING_APPROVAL
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum WorkflowStepStatus {
+  PENDING
+  RUNNING
+  AWAITING_APPROVAL
+  SUCCEEDED
+  FAILED
+  SKIPPED
+}
+
+model Workflow {
+  id               String   @id @default(cuid())
+  organizationId   String
+  name             String
+  description      String?
+  isActive         Boolean  @default(false)
+  // Phase 9 — Automation Engine: null = chỉ chạy thủ công (Chạy thử, như Phase 3).
+  // Có giá trị = tự động chạy mỗi khi có Event (Phase 7) cùng `type` này được TẠO
+  // MỚI trong cùng organization (xem writeEvent() — chỉ event mới tinh mới kích
+  // hoạt, không phải mỗi lần upsert, để đảm bảo idempotent: 1 event chỉ trigger 1
+  // lần dù service gọi lại nhiều lần với cùng idempotencyKey).
+  triggerEventType String?
+  createdById      String
+  currentVersionId String?  @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  versions       WorkflowVersion[] @relation("WorkflowVersions")
+  currentVersion WorkflowVersion?  @relation("WorkflowCurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+  runs           WorkflowRun[]
+
+  @@index([organizationId])
+  @@index([organizationId, triggerEventType, isActive])
+  @@map("workflows")
+}
+
+model WorkflowVersion {
+  id          String    @id @default(cuid())
+  workflowId  String
+  version     Int
+  definition  Json
+  publishedAt DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+
+  workflow           Workflow      @relation("WorkflowVersions", fields: [workflowId], references: [id], onDelete: Cascade)
+  createdBy          User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  currentForWorkflow Workflow?     @relation("WorkflowCurrentVersion")
+  runs               WorkflowRun[]
+
+  @@unique([workflowId, version])
+  @@index([workflowId])
+  @@map("workflow_versions")
+}
+
+model WorkflowRun {
+  id                String            @id @default(cuid())
+  organizationId    String
+  workflowId        String
+  workflowVersionId String
+  status            WorkflowRunStatus @default(PENDING)
+  triggerType       String
+  triggerPayload    Json?
+  startedAt         DateTime?
+  finishedAt        DateTime?
+  createdById       String
+  createdAt         DateTime          @default(now())
+
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workflow        Workflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  workflowVersion WorkflowVersion @relation(fields: [workflowVersionId], references: [id], onDelete: Cascade)
+  createdBy       User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  steps           WorkflowRunStep[]
+
+  @@index([organizationId])
+  @@index([workflowId, createdAt])
+  @@map("workflow_runs")
+}
+
+model WorkflowRunStep {
+  id         String             @id @default(cuid())
+  runId      String
+  nodeId     String
+  nodeType   WorkflowNodeType
+  status     WorkflowStepStatus @default(PENDING)
+  input      Json?
+  output     Json?
+  error      String?
+  attempt    Int                @default(1)
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime           @default(now())
+
+  run WorkflowRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@map("workflow_run_steps")
+}
+
+// ---------------------------------------------------------------------------
+// APPROVAL HUB (Phase 3) — dùng chung cho Task (đã nối) và Content/Creative/
+// Campaign/Budget/Purchase (sẽ nối khi các entity đó tồn tại ở Phase 5 trở đi).
+// ---------------------------------------------------------------------------
+
+enum ApprovalEntityType {
+  TASK
+  CONTENT
+  CREATIVE
+  CAMPAIGN
+  BUDGET
+  PURCHASE
+}
+
+enum ApprovalMode {
+  SEQUENTIAL
+  PARALLEL
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ApprovalStepStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+model ApprovalRequest {
+  id             String             @id @default(cuid())
+  organizationId String
+  entityType     ApprovalEntityType
+  entityId       String
+  title          String
+  requestedById  String
+  mode           ApprovalMode       @default(SEQUENTIAL)
+  status         ApprovalStatus     @default(PENDING)
+  slaHours       Int?
+  dueAt          DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requestedBy  User           @relation("ApprovalRequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+  steps        ApprovalStep[]
+
+  @@index([organizationId, status])
+  @@index([entityType, entityId])
+  @@map("approval_requests")
+}
+
+model ApprovalStep {
+  id                String             @id @default(cuid())
+  approvalRequestId String
+  position          Int
+  approverId        String
+  status            ApprovalStepStatus @default(PENDING)
+  comment           String?
+  decidedAt         DateTime?
+  escalatedAt       DateTime?
+  escalatedToId     String?
+  createdAt         DateTime           @default(now())
+
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Cascade)
+  approver        User            @relation("ApprovalApprover", fields: [approverId], references: [id], onDelete: Cascade)
+  escalatedTo     User?           @relation("ApprovalEscalatedTo", fields: [escalatedToId], references: [id], onDelete: SetNull)
+
+  @@index([approvalRequestId])
+  @@index([approverId, status])
+  @@map("approval_steps")
+}
+
+// ---------------------------------------------------------------------------
+// CRM & SALES (Phase 4) — xem docs/04-crm-sales.md
+// Pipeline/PipelineStage tuỳ biến được (nhiều pipeline, tự đặt tên stage) nhưng
+// seed mặc định đúng theo roadmap: NEW→CONTACTED→QUALIFIED→OFFER→NEGOTIATION→
+// WON/LOST. Lead ở stage type WON có thể convert thành Customer (giữ liên kết
+// customerId để không mất lịch sử). Order/OrderItem dùng Decimal cho tiền tệ —
+// service layer luôn convert sang number trước khi trả cho Client Component
+// (Decimal không serialize được qua RSC boundary).
+// ---------------------------------------------------------------------------
+
+enum PipelineStageType {
+  OPEN
+  WON
+  LOST
+}
+
+enum LeadSource {
+  MANUAL
+  WEBSITE
+  REFERRAL
+  ADS
+  EVENT
+  OTHER
+}
+
+enum LeadActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  STAGE_CHANGED
+  CONVERTED
+}
+
+enum SalesChannelType {
+  ONLINE
+  RETAIL
+  PARTNER
+  MARKETPLACE
+  OTHER
+}
+
+enum OrderStatus {
+  DRAFT
+  CONFIRMED
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+model Pipeline {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stages       PipelineStage[]
+  leads        Lead[]
+
+  @@index([organizationId])
+  @@map("pipelines")
+}
+
+model PipelineStage {
+  id         String            @id @default(cuid())
+  pipelineId String
+  name       String
+  type       PipelineStageType @default(OPEN)
+  position   Int               @default(0)
+  createdAt  DateTime          @default(now())
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  leads    Lead[]
+
+  @@index([pipelineId])
+  @@map("pipeline_stages")
+}
+
+model Customer {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  email          String?
+  phone          String?
+  company        String?
+  address        String?
+  ownerId        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  owner        User?        @relation("CustomerOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  leads        Lead[]
+  orders       Order[]
+
+  @@index([organizationId])
+  @@map("customers")
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  organizationId String
+  name           String
+  contactName    String?
+  email          String?
+  phone          String?
+  source         LeadSource @default(MANUAL)
+  value          Decimal?   @db.Decimal(14, 2)
+  pipelineId     String
+  stageId        String
+  ownerId        String?
+  customerId     String?
+  campaignId     String?
+  lostReason     String?
+  wonAt          DateTime?
+  lostAt         DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  pipeline     Pipeline       @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stage        PipelineStage  @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  owner        User?          @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  customer     Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  campaign     Campaign?      @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  activities   LeadActivity[]
+
+  @@index([organizationId])
+  @@index([pipelineId, stageId])
+  @@index([ownerId])
+  @@index([customerId])
+  @@index([campaignId])
+  @@map("leads")
+}
+
+// Timeline riêng cho Lead Detail (note/call/email/meeting thủ công + ghi tự động
+// khi đổi stage/convert) — cùng tinh thần TaskActivity ở Phase 2.
+model LeadActivity {
+  id        String           @id @default(cuid())
+  leadId    String
+  actorId   String?
+  type      LeadActivityType
+  content   String?
+  payload   Json?
+  createdAt DateTime         @default(now())
+
+  lead  Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  actor User? @relation("LeadActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+  @@map("lead_activities")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  sku            String?
+  price          Decimal  @db.Decimal(14, 2)
+  unit           String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+
+  @@index([organizationId])
+  @@map("products")
+}
+
+model SalesChannel {
+  id             String           @id @default(cuid())
+  organizationId String
+  name           String
+  type           SalesChannelType @default(OTHER)
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@index([organizationId])
+  @@map("sales_channels")
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  organizationId String
+  customerId     String
+  channelId      String?
+  ownerId        String?
+  status         OrderStatus @default(DRAFT)
+  totalAmount    Decimal     @default(0) @db.Decimal(14, 2)
+  orderDate      DateTime    @default(now())
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  channel      SalesChannel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  owner        User?         @relation("OrderOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+
+  @@index([organizationId, status])
+  @@index([customerId])
+  @@map("orders")
+}
+
+// unitPrice là snapshot giá tại thời điểm đặt hàng (không đọc lại Product.price sau
+// này) — đúng nghiệp vụ hoá đơn, giá sản phẩm đổi sau không ảnh hưởng đơn cũ.
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Decimal @db.Decimal(14, 2)
+  lineTotal Decimal @db.Decimal(14, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ---------------------------------------------------------------------------
+// MARKETING (Phase 5) — xem docs/05-marketing.md
+// Campaign liên kết Project (Phase 3) và Lead (Phase 4, `Lead.campaignId` thêm ở
+// migration này) để tính KPI thật. Spend/Ads sẽ luôn là 0 cho tới khi Phase 6 (Ads
+// Integration) nối thật — công thức và luồng dữ liệu đã đúng ngay từ bây giờ, không
+// phải placeholder giả. Social posting/Email sending là thao tác thủ công (đánh dấu
+// trạng thái), CHƯA gọi API thật (cần credential Meta/TikTok/email provider — cùng
+// nhóm giới hạn với Google OAuth ở Phase 1 và Ads ở Phase 6).
+// ---------------------------------------------------------------------------
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum MarketingChannelType {
+  FACEBOOK
+  GOOGLE
+  TIKTOK
+  ZALO
+  EMAIL
+  ORGANIC
+  REFERRAL
+  OTHER
+}
+
+enum ContentType {
+  ARTICLE
+  VIDEO
+  IMAGE
+  SOCIAL_POST
+  EMAIL
+  OTHER
+}
+
+enum ContentStatus {
+  IDEA
+  BRIEF
+  SCRIPT
+  PRODUCTION
+  REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  ZALO
+  OTHER
+}
+
+enum SocialPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+enum LandingPageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum EmailCampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  organizationId String
+  projectId      String?
+  name           String
+  description    String?
+  status         CampaignStatus @default(DRAFT)
+  budget         Decimal?       @db.Decimal(14, 2)
+  startAt        DateTime?
+  endAt          DateTime?
+  createdById    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project      Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy    User              @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  channels     CampaignChannel[]
+  contents     Content[]
+  leads        Lead[]
+  landingPages LandingPage[]
+  emailCampaigns EmailCampaign[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@map("campaigns")
+}
+
+model CampaignChannel {
+  id             String               @id @default(cuid())
+  campaignId     String
+  type           MarketingChannelType
+  plannedBudget  Decimal?             @db.Decimal(14, 2)
+  notes          String?
+  createdAt      DateTime             @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, type])
+  @@index([campaignId])
+  @@map("campaign_channels")
+}
+
+model Content {
+  id             String        @id @default(cuid())
+  organizationId String
+  campaignId     String?
+  title          String
+  type           ContentType   @default(ARTICLE)
+  status         ContentStatus @default(IDEA)
+  body           String?
+  assigneeId     String?
+  createdById    String
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  position       Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaign     Campaign?      @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  assignee     User?          @relation("ContentAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy    User           @relation("ContentCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  assets       ContentAsset[]
+  socialPosts  SocialPost[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([campaignId])
+  @@map("content")
+}
+
+// Link-only (giống TaskAttachment/ProjectFile) — chưa nối Vercel Blob.
+model ContentAsset {
+  id         String   @id @default(cuid())
+  contentId  String
+  uploaderId String
+  label      String
+  url        String
+  createdAt  DateTime @default(now())
+
+  content  Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  uploader User    @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([contentId])
+  @@map("content_assets")
+}
+
+// Không có token OAuth — chỉ là danh mục tài khoản mạng xã hội để gắn khi lên lịch
+// SocialPost thủ công. Nối OAuth thật là việc của tích hợp Ads/Social sau này.
+model SocialAccount {
+  id             String         @id @default(cuid())
+  organizationId String
+  platform       SocialPlatform
+  name           String
+  handle         String?
+  createdAt      DateTime       @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  posts        SocialPost[]
+
+  @@index([organizationId])
+  @@map("social_accounts")
+}
+
+// "Đăng" là thao tác thủ công: user tự đăng trên nền tảng rồi bấm "Đánh dấu đã đăng"
+// — hệ thống KHÔNG tự gọi API mạng xã hội (chưa có credential thật).
+model SocialPost {
+  id              String            @id @default(cuid())
+  organizationId String
+  socialAccountId String
+  contentId       String?
+  caption         String
+  status          SocialPostStatus  @default(DRAFT)
+  scheduledAt     DateTime?
+  publishedAt     DateTime?
+  createdById     String
+  createdAt       DateTime          @default(now())
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  content       Content?      @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  createdBy     User          @relation("SocialPostCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, status])
+  @@index([socialAccountId])
+  @@map("social_posts")
+}
+
+// Landing page render thật ở route công khai /lp/[slug] (app/lp/[slug]/page.tsx,
+// ngoài (protected)) — nội dung đơn giản (headline/body/CTA), không phải page-builder
+// kéo-thả đầy đủ (ngoài phạm vi roadmap).
+model LandingPage {
+  id             String            @id @default(cuid())
+  organizationId String
+  campaignId     String?
+  name           String
+  slug           String
+  status         LandingPageStatus @default(DRAFT)
+  headline       String
+  body           String?
+  ctaLabel       String?
+  ctaUrl         String?
+  createdById    String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaign     Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdBy    User          @relation("LandingPageCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  forms        LandingForm[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("landing_pages")
+}
+
+// `fields` là JSON mô tả form (vd [{ key: "email", label: "Email", type: "email",
+// required: true }]) — form thật render ở trang công khai, submit tạo FormSubmission
+// thật (không giả lập).
+model LandingForm {
+  id            String   @id @default(cuid())
+  landingPageId String
+  name          String
+  fields        Json
+  createdAt     DateTime @default(now())
+
+  landingPage LandingPage      @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  submissions FormSubmission[]
+
+  @@index([landingPageId])
+  @@map("landing_forms")
+}
+
+model FormSubmission {
+  id            String   @id @default(cuid())
+  landingFormId String
+  data          Json
+  submittedAt   DateTime @default(now())
+
+  landingForm LandingForm @relation(fields: [landingFormId], references: [id], onDelete: Cascade)
+
+  @@index([landingFormId, submittedAt])
+  @@map("form_submissions")
+}
+
+// "Gửi" là đánh dấu trạng thái thủ công — CHƯA nối provider email thật (cần
+// RESEND_API_KEY hoặc tương đương), giống quyết định Google OAuth ở Phase 1.
+model EmailCampaign {
+  id              String               @id @default(cuid())
+  organizationId String
+  campaignId      String?
+  name            String
+  subject         String
+  status          EmailCampaignStatus  @default(DRAFT)
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  recipientCount  Int?
+  createdById     String
+  createdAt       DateTime             @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaign     Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdBy    User         @relation("EmailCampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([campaignId])
+  @@map("email_campaigns")
+}
+
+// ---------------------------------------------------------------------------
+// ADS INTEGRATION (Phase 6) — xem docs/06-ads-integration.md
+// CHƯA có app credential thật (Meta App ID/Secret, Google Ads Developer Token,
+// TikTok App, Zalo OA App — xem docs/00 §1.3 mục 4) nên phase này dừng ở "code xong,
+// chưa verify sandbox thật" — đúng tinh thần đã thông báo trước. Token OAuth luôn mã
+// hoá (lib/integrations/encryption.ts, AES-256-GCM) trước khi lưu, không log ra
+// console/response. Sync idempotent nhờ @@unique trên AdMetricDaily.
+// ---------------------------------------------------------------------------
+
+enum AdPlatform {
+  META
+  GOOGLE
+  TIKTOK
+  ZALO
+}
+
+enum AdConnectionStatus {
+  PENDING
+  CONNECTED
+  ERROR
+  DISCONNECTED
+}
+
+enum AdEntityStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model AdConnection {
+  id                    String             @id @default(cuid())
+  organizationId        String
+  platform              AdPlatform
+  status                AdConnectionStatus @default(PENDING)
+  accountLabel          String?
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  tokenExpiresAt        DateTime?
+  connectedById         String
+  lastSyncedAt          DateTime?
+  lastSyncError         String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  connectedBy  User         @relation("AdConnectionConnectedBy", fields: [connectedById], references: [id], onDelete: Cascade)
+  adAccounts   AdAccount[]
+
+  @@unique([organizationId, platform])
+  @@index([organizationId])
+  @@map("ad_connections")
+}
+
+model AdAccount {
+  id           String   @id @default(cuid())
+  connectionId String
+  externalId   String
+  name         String
+  currency     String
+  timezone     String
+  createdAt    DateTime @default(now())
+
+  connection AdConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  campaigns  AdCampaign[]
+  metrics    AdMetricDaily[]
+
+  @@unique([connectionId, externalId])
+  @@index([connectionId])
+  @@map("ad_accounts")
+}
+
+model AdCampaign {
+  id          String         @id @default(cuid())
+  adAccountId String
+  externalId  String
+  name        String
+  status      AdEntityStatus @default(ACTIVE)
+  dailyBudget Decimal?       @db.Decimal(14, 2)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  adAccount AdAccount       @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  adSets    AdAdSet[]
+  metrics   AdMetricDaily[]
+
+  @@unique([adAccountId, externalId])
+  @@index([adAccountId])
+  @@map("ad_campaigns")
+}
+
+model AdAdSet {
+  id           String         @id @default(cuid())
+  adCampaignId String
+  externalId   String
+  name         String
+  status       AdEntityStatus @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+
+  adCampaign AdCampaign @relation(fields: [adCampaignId], references: [id], onDelete: Cascade)
+  ads        Ad[]
+
+  @@unique([adCampaignId, externalId])
+  @@index([adCampaignId])
+  @@map("ad_adsets")
+}
+
+model Ad {
+  id         String         @id @default(cuid())
+  adAdSetId  String
+  externalId String
+  name       String
+  status     AdEntityStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now())
+
+  adAdSet   AdAdSet      @relation(fields: [adAdSetId], references: [id], onDelete: Cascade)
+  creatives AdCreative[]
+
+  @@unique([adAdSetId, externalId])
+  @@index([adAdSetId])
+  @@map("ads")
+}
+
+model AdCreative {
+  id         String   @id @default(cuid())
+  adId       String
+  externalId String?
+  headline   String?
+  body       String?
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId])
+  @@map("ad_creatives")
+}
+
+// syncedAt = thời điểm dòng này được ghi/cập nhật lần cuối bởi sync job (freshness) —
+// khác createdAt (chỉ set lúc tạo). @@unique([adCampaignId, date]) là khoá
+// idempotency: sync chạy lại cùng ngày chỉ update, không tạo trùng dòng. adCampaignId
+// bắt buộc (không nullable) — Postgres coi nhiều NULL trong cột unique là "khác
+// nhau" nên nếu nullable thì mất tính idempotent cho dòng tổng cấp tài khoản; tổng
+// theo account tính bằng cách SUM các campaign thay vì lưu thêm 1 dòng riêng.
+model AdMetricDaily {
+  id           String   @id @default(cuid())
+  adAccountId  String
+  adCampaignId String
+  date         DateTime @db.Date
+  currency     String
+  timezone     String
+  impressions  Int      @default(0)
+  clicks       Int      @default(0)
+  spend        Decimal  @default(0) @db.Decimal(14, 2)
+  conversions  Int      @default(0)
+  syncedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  adAccount  AdAccount  @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  adCampaign AdCampaign @relation(fields: [adCampaignId], references: [id], onDelete: Cascade)
+
+  @@unique([adCampaignId, date])
+  @@index([adAccountId, date])
+  @@map("ad_metrics_daily")
+}
+
+// ---------------------------------------------------------------------------
+// ANALYTICS (Phase 7) — xem docs/07-analytics.md
+// Event = log nghiệp vụ (lead.created/lead.won/order.created...) ghi từ service
+// layer các phase trước, dùng để tính DailyMetric rollup — idempotencyKey chống ghi
+// trùng khi 1 hành động vô tình gọi 2 lần. Attribution chỉ áp dụng cho lối vào công
+// khai duy nhất hiện có (landing page /lp/[slug]) — nơi UTM thật sự tồn tại; không
+// gán UTM giả cho lead tạo tay trong CRM.
+// ---------------------------------------------------------------------------
+
+enum ReportDataset {
+  LEADS
+  ORDERS
+  CAMPAIGNS
+  CONTENT
+}
+
+enum ReportVisualization {
+  TABLE
+  BAR
+  LINE
+  PIE
+}
+
+enum DataQualityIssueType {
+  SYNC_FAILURE
+  MISSING_UTM
+  DUPLICATE_EVENT
+  STALE_ACCOUNT
+  METRIC_MISMATCH
+}
+
+enum DataQualitySeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum DataQualityStatus {
+  OPEN
+  RESOLVED
+  IGNORED
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  organizationId String
+  type           String // vd "lead.created", "lead.won", "order.created"
+  entityType     String
+  entityId       String
+  payload        Json?
+  idempotencyKey String   @unique // vd "lead.created:<leadId>" — chống ghi trùng
+  occurredAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, type, occurredAt])
+  @@map("events")
+}
+
+// Ghi lại mỗi lượt truy cập landing page kèm UTM — visitorId là cookie ẩn danh, sống
+// theo trình duyệt khách truy cập (không gắn user hệ thống vì khách chưa đăng nhập).
+model AttributionTouchpoint {
+  id             String    @id @default(cuid())
+  organizationId String
+  visitorId      String
+  landingPageId  String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmContent     String?
+  utmTerm        String?
+  occurredAt     DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  firstTouchOf AttributionEvent[] @relation("FirstTouch")
+  lastTouchOf  AttributionEvent[] @relation("LastTouch")
+
+  @@index([organizationId, visitorId, occurredAt])
+  // Phase 10 — backing index cho groupBy(landingPageId) trong Data Quality Hub
+  // (MISSING_UTM detector, xem services/analytics/data-quality.ts), tránh seq scan
+  // khi tổ chức có nhiều touchpoint.
+  @@index([organizationId, landingPageId])
+  @@map("attribution_touchpoints")
+}
+
+// Sự kiện chuyển đổi thật (vd submit form landing page) — gắn với touchpoint chạm
+// đầu tiên (first-touch) và gần nhất trước đó (last-touch) của cùng visitorId.
+// idempotencyKey (thường = id của FormSubmission/Lead) chống tính trùng nếu action
+// bị gọi lại (vd network retry).
+model AttributionEvent {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  type               String // vd "FORM_SUBMISSION"
+  entityType         String
+  entityId           String
+  idempotencyKey     String   @unique
+  firstTouchpointId  String?
+  lastTouchpointId   String?
+  occurredAt         DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  firstTouchpoint AttributionTouchpoint? @relation("FirstTouch", fields: [firstTouchpointId], references: [id], onDelete: SetNull)
+  lastTouchpoint  AttributionTouchpoint? @relation("LastTouch", fields: [lastTouchpointId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, occurredAt])
+  @@map("attribution_events")
+}
+
+// Rollup theo ngày — tính từ Event + Order thật qua `recomputeDailyMetrics` (nút
+// "Tính lại" thủ công, không phải cron tự động ở phase này). @@unique đảm bảo tính
+// lại không tạo trùng dòng cho cùng 1 ngày.
+model DailyMetric {
+  id             String   @id @default(cuid())
+  organizationId String
+  date           DateTime @db.Date
+  leads          Int      @default(0)
+  wonLeads       Int      @default(0)
+  orders         Int      @default(0)
+  revenue        Decimal  @default(0) @db.Decimal(14, 2)
+  spend          Decimal  @default(0) @db.Decimal(14, 2)
+  computedAt     DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date])
+  @@map("daily_metrics")
+}
+
+model Report {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User            @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  widgets      ReportWidget[]
+
+  @@index([organizationId])
+  @@map("reports")
+}
+
+// 1 widget = 1 lần Dataset→Dimension→Metric→Filter→Grouping→Visualization — `filters`
+// là JSON tối giản dạng { field, operator, value }[], không phải query engine đầy đủ.
+model ReportWidget {
+  id            String              @id @default(cuid())
+  reportId      String
+  dataset       ReportDataset
+  dimension     String
+  metric        String
+  filters       Json?
+  visualization ReportVisualization @default(TABLE)
+  position      Int                 @default(0)
+  createdAt     DateTime            @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@map("report_widgets")
+}
+
+model DataQualityIssue {
+  id             String                @id @default(cuid())
+  organizationId String
+  type           DataQualityIssueType
+  severity       DataQualitySeverity   @default(MEDIUM)
+  entityType     String
+  entityId       String
+  description    String
+  status         DataQualityStatus     @default(OPEN)
+  detectedAt     DateTime              @default(now())
+  resolvedAt     DateTime?
+  createdAt      DateTime              @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Cùng loại + cùng entity chỉ giữ 1 issue đang mở — quét lại cập nhật thay vì tạo
+  // trùng (idempotent giống pattern sync Phase 6).
+  @@unique([organizationId, type, entityType, entityId])
+  @@index([organizationId, status])
+  @@map("data_quality_issues")
+}
+
+// ---------------------------------------------------------------------------
+// AI COMMAND CENTER (Phase 8) — xem docs/08-ai-command-center.md
+// CHƯA có ANTHROPIC_API_KEY thật nên phần gọi Claude (AI Work Assistant, tóm tắt
+// insight bằng ngôn ngữ tự nhiên) dừng ở "code xong, chưa verify API thật" — đúng
+// tinh thần Phase 6. NHƯNG luồng Insight→Recommendation→Approval→Action→Result→Audit
+// Log KHÔNG phụ thuộc Claude — insight/recommendation sinh ra từ heuristic thật trên
+// dữ liệu tổ chức (tái dùng Phase 7), và action (vd tạm dừng chiến dịch) gọi thẳng
+// service layer thật đã có (Phase 5) — toàn bộ pipeline này verify được ngay, không
+// cần API key.
+// ---------------------------------------------------------------------------
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+}
+
+enum AiInsightType {
+  WORK_BOTTLENECK
+  WORKLOAD_IMBALANCE
+  PROJECT_HEALTH
+  MARKETING_ANOMALY
+  BUDGET_OPTIMIZATION
+}
+
+enum AiInsightSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AiActionType {
+  PAUSE_CAMPAIGN
+  REVIEW_CAMPAIGN
+  ADJUST_BUDGET
+}
+
+enum AiRecommendationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXECUTED
+}
+
+enum AiActionStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model AiConversation {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  title          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     AiMessage[]
+
+  @@index([organizationId, userId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String        @id @default(cuid())
+  conversationId String
+  role           AiMessageRole
+  content        String
+  createdAt      DateTime      @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+// Sự thật đã phát hiện (bottleneck, workload lệch, project trễ, anomaly marketing) —
+// `evidence` là JSON chứa số liệu thật đã tính, hiện kèm mô tả để chứng minh (đúng
+// nghiệm thu "AI Marketing Analyst... kèm số liệu chứng minh").
+model AiInsight {
+  id             String            @id @default(cuid())
+  organizationId String
+  type           AiInsightType
+  severity       AiInsightSeverity @default(MEDIUM)
+  title          String
+  description    String
+  evidence       Json
+  detectedAt     DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recommendations AiRecommendation[]
+
+  @@index([organizationId, type, detectedAt])
+  @@map("ai_insights")
+}
+
+model AiRecommendation {
+  id               String                 @id @default(cuid())
+  organizationId   String
+  insightId        String?
+  title            String
+  description      String
+  actionType       AiActionType?
+  targetEntityType String?
+  targetEntityId   String?
+  // Tham số riêng cho từng loại action — vd ADJUST_BUDGET: { newBudget: 5000000 }.
+  payload          Json?
+  status           AiRecommendationStatus @default(PENDING)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  insight      AiInsight?   @relation(fields: [insightId], references: [id], onDelete: SetNull)
+  action       AiAction?
+
+  @@index([organizationId, status])
+  @@map("ai_recommendations")
+}
+
+// Hành động nhạy cảm CHỈ được tạo sau khi user duyệt recommendation (§3 rule 11:
+// "AI không tự quyết định chi tiền/hành động"). `resultMessage` ghi lại kết quả thật
+// (thành công/lỗi) sau khi service layer thật thực thi xong.
+model AiAction {
+  id               String         @id @default(cuid())
+  organizationId   String
+  recommendationId String         @unique
+  actionType       AiActionType
+  targetEntityType String
+  targetEntityId   String
+  status           AiActionStatus @default(PENDING)
+  approvedById     String
+  approvedAt       DateTime       @default(now())
+  executedAt       DateTime?
+  resultMessage    String?
+  createdAt        DateTime       @default(now())
+
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  recommendation AiRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  approvedBy     User             @relation("AiActionApprovedBy", fields: [approvedById], references: [id], onDelete: Cascade)
+  logs           AiActionLog[]
+
+  @@index([organizationId, status])
+  @@map("ai_actions")
+}
+
+// Nhật ký từng bước của 1 AiAction (duyệt → đang thực thi → kết quả) — tách khỏi
+// AiAction (chỉ giữ trạng thái hiện tại) để có dòng thời gian đầy đủ, append-only
+// giống AuditLog.
+model AiActionLog {
+  id         String   @id @default(cuid())
+  aiActionId String
+  message    String
+  createdAt  DateTime @default(now())
+
+  aiAction AiAction @relation(fields: [aiActionId], references: [id], onDelete: Cascade)
+
+  @@index([aiActionId, createdAt])
+  @@map("ai_action_logs")
+}
