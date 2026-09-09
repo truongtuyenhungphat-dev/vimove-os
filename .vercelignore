@@ -1,0 +1,10 @@
+# Không cần thiết cho build/runtime Next.js trên Vercel — loại khỏi gói deploy để
+# giảm dung lượng upload (thư mục skill/tool của Claude Code khá nặng, không liên
+# quan gì tới app).
+.claude/
+.agents/
+.windsurf/
+docs/
+app/generated/
+*.md
+!README.md

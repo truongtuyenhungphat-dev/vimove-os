@@ -10,6 +10,12 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Prisma CLI (migrate/studio/db pull) cần connection KHÔNG pooled — dùng
+    // DATABASE_URL_UNPOOLED khi có (Neon production/preview, xem docs/10-scale.md §
+    // deploy: pooled connection qua PgBouncer không hỗ trợ prepared statement mà
+    // Prisma Migrate cần). Local dev (Docker Postgres) không có khái niệm pooled
+    // riêng nên fallback về DATABASE_URL. App runtime KHÔNG đọc field này — dùng
+    // driver adapter riêng ở lib/db/client.ts (luôn là DATABASE_URL pooled).
+    url: process.env["DATABASE_URL_UNPOOLED"] ?? process.env["DATABASE_URL"],
   },
 });

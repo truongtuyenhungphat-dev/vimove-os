@@ -10,6 +10,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Prisma 7: `directUrl` KHÔNG còn hợp lệ ở schema.prisma (di chuyển hẳn sang
+  // prisma.config.ts, xem file đó) — pooled vs direct connection giờ tách biệt hoàn
+  // toàn giữa 2 tầng: `url` ở đây không set (app runtime dùng driver adapter riêng ở
+  // lib/db/client.ts, không đọc field này), `prisma.config.ts#datasource.url` chỉ
+  // phục vụ Prisma CLI (migrate/studio/db pull) và PHẢI là connection KHÔNG pooled.
 }
 
 // ---------------------------------------------------------------------------
