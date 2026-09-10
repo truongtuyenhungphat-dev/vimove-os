@@ -15,6 +15,7 @@
 |-----|------|----------|
 | 1 | 2026-09-09 | Khởi tạo tài liệu. Hoàn thành Phase 1-10 (toàn bộ roadmap). Deploy production lên Vercel + Neon Postgres, verify end-to-end (login thật, DB thật). |
 | 2 | 2026-09-10 | Đổi light theme sang "trắng sang trọng" kiểu MISA AMIS (`app/globals.css`, `components/ui/card.tsx`) — sidebar trắng thay vì tối, primary xanh dịu hơn, card có shadow nhẹ. Dark mode không đổi. Phát hiện + ghi lại 1 gotcha dev quan trọng: Service Worker (Phase 10 PWA) cache-first `/_next/static/*` nên có thể che mất thay đổi CSS/JS mới lúc dev local — xem §5. |
+| 3 | 2026-09-10 | Thay logo placeholder bằng logo chính thức VIMOVE (`public/Vimove.png`, người dùng cung cấp) — cắt icon mark thật (`public/logo-mark.png` + `icon-192/512.png`), dùng cho sidebar, trang đăng nhập, favicon (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`) và PWA manifest (`theme_color` đổi sang xanh lá thương hiệu `#63aa04`, `background_color` khớp nền sáng theme v3). Xoá `public/icon.svg` placeholder cũ. |
 
 ---
 
@@ -151,6 +152,29 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
    đăng ký SW khi `NODE_ENV === "development"` — chỉ còn ảnh hưởng browser nào đã lỡ
    đăng ký SW từ TRƯỚC lúc sửa (dùng đoạn code trên để dọn 1 lần).
 
+## 5b. Logo & icon — nguồn gốc, cách tái tạo nếu cần đổi/thêm size
+
+- **File gốc**: `public/Vimove.png` (2048×2048, do người dùng cung cấp trực tiếp —
+  đây là logo chính thức, KHÔNG tự vẽ lại). Gồm 2 phần xếp dọc: icon mark (hình cối
+  xay gió xanh lá + góc gấp than chì) phía trên, wordmark "Vimove" phía dưới.
+- **Đã cắt sẵn** (dùng `System.Drawing` qua PowerShell — không cần cài thêm thư viện
+  xử lý ảnh nào, xem lệnh mẫu bên dưới nếu cần cắt lại):
+  - `public/logo-mark.png` — icon mark vuông, không nền trong suốt (nền trắng phẳng vì
+    ảnh gốc không có alpha channel), dùng inline trong sidebar/trang đăng nhập.
+  - `public/icon-192.png`, `public/icon-512.png` — dùng cho `app/manifest.ts` (PWA).
+  - `app/icon.png` (512×512), `app/apple-icon.png` (180×180), `app/favicon.ico`
+    (48×48) — quy ước file đặc biệt của Next.js (`node_modules/next/dist/docs/.../
+    app-icons.md`), tự động sinh thẻ `<link rel="icon">`/`apple-touch-icon`, không cần
+    khai báo gì thêm trong code.
+- **Mã thương hiệu lấy mẫu trực tiếp từ file gốc**: xanh lá `#63aa04` (dùng làm
+  `theme_color` trong manifest — màu thanh trạng thái khi cài PWA), than chì `#383a37`
+  (màu chữ "move" trong wordmark, chưa dùng ở đâu trong code, ghi lại để tham khảo).
+- **Nếu cần cắt lại** (đổi vùng crop, thêm size khác...), bounding box thật của icon
+  mark trong `Vimove.png` là `x=770..1366, y=496..1080` (đo bằng cách quét pixel non-
+  white, xem lịch sử chat lúc tạo file này nếu cần lại đúng script PowerShell).
+  Wordmark nằm ở `y≈1220..1505` — luôn chừa khoảng trống `y=1085..1220` khi crop icon
+  mark để không dính chữ.
+
 ## 6. Chuyển sang làm tiếp trên máy khác — checklist
 
 1. **Lấy code**: repo hiện **chưa có git remote**. Chọn 1 trong 2:
@@ -193,4 +217,4 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
 
 ---
 
-**Ver 2 · Made by Trương Tuyền · 0966912268**
+**Ver 3 · Made by Trương Tuyền · 0966912268**

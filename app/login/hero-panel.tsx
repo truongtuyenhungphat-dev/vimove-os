@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function LoginHeroPanel() {
   return (
     <div
@@ -8,7 +10,7 @@ export function LoginHeroPanel() {
         backgroundSize: "28px 28px",
       }}
     >
-      {/* Khối màu trang trí — không dùng ảnh chụp thật vì chưa có tài sản ảnh chính thức của VIMOVE */}
+      {/* Khối màu trang trí — chưa có ảnh chụp thật, chỉ có logo chính thức (public/Vimove.png) */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full opacity-40 blur-3xl"
@@ -20,7 +22,8 @@ export function LoginHeroPanel() {
         style={{ background: "radial-gradient(circle, var(--sidebar-primary), transparent 70%)" }}
       />
 
-      <span className="relative text-xl font-semibold tracking-tight text-sidebar-foreground">
+      <span className="relative flex items-center gap-2 text-xl font-semibold tracking-tight text-sidebar-foreground">
+        <Image src="/logo-mark.png" alt="" aria-hidden="true" width={30} height={30} />
         VIMOVE <span className="text-sidebar-primary">OS</span>
       </span>
 

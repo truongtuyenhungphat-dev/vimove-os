@@ -140,10 +140,10 @@ mô tả "Lead của bạn". Mở `/admin/roles` → Sửa quyền → Nhân vi�
 
 ## Việc còn lại / giới hạn đã biết
 
-1. **Icon PWA mới có SVG** (`public/icon.svg`), chưa có bộ PNG 192×192/512×512 thiết
-   kế riêng qua công cụ như realfavicongenerator (khuyến nghị chính thức của Next.js
-   docs) — SVG đủ để Chrome/Edge cài đặt được, nhưng một số ngữ cảnh iOS/Android cũ có
-   thể hiển thị icon mặc định thay vì icon thật cho tới khi có PNG.
+1. ~~Icon PWA mới có SVG, chưa có bộ PNG 192×192/512×512 thiết kế riêng~~ — **đã xử lý
+   sau đó**: `public/icon-192.png`/`icon-512.png` giờ cắt từ logo chính thức VIMOVE
+   (`public/Vimove.png`), dùng cho manifest + `app/icon.png`/`app/apple-icon.png`/
+   `app/favicon.ico` — xem NHAT-KY-KIEN-TRUC.md.
 2. **Push Notification chưa làm** — cần VAPID keys (credential-gated, cùng nhóm với
    Ads OAuth/Claude API), không nằm trong "PWA cài được trên mobile" (nghiệm thu
    roadmap không yêu cầu push).

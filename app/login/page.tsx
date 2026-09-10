@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { LoginHeroPanel } from "./hero-panel";
 
@@ -16,7 +17,8 @@ export default async function LoginPage({
       <div className="flex flex-1 items-center justify-center px-6 py-10">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex flex-col gap-1 lg:hidden">
-            <span className="text-xl font-semibold tracking-tight">
+            <span className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+              <Image src="/logo-mark.png" alt="" aria-hidden="true" width={28} height={28} priority />
               VIMOVE <span className="text-primary">OS</span>
             </span>
             <p className="text-sm text-muted-foreground">Business Operating System</p>

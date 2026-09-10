@@ -6,9 +6,9 @@
 //
 // CACHE_NAME đổi theo mỗi lần sửa file này — buộc trình duyệt coi là service worker
 // mới, kích hoạt `activate` dọn cache cũ (không để cache stale tồn tại vĩnh viễn).
-const CACHE_NAME = "vimove-os-shell-v1";
+const CACHE_NAME = "vimove-os-shell-v2";
 const OFFLINE_URL = "/offline";
-const APP_SHELL = [OFFLINE_URL, "/icon.svg", "/manifest.webmanifest"];
+const APP_SHELL = [OFFLINE_URL, "/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -41,7 +41,7 @@ self.addEventListener("fetch", (event) => {
 
   // Static asset Next.js (JS/CSS/font build ra kèm hash bất biến) + icon: cache-first.
   const url = new URL(request.url);
-  if (url.origin === self.location.origin && (url.pathname.startsWith("/_next/static/") || url.pathname === "/icon.svg")) {
+  if (url.origin === self.location.origin && (url.pathname.startsWith("/_next/static/") || url.pathname === "/icon-192.png" || url.pathname === "/icon-512.png")) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>

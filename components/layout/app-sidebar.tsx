@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ export function AppSidebar({ permissions }: { permissions: PermissionKey[] }) {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
       <div className="flex h-14 items-center gap-2 px-5">
+        <Image src="/logo-mark.png" alt="" aria-hidden="true" width={26} height={26} className="shrink-0" priority />
         <span className="text-lg font-semibold tracking-tight">
           VIMOVE <span className="text-sidebar-primary">OS</span>
         </span>
