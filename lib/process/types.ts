@@ -58,7 +58,7 @@ export const WORKFLOW_RUN_STATUS_LABELS: Record<WorkflowRunStatus, string> = {
   CANCELLED: "Đã huỷ",
 };
 
-export const ApprovalEntityTypeList = ["TASK", "CONTENT", "CREATIVE", "CAMPAIGN", "BUDGET", "PURCHASE"] as const;
+export const ApprovalEntityTypeList = ["TASK", "CONTENT", "CREATIVE", "CAMPAIGN", "BUDGET", "PURCHASE", "LEAVE"] as const;
 export type ApprovalEntityType = (typeof ApprovalEntityTypeList)[number];
 
 export const APPROVAL_ENTITY_LABELS: Record<ApprovalEntityType, string> = {
@@ -68,6 +68,7 @@ export const APPROVAL_ENTITY_LABELS: Record<ApprovalEntityType, string> = {
   CAMPAIGN: "Chiến dịch",
   BUDGET: "Ngân sách",
   PURCHASE: "Mua sắm",
+  LEAVE: "Đơn nghỉ phép", // Phase 11 — Chấm công
 };
 
 export type ApprovalMode = "SEQUENTIAL" | "PARALLEL";

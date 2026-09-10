@@ -34,6 +34,11 @@ import {
   Bot,
   Lightbulb,
   ShieldAlert,
+  Clock,
+  CalendarRange,
+  CalendarOff,
+  CalendarClock,
+  MapPinned,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions/catalog";
 
@@ -55,7 +60,9 @@ export type NavSection = {
  * chưa verify sandbox thật vì chưa có app credential, xem docs/06-ads-integration.md)
  * + Analytics (Phase 7) + AI Command Center (Phase 8 — code xong, chưa verify API
  * Claude thật vì chưa có ANTHROPIC_API_KEY, xem docs/08-ai-command-center.md; luồng
- * Insight→Recommendation→Approval→Action verify được vì không phụ thuộc API key).
+ * Insight→Recommendation→Approval→Action verify được vì không phụ thuộc API key) +
+ * Chấm công (Phase 11 — chấm công thủ công/GPS/QR thật, xếp ca, đơn nghỉ phép tái
+ * dùng Approval Engine sẵn có).
  */
 export const NAV_SECTIONS: NavSection[] = [
   {
@@ -74,6 +81,16 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Khối lượng công việc", href: "/work/workload", icon: Gauge, permission: "tasks.read" },
       { label: "Mẫu công việc", href: "/work/templates", icon: LayoutTemplate, permission: "task_templates.manage" },
       { label: "Approval Hub", href: "/work/approvals", icon: ShieldCheck, permission: "approvals.read" },
+    ],
+  },
+  {
+    title: "Chấm công",
+    items: [
+      { label: "Chấm công", href: "/attendance/checkin", icon: Clock, permission: "attendance.read" },
+      { label: "Bảng công", href: "/attendance/timesheet", icon: CalendarRange, permission: "attendance.read" },
+      { label: "Đơn nghỉ phép", href: "/attendance/leave", icon: CalendarOff, permission: "attendance.read" },
+      { label: "Xếp ca", href: "/attendance/shifts", icon: CalendarClock, permission: "attendance.manage" },
+      { label: "Địa điểm chấm công", href: "/attendance/locations", icon: MapPinned, permission: "attendance.manage" },
     ],
   },
   {

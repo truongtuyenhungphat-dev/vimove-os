@@ -748,6 +748,139 @@ async function main() {
   });
 
   console.log("Marketing demo data: 1 chiến dịch (2 kênh), 3 nội dung, 1 tài khoản social + 1 bài đăng, 1 landing page (đã publish, 1 lượt đăng ký), 1 email campaign.");
+
+  // 10. Chấm công (Phase 11) — 1 địa điểm (Văn phòng chính, Hà Nội), 2 mẫu ca, xếp ca
+  // hôm nay/mai cho salesStaff + marketingStaff, vài lượt chấm công thật (thủ công)
+  // trong tuần trước cho salesStaff để Bảng công không rỗng, 1 đơn nghỉ phép đã duyệt.
+  const atTime = (daysAgo: number, hour: number, minute: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(hour, minute, 0, 0);
+    return d;
+  };
+  const atDate = (daysOffset: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysOffset);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const hqLocation = await prisma.attendanceLocation.upsert({
+    where: { id: "seed-attendance-location-1" },
+    update: {},
+    create: {
+      id: "seed-attendance-location-1",
+      organizationId: organization.id,
+      name: "Văn phòng chính",
+      latitude: 21.0285,
+      longitude: 105.8542,
+      radiusMeters: 200,
+      createdById: admin.id,
+    },
+  });
+
+  const officeShift = await prisma.shift.upsert({
+    where: { id: "seed-shift-office" },
+    update: {},
+    create: {
+      id: "seed-shift-office",
+      organizationId: organization.id,
+      name: "Ca hành chính",
+      startTime: "08:00",
+      endTime: "17:00",
+      breakMinutes: 60,
+      colorHex: "#2563eb",
+      createdById: admin.id,
+    },
+  });
+  await prisma.shift.upsert({
+    where: { id: "seed-shift-afternoon" },
+    update: {},
+    create: {
+      id: "seed-shift-afternoon",
+      organizationId: organization.id,
+      name: "Ca chiều",
+      startTime: "13:00",
+      endTime: "22:00",
+      breakMinutes: 30,
+      colorHex: "#f59e0b",
+      createdById: admin.id,
+    },
+  });
+
+  for (const [idx, user] of [salesStaff, marketingStaff].entries()) {
+    for (const offset of [0, 1]) {
+      await prisma.shiftAssignment.upsert({
+        where: { userId_date: { userId: user.id, date: atDate(offset) } },
+        update: {},
+        create: { id: `seed-shift-assignment-${idx}-${offset}`, organizationId: organization.id, userId: user.id, shiftId: officeShift.id, date: atDate(offset) },
+      });
+    }
+  }
+
+  // Chấm công thật 3 ngày gần nhất cho salesStaff — đủ dữ liệu để Bảng công hiện số thật.
+  for (const daysAgo of [1, 2, 3]) {
+    await prisma.attendanceRecord.upsert({
+      where: { id: `seed-attendance-in-${daysAgo}` },
+      update: {},
+      create: {
+        id: `seed-attendance-in-${daysAgo}`,
+        organizationId: organization.id,
+        userId: salesStaff.id,
+        type: "CHECK_IN",
+        method: "MANUAL",
+        occurredAt: atTime(daysAgo, 8, 5),
+      },
+    });
+    await prisma.attendanceRecord.upsert({
+      where: { id: `seed-attendance-out-${daysAgo}` },
+      update: {},
+      create: {
+        id: `seed-attendance-out-${daysAgo}`,
+        organizationId: organization.id,
+        userId: salesStaff.id,
+        type: "CHECK_OUT",
+        method: "MANUAL",
+        occurredAt: atTime(daysAgo, 17, 20),
+      },
+    });
+  }
+
+  // 1 đơn nghỉ phép đã duyệt — tạo qua đúng ApprovalRequest/ApprovalStep (tái dùng
+  // Approval Engine, không phải bảng riêng).
+  const leaveApproval = await prisma.approvalRequest.upsert({
+    where: { id: "seed-leave-approval-1" },
+    update: {},
+    create: {
+      id: "seed-leave-approval-1",
+      organizationId: organization.id,
+      entityType: "LEAVE",
+      entityId: `${salesStaff.id}:seed`,
+      title: "Đơn nghỉ phép năm: nghỉ phép cuối tuần",
+      requestedById: salesStaff.id,
+      mode: "SEQUENTIAL",
+      status: "APPROVED",
+      steps: {
+        create: [{ id: "seed-leave-step-1", position: 0, approverId: admin.id, status: "APPROVED", decidedAt: addDays(-5) }],
+      },
+    },
+  });
+  await prisma.leaveRequest.upsert({
+    where: { id: "seed-leave-request-1" },
+    update: {},
+    create: {
+      id: "seed-leave-request-1",
+      organizationId: organization.id,
+      userId: salesStaff.id,
+      type: "ANNUAL",
+      startDate: atDate(-7),
+      endDate: atDate(-6),
+      reason: "Việc gia đình",
+      approvalRequestId: leaveApproval.id,
+    },
+  });
+
+  console.log(`Chấm công demo data: 1 địa điểm (${hqLocation.name}), 2 mẫu ca (xếp cho 2 nhân sự hôm nay + mai), 3 ngày chấm công thật, 1 đơn nghỉ phép đã duyệt.`);
   console.log("Seed hoàn tất.");
 }
 

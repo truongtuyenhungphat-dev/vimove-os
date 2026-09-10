@@ -67,6 +67,13 @@ model Organization {
   aiActions       AiAction[]
   errorLogs       ErrorLog[]
 
+  attendanceLocations AttendanceLocation[]
+  attendanceRecords   AttendanceRecord[]
+  shifts              Shift[]
+  shiftAssignments    ShiftAssignment[]
+  leaveRequests       LeaveRequest[]
+  qrCheckinTokens     QrCheckinToken[]
+
   @@map("organizations")
 }
 
@@ -134,6 +141,12 @@ model User {
   createdReports         Report[]       @relation("ReportCreator")
   aiConversations        AiConversation[]
   approvedAiActions      AiAction[]     @relation("AiActionApprovedBy")
+
+  attendanceRecords   AttendanceRecord[]
+  shiftAssignments    ShiftAssignment[]
+  leaveRequests       LeaveRequest[]
+  createdShifts       Shift[]              @relation("ShiftCreator")
+  createdAttendanceLocations AttendanceLocation[] @relation("AttendanceLocationCreator")
 
   @@index([organizationId])
   @@index([departmentId])
@@ -843,6 +856,7 @@ enum ApprovalEntityType {
   CAMPAIGN
   BUDGET
   PURCHASE
+  LEAVE // Phase 11 — Chấm công: đơn nghỉ phép/công tác, tái dùng Approval Engine sẵn có
 }
 
 enum ApprovalMode {
@@ -881,6 +895,7 @@ model ApprovalRequest {
   organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   requestedBy  User           @relation("ApprovalRequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
   steps        ApprovalStep[]
+  leaveRequest LeaveRequest? // ngược của LeaveRequest.approvalRequest khi entityType = LEAVE
 
   @@index([organizationId, status])
   @@index([entityType, entityId])
@@ -1940,4 +1955,163 @@ model AiActionLog {
 
   @@index([aiActionId, createdAt])
   @@map("ai_action_logs")
+}
+
+// ---------------------------------------------------------------------------
+// Phase 11 — Chấm công (Attendance & Timekeeping)
+// Tham chiếu tính năng: MISA AMIS Chấm Công (https://amis.misa.vn/amis-cham-cong/).
+// Hình thức chấm công THẬT trong web app: thủ công (nút bấm), GPS (Geolocation API
+// trình duyệt + kiểm tra bán kính văn phòng bằng công thức Haversine), QR động (sinh
+// mã thật bằng thư viện `qrcode`, nhân viên quét bằng camera điện thoại — mở URL
+// chứa token, không cần tự viết trình quét QR). "Wifi nội bộ"/"FaceID"/"máy vân tay"
+// mà MISA có KHÔNG được làm giả — trình duyệt không có API đọc SSID Wifi, và nhận
+// diện khuôn mặt thật cần phần cứng/mô hình ML riêng ngoài phạm vi 1 web app thuần —
+// UI hiện rõ "chưa hỗ trợ, cần app di động/phần cứng riêng" thay vì giả lập.
+// Đơn nghỉ phép tái dùng nguyên Approval Engine đã có (ApprovalRequest/ApprovalStep,
+// entityType "LEAVE") — không xây lại hệ thống duyệt đơn thứ 2.
+// ---------------------------------------------------------------------------
+
+// Địa điểm văn phòng dùng làm tâm bán kính cho chấm công GPS + nơi gắn QR code.
+model AttendanceLocation {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  latitude       Float
+  longitude      Float
+  radiusMeters   Int      @default(200)
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User               @relation("AttendanceLocationCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  qrTokens     QrCheckinToken[]
+  records      AttendanceRecord[]
+
+  @@index([organizationId])
+  @@map("attendance_locations")
+}
+
+enum AttendanceType {
+  CHECK_IN
+  CHECK_OUT
+}
+
+enum AttendanceMethod {
+  MANUAL
+  GPS
+  QR
+}
+
+// 1 dòng = 1 lượt chấm công thật (vào hoặc ra) — không sửa/xoá được sau khi tạo
+// (append-only, giống AuditLog) để đảm bảo dữ liệu công không bị chỉnh tay.
+model AttendanceRecord {
+  id             String           @id @default(cuid())
+  organizationId String
+  userId         String
+  type           AttendanceType
+  method         AttendanceMethod
+  occurredAt     DateTime         @default(now())
+  latitude       Float?
+  longitude      Float?
+  distanceMeters Float? // khoảng cách thật tới AttendanceLocation gần nhất lúc chấm công (method GPS/QR)
+  locationId     String?
+  note           String?
+  createdAt      DateTime         @default(now())
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location     AttendanceLocation? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, userId, occurredAt])
+  @@map("attendance_records")
+}
+
+// Mã QR động: token đổi định kỳ (client tự gọi lại action sinh token mới, xem
+// services/attendance/qr.ts) — quét mã cũ sau khi hết hạn sẽ bị từ chối, đúng hành vi
+// "QR động chống gian lận" của MISA.
+model QrCheckinToken {
+  id             String   @id @default(cuid())
+  organizationId String
+  locationId     String
+  token          String   @unique
+  expiresAt      DateTime
+  usedByUserId   String? // null = còn hiệu lực cho nhiều người quét trong thời gian sống; ghi lại người quét gần nhất để audit
+  createdAt      DateTime @default(now())
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  location     AttendanceLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, locationId, expiresAt])
+  @@map("qr_checkin_tokens")
+}
+
+// Ca làm việc chuẩn (mẫu) — startTime/endTime lưu dạng "HH:mm" (giờ địa phương công
+// ty, không cần timezone phức tạp cho MVP 1 tổ chức/1 múi giờ).
+model Shift {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  startTime      String
+  endTime        String
+  breakMinutes   Int      @default(0)
+  colorHex       String   @default("#2563eb")
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User              @relation("ShiftCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  assignments  ShiftAssignment[]
+
+  @@index([organizationId])
+  @@map("shifts")
+}
+
+// Phân ca: 1 user chỉ có 1 ca cho 1 ngày (unique) — xếp lại là ghi đè, không cộng dồn.
+model ShiftAssignment {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  shiftId        String
+  date           DateTime @db.Date
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift        Shift        @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([organizationId, date])
+  @@map("shift_assignments")
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  UNPAID
+  BUSINESS_TRIP
+  OTHER
+}
+
+// Đơn nghỉ phép/công tác — trạng thái duyệt đọc qua quan hệ `approvalRequest`
+// (dùng chung ApprovalRequest/ApprovalStep đã có ở Process Hub, không tự có cột
+// status riêng để tránh 2 nguồn sự thật lệch nhau).
+model LeaveRequest {
+  id                String    @id @default(cuid())
+  organizationId    String
+  userId            String
+  type              LeaveType
+  startDate         DateTime  @db.Date
+  endDate           DateTime  @db.Date
+  reason            String?
+  approvalRequestId String    @unique
+  createdAt         DateTime  @default(now())
+
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId])
+  @@map("leave_requests")
 }

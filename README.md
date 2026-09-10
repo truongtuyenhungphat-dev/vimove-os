@@ -95,6 +95,17 @@ doanh chỉ thấy đúng việc/lead của mình). Xem [docs/10-scale.md](docs/
 biết quyết định kỹ thuật (kể cả lý do CHƯA bật `"use cache"`/Cache Components) và giới
 hạn đã ghi nhận.
 
+**Phase 11 — Chấm công (Attendance & Timekeeping): hoàn thành, đã verify đầy đủ với
+dữ liệu/luồng thật.** Không nằm trong roadmap 10 phase gốc — thêm theo yêu cầu người
+dùng, tham chiếu MISA AMIS Chấm Công. Chấm công thủ công/GPS (Haversine tính khoảng
+cách thật, đã verify từ chối đúng khi ở xa văn phòng)/QR động (token thật đổi mỗi
+20s, verify trực tiếp trong DB) — Wifi nội bộ/FaceID/máy vân tay hiện rõ "chưa hỗ
+trợ" thay vì giả lập vì không khả thi trên web app thuần. Bảng công tự tổng hợp thật
+từ dữ liệu chấm công + ca + nghỉ phép. Đơn nghỉ phép tái dùng nguyên Approval Engine
+đã có từ Phase 3 (đã verify tạo đơn → hiện trong Approval Hub → duyệt → trạng thái
+đổi thật). Xem [docs/11-attendance.md](docs/11-attendance.md) để biết quyết định
+phạm vi (hình thức nào làm thật được, hình thức nào không) và giới hạn đã ghi nhận.
+
 ## Chạy local
 
 ```bash
@@ -133,7 +144,8 @@ có credential thật, để không hiện nút hỏng. Để bật:
 Next.js (App Router) + React + TypeScript · Tailwind CSS + shadcn/ui (Base UI) · Prisma 7 (driver
 adapter `@prisma/adapter-pg`) + PostgreSQL · Auth.js v5 (Credentials + JWT session) · TanStack
 Query · Zustand · React Hook Form + Zod · `@dnd-kit` (kéo-thả Kanban/Calendar/Timeline/Gantt) ·
-`@anthropic-ai/sdk` (AI Command Center, Phase 8) · Vercel (dự kiến deploy).
+`@anthropic-ai/sdk` (AI Command Center, Phase 8) · `qrcode` (QR chấm công động, Phase 11) ·
+Vercel (deploy production tại vimove-os.vercel.app + Neon Postgres, xem NHAT-KY-KIEN-TRUC.md).
 
 ## Cấu trúc thư mục
 
@@ -154,6 +166,8 @@ app/
     analytics/         Dashboard 6 tab, Report Builder, Data Quality Hub (Phase 7)
     ai/                Trợ lý AI, Insights, Approval Queue (Phase 8, chat chưa verify API thật)
     admin/observability/ Nhật ký lỗi thật (Phase 10 — Scale, permission observability.read)
+    attendance/         Chấm công, Bảng công, Đơn nghỉ phép, Xếp ca, Địa điểm chấm công
+                        (Phase 11), attendance/qr/[token]/ — trang đích quét QR
   lp/[slug]/          Landing page CÔNG KHAI (Phase 5) — ngoài (protected), không cần đăng nhập
   offline/            Trang fallback Service Worker khi mất mạng (Phase 10, public)
   api/lp/track/       Route Handler ghi touchpoint UTM + cookie visitorId (Phase 7)
@@ -164,6 +178,8 @@ components/
   ui/                shadcn/ui (Base UI)
   layout/            Sidebar, Topbar, Breadcrumb, nav-config
   pwa/               ServiceWorkerRegister, InstallPrompt (Phase 10 — Scale)
+  attendance/        CheckinPanel (GPS/QR/thủ công), QrDisplay (mã động), LocationDialog,
+                     ShiftDialog, LeaveRequestDialog (Phase 11)
   shared/            PageHeader, EmptyState, PermissionDenied, KpiCard, ConfirmDeleteButton
   work/              Kanban board, Task dialog/detail tabs, Calendar/Timeline/Gantt/Workload views
   process/           Project badges/dialog, Approval card, Workflow canvas + node config, Run step list
@@ -190,6 +206,8 @@ lib/
                      ai/claude.ts — wrapper gọi Claude API thật (Phase 8, chưa có API key)
   observability/     logger.ts (structured log + ghi ErrorLog), report-client-error.ts
                      (Server Action cầu nối cho error boundary Client Component) — Phase 10
+  attendance/        types.ts (nhãn, hình thức chấm công còn thiếu + lý do thật),
+                     geo.ts (distanceMeters Haversine thuần) — Phase 11
 services/
   core/              Service layer CORE (users/departments/teams/roles/audit/...) — component/
                      action KHÔNG bao giờ gọi Prisma trực tiếp; observability.ts (Phase 10)
@@ -213,6 +231,9 @@ services/
                      API thật), insights (4 heuristic thật — Phase 9 thêm BUDGET_OPTIMIZATION),
                      recommendations (approve → thực thi thật qua service layer đã có → audit
                      log — verify được không cần API; Phase 9 thêm ADJUST_BUDGET)
+  attendance/        locations, qr (sinh/xác thực token thật), checkin (GPS/QR/thủ
+                     công, tự đổi Vào↔Ra), shifts, leave (wrap createApprovalRequest),
+                     timesheet (tổng hợp bảng công thật, không suy đoán giờ thiếu) — Phase 11
 prisma/              schema.prisma, seed.ts, migrations/
 docs/                Phương án triển khai + tài liệu từng phase
 ```

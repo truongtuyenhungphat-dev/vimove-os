@@ -71,6 +71,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ai.read",
     "ai.manage",
     "observability.read",
+    "attendance.read",
+    "attendance.manage",
+    "leave_requests.create",
   ],
   ADMIN: [
     "organization.manage",
@@ -133,6 +136,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ai.read",
     "ai.manage",
     "observability.read",
+    "attendance.read",
+    "attendance.manage",
+    "leave_requests.create",
   ],
   DIRECTOR: [
     "users.read",
@@ -157,6 +163,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ai.read",
     "ai.manage",
     "observability.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
   MANAGER: [
     "users.read",
@@ -183,6 +191,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "analytics.read",
     "ai.read",
     "ai.manage",
+    "attendance.read",
+    "leave_requests.create",
   ],
   MARKETING_MANAGER: [
     "users.read",
@@ -215,6 +225,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "analytics.read",
     "ai.read",
     "ai.manage",
+    "attendance.read",
+    "leave_requests.create",
   ],
   MARKETING_STAFF: [
     "users.read",
@@ -234,6 +246,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ads.read",
     "analytics.read",
     "ai.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
   SALES_MANAGER: [
     "users.read",
@@ -267,6 +281,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "content.read",
     "analytics.read",
     "ai.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
   SALES: [
     "users.read",
@@ -289,6 +305,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "content.read",
     "analytics.read",
     "ai.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
   CONTENT: [
     "users.read",
@@ -306,6 +324,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "marketing_channels.manage",
     "analytics.read",
     "ai.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
   ANALYST: [
     "users.read",
@@ -329,8 +349,10 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ai.read",
     "ai.manage",
     "observability.read",
+    "attendance.read",
+    "leave_requests.create",
   ],
-  STAFF: ["users.read", "notifications.read", "tasks.read", "tasks.create", "tasks.update", "projects.read", "approvals.read", "ai.read"],
+  STAFF: ["users.read", "notifications.read", "tasks.read", "tasks.create", "tasks.update", "projects.read", "approvals.read", "ai.read", "attendance.read", "leave_requests.create"],
   VIEWER: [
     "users.read",
     "departments.read",
@@ -348,6 +370,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "ads.read",
     "analytics.read",
     "ai.read",
+    "attendance.read",
   ],
 };
 
@@ -363,13 +386,13 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
  * ANALYST/VIEWER) giữ ALL — đúng vai trò báo cáo/kiểm toán cần nhìn toàn cảnh.
  */
 export const DEFAULT_PERMISSION_SCOPES: Record<string, Partial<Record<PermissionKey, PermissionScope>>> = {
-  MANAGER: { "tasks.read": "DEPARTMENT" },
-  MARKETING_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT" },
-  SALES_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT" },
-  MARKETING_STAFF: { "tasks.read": "OWN", "leads.read": "OWN" },
-  SALES: { "tasks.read": "OWN", "leads.read": "OWN" },
-  CONTENT: { "tasks.read": "OWN" },
-  STAFF: { "tasks.read": "OWN" },
+  MANAGER: { "tasks.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
+  MARKETING_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
+  SALES_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
+  MARKETING_STAFF: { "tasks.read": "OWN", "leads.read": "OWN", "attendance.read": "OWN" },
+  SALES: { "tasks.read": "OWN", "leads.read": "OWN", "attendance.read": "OWN" },
+  CONTENT: { "tasks.read": "OWN", "attendance.read": "OWN" },
+  STAFF: { "tasks.read": "OWN", "attendance.read": "OWN" },
 };
 
 export const ROLE_LABELS: Record<string, string> = {

@@ -62,6 +62,14 @@ const SEGMENT_LABELS: Record<string, string> = {
   assistant: "Trợ lý AI",
   insights: "AI Insights",
   recommendations: "Approval Queue",
+  observability: "Observability",
+  attendance: "Chấm công",
+  checkin: "Chấm công",
+  timesheet: "Bảng công",
+  leave: "Đơn nghỉ phép",
+  shifts: "Xếp ca",
+  locations: "Địa điểm chấm công",
+  qr: "Quét QR",
 };
 
 function labelFor(segment: string) {

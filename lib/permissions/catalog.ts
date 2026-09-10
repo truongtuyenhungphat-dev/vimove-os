@@ -98,6 +98,11 @@ export const PERMISSIONS = [
 
   // Observability (Phase 10 — Scale)
   { key: "observability.read", resource: "observability", action: "read", description: "Xem nhật ký lỗi hệ thống (Error Log)" },
+
+  // Chấm công (Phase 11 — Attendance)
+  { key: "attendance.read", resource: "attendance", action: "read", description: "Chấm công, xem bảng công & lịch sử chấm công" },
+  { key: "attendance.manage", resource: "attendance", action: "manage", description: "Cấu hình ca làm, địa điểm GPS/QR, xếp ca cho người khác" },
+  { key: "leave_requests.create", resource: "leave_requests", action: "create", description: "Gửi đơn nghỉ phép/công tác" },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]["key"];
@@ -108,5 +113,8 @@ export type PermissionKey = (typeof PERMISSIONS)[number]["key"];
  * prisma/schema.prisma). Permission ngoài danh sách này luôn coi như ALL — scope chỉ
  * có ý nghĩa với resource có khái niệm "của ai" rõ ràng (assignee của Task, owner của
  * Lead), không áp cho permission quản trị/toàn tổ chức (vd `roles.manage`).
+ * Phase 11: thêm `attendance.read` — OWN chỉ thấy chấm công/bảng công của chính
+ * mình, DEPARTMENT cho Trưởng phòng xem cả phòng ban, ALL cho HR/Admin xem toàn tổ
+ * chức (xem lib/permissions/role-defaults.ts#DEFAULT_PERMISSION_SCOPES).
  */
-export const SCOPABLE_PERMISSIONS: PermissionKey[] = ["tasks.read", "leads.read"];
+export const SCOPABLE_PERMISSIONS: PermissionKey[] = ["tasks.read", "leads.read", "attendance.read"];

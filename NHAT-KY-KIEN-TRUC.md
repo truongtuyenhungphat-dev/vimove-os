@@ -17,6 +17,7 @@
 | 2 | 2026-09-10 | Đổi light theme sang "trắng sang trọng" kiểu MISA AMIS (`app/globals.css`, `components/ui/card.tsx`) — sidebar trắng thay vì tối, primary xanh dịu hơn, card có shadow nhẹ. Dark mode không đổi. Phát hiện + ghi lại 1 gotcha dev quan trọng: Service Worker (Phase 10 PWA) cache-first `/_next/static/*` nên có thể che mất thay đổi CSS/JS mới lúc dev local — xem §5. |
 | 3 | 2026-09-10 | Thay logo placeholder bằng logo chính thức VIMOVE (`public/Vimove.png`, người dùng cung cấp) — cắt icon mark thật (`public/logo-mark.png` + `icon-192/512.png`), dùng cho sidebar, trang đăng nhập, favicon (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`) và PWA manifest (`theme_color` đổi sang xanh lá thương hiệu `#63aa04`, `background_color` khớp nền sáng theme v3). Xoá `public/icon.svg` placeholder cũ. |
 | 4 | 2026-09-10 | **Vá lỗ hổng quyền thật** (phát hiện + sửa trong lúc làm việc song song trên máy, tôi verify lại sau đó): `getTask()`/`getLead()` (trang Chi tiết) trước đó KHÔNG áp `visibility` scope như trang danh sách — user scope OWN/DEPARTMENT vẫn xem được task/lead của người khác nếu biết đúng URL (kể cả qua quan hệ `dependsOn`/`dependents`). Đã sửa `services/tasks/tasks.ts`, `services/crm/leads.ts` + 2 trang gọi chúng để truyền `buildVisibilityScope()`, và xử lý đúng case `departmentId = null` (trả rỗng thay vì so khớp `null` mơ hồ). `auth.ts`: JWT callback giờ tra lại DB **mỗi lần xác thực session** thay vì chỉ lúc đăng nhập — tài khoản bị vô hiệu hoá/đổi quyền có hiệu lực ngay, không cần đợi đăng xuất/đăng nhập lại như trước (đổi hành vi đã lặp lại nhiều lần trong toàn dự án). Thêm `tests/access-control.test.mjs` (`npm test`) kiểm test trực tiếp các service/callback này — lint, TypeScript, build và 3 test đều đạt. `.vercelignore` vá thêm `.env`/`.env*` — trước đó thiếu dòng này nên `vercel deploy` có thể vô tình gói theo `.env.local`/file backup chứa credential Neon thật vào bundle deploy.<br>**Verify local**: đăng nhập `sales@vimove.vn`, mở thẳng URL task của người khác → 404 đúng như kỳ vọng; mở task của chính mình → vẫn xem được bình thường.<br>**Đã deploy production** cùng ngày: Vercel deployment `dpl_J5rUtMaMC9Zd8Jn82afpsPtJWwmB` READY, alias `https://vimove-os.vercel.app`. |
+| 5 | 2026-09-10 | **Phase 11 — Chấm công (Attendance & Timekeeping)**, thêm theo yêu cầu người dùng (tham chiếu MISA AMIS Chấm Công), không nằm trong roadmap 10 phase gốc. Schema mới (migration `attendance_timekeeping`): `AttendanceLocation`, `AttendanceRecord`, `QrCheckinToken`, `Shift`/`ShiftAssignment`, `LeaveType`/`LeaveRequest` — đơn nghỉ phép **tái dùng thẳng Approval Engine có sẵn từ Phase 3** (thêm `LEAVE` vào `ApprovalEntityType`, không xây hệ duyệt thứ 2, giống cách Phase 9 tái dùng Workflow Engine). 3 hình thức chấm công làm THẬT: thủ công, GPS (`navigator.geolocation` + Haversine tự viết, từ chối rõ nếu ngoài bán kính), QR động (token thật trong DB, đổi mỗi 20s). 3 hình thức KHÔNG làm được trên web app thuần (Wifi nội bộ/FaceID/máy vân tay — người dùng chọn muốn có cả 3 lúc chốt scope) hiện dưới dạng pill vô hiệu hoá kèm tooltip lý do thật, không giả lập — xem bảng quyết định đầy đủ ở `docs/11-attendance.md`. Tính lương tự động cố ý ngoài phạm vi (đã thống nhất khi chốt scope). Permission mới: `attendance.read` (scope ALL/DEPARTMENT/OWN), `attendance.manage`, `leave_requests.create`. Dependency mới: `qrcode`. Nav mới "Chấm công" (5 mục). Seed thêm dữ liệu chấm công/ca/nghỉ phép thật cho `sales@vimove.vn`.<br>**Verify thật**: chấm công thủ công đổi đúng Vào↔Ra; bảng công tự tổng hợp đúng giờ từ dữ liệu thật (không suy đoán khi thiếu); đơn nghỉ phép tạo → xuất hiện & duyệt được thật trong Approval Hub, trạng thái đồng bộ 2 chiều; QR — verify token thật đổi mỗi ~20s bằng query DB trực tiếp, quét đúng token thành công, token bịa bị từ chối; GPS — trình duyệt sandbox không cấp quyền định vị thật nên verify bằng script độc lập gọi đúng logic Haversine trong `checkin.ts`: toạ độ TP.HCM vs văn phòng seed ở Hà Nội → từ chối đúng với khoảng cách tính được 1.143.504m (khớp thực tế ~1.140km); toạ độ sát văn phòng → chấp nhận với 15m. `tsc`/`lint`/`build`/`test` (4/4) pass sạch. **Chưa deploy production** — chờ xác nhận người dùng (tính năng lớn, không phải fix nhỏ). |
 
 ---
 
@@ -27,10 +28,11 @@ CRM/Sales + Analytics + AI Command Center — hợp nhất trong 1 hệ thống,
 thống cũ (Legacy VimoveCRM, không đụng vào, chỉ nối qua adapter khi cần).
 
 Xây dựng theo phương án 10 phase tại [docs/00-phuong-an-trien-khai.md](docs/00-phuong-an-trien-khai.md).
-**Cả 10 phase đã hoàn thành** (xem bảng trạng thái trong README.md). 2 phần bị chặn vì
-thiếu credential ngoài (không phải lỗi code): Ads Integration (Phase 6, cần OAuth
-Meta/Google/TikTok/Zalo) và AI Work Assistant chat thật (Phase 8, cần
-`ANTHROPIC_API_KEY`). Mọi thứ khác đã verify thật với dữ liệu/session thật.
+**Cả 10 phase gốc đã hoàn thành** (xem bảng trạng thái trong README.md), cộng thêm
+**Phase 11 — Chấm công** (`docs/11-attendance.md`, thêm theo yêu cầu người dùng, ngoài
+roadmap gốc). 2 phần bị chặn vì thiếu credential ngoài (không phải lỗi code): Ads
+Integration (Phase 6, cần OAuth Meta/Google/TikTok/Zalo) và AI Work Assistant chat thật
+(Phase 8, cần `ANTHROPIC_API_KEY`). Mọi thứ khác đã verify thật với dữ liệu/session thật.
 
 ## 2. Stack & kiến trúc cốt lõi (tóm tắt — chi tiết xem README.md)
 
@@ -207,8 +209,10 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
   của AI Command Center đã verify thật, KHÔNG cần API key.
 - **Job queue/worker thật + Cache Components (`"use cache"`)**: cân nhắc ở Phase 10
   nhưng cố ý chưa làm — lý do chi tiết trong `docs/10-scale.md`.
-- **Icon PWA**: mới có SVG, chưa có bộ PNG 192/512 thiết kế riêng.
 - **Git remote**: chưa có (xem §6 mục 1).
+- **Phase 11 (Chấm công)**: Wifi nội bộ/FaceID/máy vân tay không làm được trên web app
+  thuần (cần app native/phần cứng riêng); tính lương tự động cố ý ngoài phạm vi — xem
+  `docs/11-attendance.md`.
 
 ## 8. Liên hệ / tài liệu liên quan
 
@@ -218,4 +222,4 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
 
 ---
 
-**Ver 4 · Made by Trương Tuyền · 0966912268**
+**Ver 5 · Made by Trương Tuyền · 0966912268**
