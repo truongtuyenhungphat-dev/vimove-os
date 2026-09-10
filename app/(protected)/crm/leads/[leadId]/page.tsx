@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requirePermission, hasPermission } from "@/lib/auth/rbac";
+import { requirePermission, hasPermission, buildVisibilityScope } from "@/lib/auth/rbac";
 import { getLead } from "@/services/crm/leads";
 import { getPipeline } from "@/services/crm/pipelines";
 import { listUsers } from "@/services/core/users";
@@ -22,7 +22,7 @@ function formatVnd(n: number) {
 export default async function LeadDetailPage({ params }: { params: Promise<{ leadId: string }> }) {
   const session = await requirePermission("leads.read");
   const { leadId } = await params;
-  const lead = await getLead(session.user.organizationId, leadId);
+  const lead = await getLead(session.user.organizationId, leadId, buildVisibilityScope(session, "leads.read"));
   if (!lead) notFound();
 
   const [pipeline, users] = await Promise.all([

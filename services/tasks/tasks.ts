@@ -38,7 +38,7 @@ function buildWhere(organizationId: string, filters: TaskFilters, visibility?: T
     ...(filters.tagId ? { tags: { some: { tagId: filters.tagId } } } : {}),
     ...(filters.search ? { title: { contains: filters.search, mode: "insensitive" as const } } : {}),
     ...(visibility?.scope === "OWN" ? { assigneeId: visibility.userId } : {}),
-    ...(visibility?.scope === "DEPARTMENT" ? { assignee: { departmentId: visibility.departmentId } } : {}),
+    ...(visibility?.scope === "DEPARTMENT" ? (visibility.departmentId ? { assignee: { departmentId: visibility.departmentId } } : { id: { in: [] as string[] } }) : {}),
   };
 }
 
@@ -92,9 +92,9 @@ export async function getKanbanBoard(organizationId: string, filters: TaskFilter
   return board;
 }
 
-export async function getTask(organizationId: string, id: string) {
+export async function getTask(organizationId: string, id: string, visibility: TaskVisibility) {
   return prisma.task.findFirst({
-    where: { id, organizationId },
+    where: { id, ...buildWhere(organizationId, {}, visibility) },
     include: {
       assignee: { select: { id: true, name: true, avatarUrl: true, email: true } },
       creator: { select: { id: true, name: true } },
@@ -116,9 +116,11 @@ export async function getTask(organizationId: string, id: string) {
       },
       tags: { include: { tag: true } },
       dependsOn: {
+        where: { dependsOnTask: buildWhere(organizationId, {}, visibility) },
         include: { dependsOnTask: { select: { id: true, title: true, status: true, dueAt: true } } },
       },
       dependents: {
+        where: { task: buildWhere(organizationId, {}, visibility) },
         include: { task: { select: { id: true, title: true, status: true, startAt: true } } },
       },
       activities: {

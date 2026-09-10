@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Third-party Claude skill assets (.claude/skills/**) — not app code, not linted.
     ".claude/skills/**",
+    ".agents/skills/**",
   ]),
 ]);
 

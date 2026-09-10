@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { requirePermission, hasPermission } from "@/lib/auth/rbac";
+import { requirePermission, hasPermission, buildVisibilityScope } from "@/lib/auth/rbac";
 import { getTask, listAllTasks } from "@/services/tasks/tasks";
 import { listUsers } from "@/services/core/users";
 import { listTeams } from "@/services/core/teams";
@@ -45,7 +45,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ tas
   const session = await requirePermission("tasks.read");
   const { taskId } = await params;
 
-  const task = await getTask(session.user.organizationId, taskId);
+  const task = await getTask(session.user.organizationId, taskId, buildVisibilityScope(session, "tasks.read"));
   if (!task) notFound();
 
   const canEdit = hasPermission(session, "tasks.update");
@@ -56,7 +56,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ tas
     listTeams(session.user.organizationId),
     listProjects(session.user.organizationId),
     listTags(session.user.organizationId),
-    listAllTasks(session.user.organizationId),
+    listAllTasks(session.user.organizationId, {}, buildVisibilityScope(session, "tasks.read")),
   ]);
 
   const activeUsers = users.filter((u) => u.status === "ACTIVE").map((u) => ({ id: u.id, name: u.name }));

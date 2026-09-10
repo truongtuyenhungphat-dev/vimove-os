@@ -95,26 +95,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
       return !!dbUser && dbUser.status === "ACTIVE";
     },
-    jwt: async ({ token, user, trigger }) => {
-      // Ở lần đăng nhập đầu (Credentials hoặc Google), `user.email` luôn có — tra lại DB
-      // theo email để lấy id/organizationId THẬT của hệ thống (không dùng id của provider).
-      if (user?.email) {
-        const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
-        if (dbUser) {
-          token.userId = dbUser.id;
-          token.organizationId = dbUser.organizationId;
-          token.departmentId = dbUser.departmentId;
-          await prisma.user.update({ where: { id: dbUser.id }, data: { lastLoginAt: new Date() } });
-        }
-      }
-      if (user || trigger === "update" || !token.permissions) {
-        const userId = token.userId as string | undefined;
-        if (userId) {
-          const { roleKeys, permissions, permissionScopes } = await loadUserPermissions(userId);
-          token.roleKeys = roleKeys;
-          token.permissions = permissions;
-          token.permissionScopes = permissionScopes;
-        }
+    jwt: async ({ token, user }) => {
+      // Resolve the local identity at sign-in; never trust stale JWT authorization.
+      const dbUser = user?.email
+        ? await prisma.user.findUnique({ where: { email: user.email } })
+        : typeof token.userId === "string"
+          ? await prisma.user.findUnique({ where: { id: token.userId } })
+          : null;
+      if (!dbUser || dbUser.status !== "ACTIVE") return null;
+
+      token.userId = dbUser.id;
+      token.organizationId = dbUser.organizationId;
+      token.departmentId = dbUser.departmentId;
+      const { roleKeys, permissions, permissionScopes } = await loadUserPermissions(dbUser.id);
+      token.roleKeys = roleKeys;
+      token.permissions = permissions;
+      token.permissionScopes = permissionScopes;
+      if (user) {
+        await prisma.user.update({ where: { id: dbUser.id }, data: { lastLoginAt: new Date() } });
       }
       return token;
     },

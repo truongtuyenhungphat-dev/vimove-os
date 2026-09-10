@@ -8,3 +8,7 @@ docs/
 app/generated/
 *.md
 !README.md
+
+# Local environment must never override hosted authentication URLs.
+.env
+.env*

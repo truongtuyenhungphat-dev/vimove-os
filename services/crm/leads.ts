@@ -24,7 +24,7 @@ export async function listLeadsBoard(organizationId: string, pipelineId: string,
       organizationId,
       pipelineId,
       ...(visibility?.scope === "OWN" ? { ownerId: visibility.userId } : {}),
-      ...(visibility?.scope === "DEPARTMENT" ? { owner: { departmentId: visibility.departmentId } } : {}),
+      ...(visibility?.scope === "DEPARTMENT" ? (visibility.departmentId ? { owner: { departmentId: visibility.departmentId } } : { id: { in: [] as string[] } }) : {}),
     },
     include: leadCardInclude,
     orderBy: { createdAt: "desc" },
@@ -41,9 +41,13 @@ export async function listMyLeads(organizationId: string, userId: string) {
   return leads.map(serializeLead);
 }
 
-export async function getLead(organizationId: string, id: string) {
+export async function getLead(organizationId: string, id: string, visibility: LeadVisibility) {
   const lead = await prisma.lead.findFirst({
-    where: { id, organizationId },
+    where: {
+      id, organizationId,
+      ...(visibility.scope === "OWN" ? { ownerId: visibility.userId } : {}),
+      ...(visibility.scope === "DEPARTMENT" ? (visibility.departmentId ? { owner: { departmentId: visibility.departmentId } } : { id: { in: [] as string[] } }) : {}),
+    },
     include: {
       owner: { select: { id: true, name: true, avatarUrl: true } },
       pipeline: { select: { id: true, name: true } },
