@@ -14,6 +14,7 @@
 | Ver | Ngày | Nội dung |
 |-----|------|----------|
 | 1 | 2026-09-09 | Khởi tạo tài liệu. Hoàn thành Phase 1-10 (toàn bộ roadmap). Deploy production lên Vercel + Neon Postgres, verify end-to-end (login thật, DB thật). |
+| 2 | 2026-09-10 | Đổi light theme sang "trắng sang trọng" kiểu MISA AMIS (`app/globals.css`, `components/ui/card.tsx`) — sidebar trắng thay vì tối, primary xanh dịu hơn, card có shadow nhẹ. Dark mode không đổi. Phát hiện + ghi lại 1 gotcha dev quan trọng: Service Worker (Phase 10 PWA) cache-first `/_next/static/*` nên có thể che mất thay đổi CSS/JS mới lúc dev local — xem §5. |
 
 ---
 
@@ -128,6 +129,27 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
    trước khi tìm ra nguyên nhân thật).
 4. **`AUTH_SECRET`/`ENCRYPTION_KEY` production KHÁC giá trị `.env` local** — sinh riêng
    lúc deploy, không copy từ máy dev.
+5. **`.env.local` (nếu có, từ `vercel env pull`) đè `DATABASE_URL` của `.env`** — Next.js
+   ưu tiên `.env.local` hơn `.env`. Nếu file này chứa connection string Neon,
+   **dev local sẽ vô tình đọc/ghi thẳng vào DB production** thay vì Docker Postgres
+   local — rất nguy hiểm. Hiện đã đổi tên file này thành
+   `.env.local.vercel-production-backup` (giữ lại giá trị để tham khảo, không bị
+   Next.js đọc vì không khớp tên file) ngay trên máy đang làm việc. Nếu chạy
+   `vercel env pull` lần nữa, **kiểm tra lại `.env.local` trước khi chạy `npm run dev`**.
+6. **Service Worker (`public/sw.js`, Phase 10 PWA) cache-first mọi request
+   `/_next/static/*`** — trong dev local, nếu trình duyệt đã từng đăng ký SW này (dù chỉ
+   1 lần), nó sẽ tiếp tục phục vụ CSS/JS **cũ** từ cache dù code đã đổi và dev server đã
+   restart, kể cả tab mới/`fetch({cache:"no-store"})` cũng không giúp gì (SW chặn ở tầng
+   thấp hơn HTTP cache). Triệu chứng: sửa `globals.css`/component mà giao diện không đổi
+   dù đã xoá `.next` và restart server. Cách sửa nhanh lúc dev:
+   ```js
+   // Chạy trong console DevTools của tab đang test
+   (await navigator.serviceWorker.getRegistration())?.unregister();
+   (await caches.keys()).forEach(n => caches.delete(n));
+   ```
+   rồi reload lại trang. **Đã sửa gốc**: `components/pwa/sw-register.tsx` giờ không
+   đăng ký SW khi `NODE_ENV === "development"` — chỉ còn ảnh hưởng browser nào đã lỡ
+   đăng ký SW từ TRƯỚC lúc sửa (dùng đoạn code trên để dọn 1 lần).
 
 ## 6. Chuyển sang làm tiếp trên máy khác — checklist
 
@@ -171,4 +193,4 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
 
 ---
 
-**Ver 1 · Made by Trương Tuyền · 0966912268**
+**Ver 2 · Made by Trương Tuyền · 0966912268**
