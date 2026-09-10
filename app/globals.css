@@ -49,52 +49,58 @@
 }
 
 :root {
-  /* VIMOVE OS design system v2 — "hiện đại kiểu phần mềm quản trị doanh nghiệp"
-   * (ui-ux-pro-max skill, product profile "CRM & Client Management"): xanh dương
-   * chuyên nghiệp (#2563EB) + xanh lá thành công làm chart accent, nền xám-xanh nhạt.
-   * Đổi từ bảng xanh lá VIMOVE gốc theo yêu cầu người dùng — xem docs nếu cần đối chiếu. */
-  --background: oklch(0.984 0.003 247.9);
-  --foreground: oklch(0.208 0.04 265.8);
+  /* VIMOVE OS design system v3 — "trắng sang trọng" kiểu phần mềm quản trị doanh
+   * nghiệp Việt Nam (tham chiếu MISA AMIS, ui-ux-pro-max skill, pattern "Trust &
+   * Authority" + style "Minimalism & Swiss Style"): sidebar TRẮNG thay vì nền tối,
+   * nền trang trắng-ngà rất nhạt (không phải trắng tinh gắt), xanh dương chủ đạo
+   * dịu hơn bản v2 (giảm chroma) để cảm giác điềm tĩnh/uy tín thay vì rực. Card vẫn
+   * trắng tinh, phân tách bằng ring mảnh + shadow nhẹ (xem components/ui/card.tsx)
+   * thay vì border đậm. Đổi từ v2 (sidebar tối) theo yêu cầu người dùng. */
+  --background: oklch(0.984 0.004 260);
+  --foreground: oklch(0.22 0.035 265);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.208 0.04 265.8);
+  --card-foreground: oklch(0.22 0.035 265);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.208 0.04 265.8);
-  --primary: oklch(0.546 0.215 262.9);
-  --primary-foreground: oklch(0.99 0.005 260);
-  --secondary: oklch(0.969 0.012 264.5);
-  --secondary-foreground: oklch(0.3 0.04 264);
-  --muted: oklch(0.969 0.01 260);
-  --muted-foreground: oklch(0.446 0.037 257.3);
-  --accent: oklch(0.942 0.023 264.5);
-  --accent-foreground: oklch(0.3 0.08 264);
+  --popover-foreground: oklch(0.22 0.035 265);
+  --primary: oklch(0.49 0.165 263);
+  --primary-foreground: oklch(0.99 0.003 260);
+  --secondary: oklch(0.965 0.008 260);
+  --secondary-foreground: oklch(0.28 0.03 264);
+  --muted: oklch(0.965 0.006 260);
+  --muted-foreground: oklch(0.5 0.025 260);
+  --accent: oklch(0.945 0.02 264);
+  --accent-foreground: oklch(0.28 0.06 264);
   --destructive: oklch(0.577 0.215 27.3);
-  --border: oklch(0.928 0.02 264);
-  --input: oklch(0.928 0.02 264);
-  --ring: oklch(0.546 0.215 262.9);
-  --chart-1: oklch(0.546 0.215 262.9);
+  --border: oklch(0.923 0.008 260);
+  --input: oklch(0.923 0.008 260);
+  --ring: oklch(0.49 0.165 263);
+  --chart-1: oklch(0.49 0.165 263);
   --chart-2: oklch(0.596 0.127 163.2);
   --chart-3: oklch(0.72 0.15 90);
   --chart-4: oklch(0.6 0.18 25);
   --chart-5: oklch(0.55 0.14 300);
   --radius: 0.75rem;
-  --sidebar: oklch(0.18 0.03 265);
-  --sidebar-foreground: oklch(0.88 0.02 260);
-  --sidebar-primary: oklch(0.6 0.19 263);
-  --sidebar-primary-foreground: oklch(0.99 0.005 260);
-  --sidebar-accent: oklch(0.24 0.03 265);
-  --sidebar-accent-foreground: oklch(0.98 0.01 260);
-  --sidebar-border: oklch(0.28 0.03 265);
-  --sidebar-ring: oklch(0.6 0.19 263);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.32 0.03 265);
+  --sidebar-primary: oklch(0.49 0.165 263);
+  --sidebar-primary-foreground: oklch(0.99 0.003 260);
+  --sidebar-accent: oklch(0.955 0.018 264);
+  --sidebar-accent-foreground: oklch(0.28 0.05 264);
+  --sidebar-border: oklch(0.93 0.01 264);
+  --sidebar-ring: oklch(0.49 0.165 263);
 }
 
 .dark {
+  /* Dark mode giữ nguyên tinh thần tối kiểu dashboard (không đổi theo "trắng sang
+   * trọng" — đó là yêu cầu riêng cho light mode) — chỉ đồng bộ lại primary/chart-1
+   * cho khớp sắc xanh đã dịu ở v3 phía trên. */
   --background: oklch(0.16 0.02 265);
   --foreground: oklch(0.96 0.005 260);
   --card: oklch(0.21 0.025 265);
   --card-foreground: oklch(0.96 0.005 260);
   --popover: oklch(0.21 0.025 265);
   --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.65 0.19 263);
+  --primary: oklch(0.63 0.16 263);
   --primary-foreground: oklch(0.15 0.02 265);
   --secondary: oklch(0.28 0.02 265);
   --secondary-foreground: oklch(0.96 0.005 260);
@@ -105,20 +111,20 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.65 0.19 263);
-  --chart-1: oklch(0.65 0.19 263);
+  --ring: oklch(0.63 0.16 263);
+  --chart-1: oklch(0.63 0.16 263);
   --chart-2: oklch(0.7 0.14 163);
   --chart-3: oklch(0.76 0.15 90);
   --chart-4: oklch(0.65 0.18 25);
   --chart-5: oklch(0.65 0.14 300);
   --sidebar: oklch(0.14 0.025 265);
   --sidebar-foreground: oklch(0.9 0.015 260);
-  --sidebar-primary: oklch(0.65 0.19 263);
+  --sidebar-primary: oklch(0.63 0.16 263);
   --sidebar-primary-foreground: oklch(0.15 0.02 265);
   --sidebar-accent: oklch(0.24 0.03 265);
   --sidebar-accent-foreground: oklch(0.98 0.01 260);
   --sidebar-border: oklch(0.3 0.03 265);
-  --sidebar-ring: oklch(0.65 0.19 263);
+  --sidebar-ring: oklch(0.63 0.16 263);
 }
 
 @layer base {
