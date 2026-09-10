@@ -43,5 +43,13 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)"],
+  // manifest.webmanifest + sw.js: PWA (Phase 10) — trình duyệt fetch 2 file này KHÔNG
+  // kèm cookie/session trong nhiều tình huống (kiểm tra installability, hoặc lúc user
+  // còn ở /login chưa đăng nhập, nơi ServiceWorkerRegister trong root layout đã chạy).
+  // Thiếu dòng loại trừ này thì middleware chặn + redirect về HTML trang login, khiến
+  // trình duyệt nhận nhầm Content-Type text/html thay vì JS/manifest thật — SW không
+  // đăng ký được ngay từ lần ghé đầu tiên (phát hiện thật khi kiểm tra production).
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
+  ],
 };

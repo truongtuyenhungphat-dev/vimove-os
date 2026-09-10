@@ -16,6 +16,7 @@
 | 1 | 2026-09-09 | Khởi tạo tài liệu. Hoàn thành Phase 1-10 (toàn bộ roadmap). Deploy production lên Vercel + Neon Postgres, verify end-to-end (login thật, DB thật). |
 | 2 | 2026-09-10 | Đổi light theme sang "trắng sang trọng" kiểu MISA AMIS (`app/globals.css`, `components/ui/card.tsx`) — sidebar trắng thay vì tối, primary xanh dịu hơn, card có shadow nhẹ. Dark mode không đổi. Phát hiện + ghi lại 1 gotcha dev quan trọng: Service Worker (Phase 10 PWA) cache-first `/_next/static/*` nên có thể che mất thay đổi CSS/JS mới lúc dev local — xem §5. |
 | 3 | 2026-09-10 | Thay logo placeholder bằng logo chính thức VIMOVE (`public/Vimove.png`, người dùng cung cấp) — cắt icon mark thật (`public/logo-mark.png` + `icon-192/512.png`), dùng cho sidebar, trang đăng nhập, favicon (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`) và PWA manifest (`theme_color` đổi sang xanh lá thương hiệu `#63aa04`, `background_color` khớp nền sáng theme v3). Xoá `public/icon.svg` placeholder cũ. |
+| 4 | 2026-09-10 | **Vá lỗ hổng quyền thật** (phát hiện + sửa trong lúc làm việc song song trên máy, tôi verify lại sau đó): `getTask()`/`getLead()` (trang Chi tiết) trước đó KHÔNG áp `visibility` scope như trang danh sách — user scope OWN/DEPARTMENT vẫn xem được task/lead của người khác nếu biết đúng URL (kể cả qua quan hệ `dependsOn`/`dependents`). Đã sửa `services/tasks/tasks.ts`, `services/crm/leads.ts` + 2 trang gọi chúng để truyền `buildVisibilityScope()`, và xử lý đúng case `departmentId = null` (trả rỗng thay vì so khớp `null` mơ hồ). `auth.ts`: JWT callback giờ tra lại DB **mỗi lần xác thực session** thay vì chỉ lúc đăng nhập — tài khoản bị vô hiệu hoá/đổi quyền có hiệu lực ngay, không cần đợi đăng xuất/đăng nhập lại như trước (đổi hành vi đã lặp lại nhiều lần trong toàn dự án). Thêm `tests/access-control.test.mjs` (`npm test`) kiểm test trực tiếp các service/callback này — lint, TypeScript, build và 3 test đều đạt. `.vercelignore` vá thêm `.env`/`.env*` — trước đó thiếu dòng này nên `vercel deploy` có thể vô tình gói theo `.env.local`/file backup chứa credential Neon thật vào bundle deploy.<br>**Verify local**: đăng nhập `sales@vimove.vn`, mở thẳng URL task của người khác → 404 đúng như kỳ vọng; mở task của chính mình → vẫn xem được bình thường.<br>**Đã deploy production** cùng ngày: Vercel deployment `dpl_J5rUtMaMC9Zd8Jn82afpsPtJWwmB` READY, alias `https://vimove-os.vercel.app`. |
 
 ---
 
@@ -217,4 +218,4 @@ là **dữ liệu demo/seed**, không phải dữ liệu thật.
 
 ---
 
-**Ver 3 · Made by Trương Tuyền · 0966912268**
+**Ver 4 · Made by Trương Tuyền · 0966912268**

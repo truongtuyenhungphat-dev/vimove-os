@@ -41,3 +41,8 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# bundled skill assets' own build/test artifacts (Python) — not source content
+__pycache__/
+*.pyc
+.coverage
