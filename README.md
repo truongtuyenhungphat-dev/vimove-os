@@ -103,8 +103,10 @@ cách thật, đã verify từ chối đúng khi ở xa văn phòng)/QR động 
 trợ" thay vì giả lập vì không khả thi trên web app thuần. Bảng công tự tổng hợp thật
 từ dữ liệu chấm công + ca + nghỉ phép. Đơn nghỉ phép tái dùng nguyên Approval Engine
 đã có từ Phase 3 (đã verify tạo đơn → hiện trong Approval Hub → duyệt → trạng thái
-đổi thật). Xem [docs/11-attendance.md](docs/11-attendance.md) để biết quyết định
-phạm vi (hình thức nào làm thật được, hình thức nào không) và giới hạn đã ghi nhận.
+đổi thật). **Đã deploy + verify trên production** (`vimove-os.vercel.app`) ngày
+2026-09-11 — chấm công thủ công thật thành công ngay trên production. Xem
+[docs/11-attendance.md](docs/11-attendance.md) để biết quyết định phạm vi (hình thức
+nào làm thật được, hình thức nào không) và giới hạn đã ghi nhận.
 
 ## Chạy local
 
