@@ -148,3 +148,105 @@ export async function emailExists(email: string, excludeId?: string) {
   if (!existing) return false;
   return existing.id !== excludeId;
 }
+
+// Rất nhiều bảng dùng onDelete: Cascade khi trỏ về User (người tạo/tác giả — vd
+// Task.creator, Campaign.createdBy, WorkflowRun.createdBy...) — xoá thẳng User sẽ
+// âm thầm xoá theo TOÀN BỘ dữ liệu họ từng tạo, không có lỗi/cảnh báo gì từ Postgres.
+// Vì vậy `deleteUser()` chỉ cho xoá vĩnh viễn khi tài khoản CHƯA tạo dữ liệu gì —
+// còn lại phải dùng `setUserStatus(..., "INACTIVE")` (Vô hiệu hoá) để giữ lịch sử.
+async function countOwnedRecords(userId: string) {
+  const [
+    createdTasks,
+    taskComments,
+    taskAttachments,
+    ownedProjects,
+    projectFiles,
+    createdWorkflows,
+    workflowRuns,
+    requestedApprovals,
+    approvalSteps,
+    createdCampaigns,
+    createdContents,
+    createdSocialPosts,
+    createdLandingPages,
+    createdEmailCampaigns,
+    connectedAdConnections,
+    createdReports,
+    aiConversations,
+    approvedAiActions,
+    attendanceRecords,
+    leaveRequests,
+    createdAttendanceLocations,
+    createdShifts,
+  ] = await Promise.all([
+    prisma.task.count({ where: { creatorId: userId } }),
+    prisma.taskComment.count({ where: { authorId: userId } }),
+    prisma.taskAttachment.count({ where: { uploaderId: userId } }),
+    prisma.project.count({ where: { ownerId: userId } }),
+    prisma.projectFile.count({ where: { uploaderId: userId } }),
+    prisma.workflow.count({ where: { createdById: userId } }),
+    prisma.workflowRun.count({ where: { createdById: userId } }),
+    prisma.approvalRequest.count({ where: { requestedById: userId } }),
+    prisma.approvalStep.count({ where: { approverId: userId } }),
+    prisma.campaign.count({ where: { createdById: userId } }),
+    prisma.content.count({ where: { createdById: userId } }),
+    prisma.socialPost.count({ where: { createdById: userId } }),
+    prisma.landingPage.count({ where: { createdById: userId } }),
+    prisma.emailCampaign.count({ where: { createdById: userId } }),
+    prisma.adConnection.count({ where: { connectedById: userId } }),
+    prisma.report.count({ where: { createdById: userId } }),
+    prisma.aiConversation.count({ where: { userId } }),
+    prisma.aiAction.count({ where: { approvedById: userId } }),
+    prisma.attendanceRecord.count({ where: { userId } }),
+    prisma.leaveRequest.count({ where: { userId } }),
+    prisma.attendanceLocation.count({ where: { createdById: userId } }),
+    prisma.shift.count({ where: { createdById: userId } }),
+  ]);
+  return (
+    createdTasks +
+    taskComments +
+    taskAttachments +
+    ownedProjects +
+    projectFiles +
+    createdWorkflows +
+    workflowRuns +
+    requestedApprovals +
+    approvalSteps +
+    createdCampaigns +
+    createdContents +
+    createdSocialPosts +
+    createdLandingPages +
+    createdEmailCampaigns +
+    connectedAdConnections +
+    createdReports +
+    aiConversations +
+    approvedAiActions +
+    attendanceRecords +
+    leaveRequests +
+    createdAttendanceLocations +
+    createdShifts
+  );
+}
+
+export async function deleteUser(organizationId: string, actorId: string, id: string) {
+  const before = await getUser(organizationId, id);
+  if (!before) throw new Error("Không tìm thấy người dùng");
+
+  const ownedCount = await countOwnedRecords(id);
+  if (ownedCount > 0) {
+    throw new Error(
+      `Không thể xoá vĩnh viễn — tài khoản này đã tạo ${ownedCount} dữ liệu trong hệ thống ` +
+        "(công việc/dự án/chiến dịch/chấm công...). Dùng \"Vô hiệu hoá\" để giữ lại lịch sử."
+    );
+  }
+
+  await prisma.user.delete({ where: { id } });
+  await writeAuditLog({
+    organizationId,
+    actorId,
+    action: "user.delete",
+    entityType: "User",
+    entityId: id,
+    before,
+  });
+}

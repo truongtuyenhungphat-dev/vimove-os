@@ -97,13 +97,16 @@ export function AppSidebar({ permissions }: { permissions: PermissionKey[] }) {
                 <button
                   type="button"
                   onClick={() => toggleSection(section.title, isOpen)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground/80"
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold uppercase tracking-wider opacity-80 hover:opacity-100",
+                    section.color
+                  )}
                 >
                   {section.title}
                   {isOpen ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
                 </button>
               ) : (
-                <p className="px-2 pb-1.5 text-xs font-medium uppercase tracking-wider text-sidebar-foreground/50">
+                <p className={cn("px-2 pb-1.5 text-xs font-semibold uppercase tracking-wider opacity-80", section.color)}>
                   {section.title}
                 </p>
               )}
@@ -123,7 +126,7 @@ export function AppSidebar({ permissions }: { permissions: PermissionKey[] }) {
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           )}
                         >
-                          <Icon className="size-4 shrink-0" />
+                          <Icon className={cn("size-4 shrink-0", !isActive && section.color)} />
                           {item.label}
                         </Link>
                       </li>

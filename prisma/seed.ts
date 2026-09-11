@@ -808,12 +808,16 @@ async function main() {
     },
   });
 
+  // "Hôm nay"/"mai" đổi mỗi ngày chạy lại seed, nên không thể upsert từng dòng một
+  // (dòng cũ id=...-0-1 mang "mai" của lần chạy trước có thể trùng đúng "hôm nay" của
+  // lần chạy này với dòng id=...-0-0 → lỗi trùng unique(userId, date) dù update theo
+  // đúng id cố định). Xoá sạch rồi tạo lại mới thật sự idempotent qua nhiều ngày.
+  const shiftAssignmentIds = [salesStaff, marketingStaff].flatMap((_, idx) => [0, 1].map((offset) => `seed-shift-assignment-${idx}-${offset}`));
+  await prisma.shiftAssignment.deleteMany({ where: { id: { in: shiftAssignmentIds } } });
   for (const [idx, user] of [salesStaff, marketingStaff].entries()) {
     for (const offset of [0, 1]) {
-      await prisma.shiftAssignment.upsert({
-        where: { userId_date: { userId: user.id, date: atDate(offset) } },
-        update: {},
-        create: { id: `seed-shift-assignment-${idx}-${offset}`, organizationId: organization.id, userId: user.id, shiftId: officeShift.id, date: atDate(offset) },
+      await prisma.shiftAssignment.create({
+        data: { id: `seed-shift-assignment-${idx}-${offset}`, organizationId: organization.id, userId: user.id, shiftId: officeShift.id, date: atDate(offset) },
       });
     }
   }

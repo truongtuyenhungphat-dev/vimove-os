@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { assertPermission } from "@/lib/auth/rbac";
-import { createUser, updateUser, setUserStatus, emailExists } from "@/services/core/users";
+import { createUser, updateUser, setUserStatus, deleteUser, emailExists } from "@/services/core/users";
 
 const createSchema = z.object({
   email: z.string().trim().email("Email không hợp lệ"),
@@ -65,5 +65,14 @@ export async function setUserStatusAction(id: string, status: "ACTIVE" | "INACTI
     throw new Error("Không thể tự vô hiệu hoá tài khoản của chính mình");
   }
   await setUserStatus(session.user.organizationId, session.user.id, id, status);
+  revalidatePath("/admin/users");
+}
+
+export async function deleteUserAction(id: string) {
+  const session = await assertPermission("users.delete");
+  if (id === session.user.id) {
+    throw new Error("Không thể tự xoá tài khoản của chính mình");
+  }
+  await deleteUser(session.user.organizationId, session.user.id, id);
   revalidatePath("/admin/users");
 }

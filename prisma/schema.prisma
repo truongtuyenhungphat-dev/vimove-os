@@ -209,6 +209,7 @@ enum RoleKey {
   ADMIN
   DIRECTOR
   MANAGER
+  TEAM_LEAD // Trưởng nhóm — dưới Trưởng phòng (MANAGER), phụ trách 1 Team trong phòng ban
   MARKETING_MANAGER
   MARKETING_STAFF
   SALES_MANAGER

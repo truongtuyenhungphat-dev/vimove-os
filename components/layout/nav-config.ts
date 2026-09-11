@@ -51,6 +51,9 @@ export type NavItem = {
 
 export type NavSection = {
   title: string;
+  /** Class màu Tailwind cho icon + tiêu đề nhóm (vd "text-blue-600") — mỗi nhóm 1
+   * màu riêng để dễ phân biệt khi sidebar có nhiều nhóm (xem app-sidebar.tsx). */
+  color: string;
   items: NavItem[];
 };
 
@@ -67,10 +70,12 @@ export type NavSection = {
 export const NAV_SECTIONS: NavSection[] = [
   {
     title: "Tổng quan",
+    color: "text-blue-600",
     items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
   },
   {
     title: "Work",
+    color: "text-indigo-600",
     items: [
       { label: "Việc của tôi", href: "/work/my-tasks", icon: ClipboardList, permission: "tasks.read" },
       { label: "Tất cả công việc", href: "/work/tasks", icon: ListTodo, permission: "tasks.read" },
@@ -85,6 +90,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Chấm công",
+    color: "text-teal-600",
     items: [
       { label: "Chấm công", href: "/attendance/checkin", icon: Clock, permission: "attendance.read" },
       { label: "Bảng công", href: "/attendance/timesheet", icon: CalendarRange, permission: "attendance.read" },
@@ -95,6 +101,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Project & Process",
+    color: "text-violet-600",
     items: [
       { label: "Dự án", href: "/projects", icon: FolderKanban, permission: "projects.read" },
       { label: "Workflow Builder", href: "/process/workflows", icon: Workflow, permission: "workflows.read" },
@@ -102,6 +109,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "CRM",
+    color: "text-pink-600",
     items: [
       { label: "Lead", href: "/crm/leads", icon: Users2, permission: "leads.read" },
       { label: "Khách hàng", href: "/crm/customers", icon: Building2, permission: "customers.read" },
@@ -110,6 +118,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Sales",
+    color: "text-orange-600",
     items: [
       { label: "Đơn hàng", href: "/sales/orders", icon: ShoppingCart, permission: "orders.read" },
       { label: "Sản phẩm", href: "/sales/products", icon: Package, permission: "sales_catalog.manage" },
@@ -118,6 +127,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Marketing",
+    color: "text-fuchsia-600",
     items: [
       { label: "Chiến dịch", href: "/marketing/campaigns", icon: Megaphone, permission: "campaigns.read" },
       { label: "Content Hub", href: "/marketing/content", icon: FileEdit, permission: "content.read" },
@@ -128,10 +138,12 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Tích hợp",
+    color: "text-slate-500",
     items: [{ label: "Quảng cáo", href: "/integrations/ads", icon: Plug, permission: "ads.read" }],
   },
   {
     title: "Analytics",
+    color: "text-cyan-600",
     items: [
       { label: "Dashboard", href: "/analytics", icon: LineChart, permission: "analytics.read" },
       { label: "Report Builder", href: "/analytics/reports", icon: BarChart3, permission: "analytics.read" },
@@ -140,6 +152,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "AI",
+    color: "text-sky-600",
     items: [
       { label: "Trợ lý AI", href: "/ai/assistant", icon: Bot, permission: "ai.read" },
       { label: "AI Insights", href: "/ai/insights", icon: Lightbulb, permission: "ai.read" },
@@ -148,6 +161,7 @@ export const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: "Quản trị",
+    color: "text-red-600",
     items: [
       { label: "Người dùng", href: "/admin/users", icon: Users, permission: "users.read" },
       { label: "Phòng ban", href: "/admin/departments", icon: Building2, permission: "departments.read" },

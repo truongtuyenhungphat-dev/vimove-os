@@ -194,6 +194,30 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "attendance.read",
     "leave_requests.create",
   ],
+  // Trưởng nhóm: nhẹ hơn MANAGER (không quản lý được dự án/workflow, không có
+  // ai.manage) — phụ trách công việc/chấm công của 1 Team. Lưu ý: hiện dùng scope
+  // DEPARTMENT (xem DEFAULT_PERMISSION_SCOPES bên dưới) vì hệ thống scope hiện tại
+  // chỉ có ALL/DEPARTMENT/OWN, chưa có scope riêng theo Team — với tổ chức hiện chỉ
+  // có 1 Team/phòng ban thì không khác biệt, nhưng nếu sau này 1 phòng ban có nhiều
+  // Team thì Trưởng nhóm sẽ thấy CẢ phòng ban chứ chưa lọc đúng theo Team — cần bổ
+  // sung PermissionScope.TEAM + buildVisibilityScope riêng nếu cần chính xác hơn.
+  TEAM_LEAD: [
+    "users.read",
+    "departments.read",
+    "teams.read",
+    "notifications.read",
+    "tasks.read",
+    "tasks.create",
+    "tasks.update",
+    "projects.read",
+    "approvals.read",
+    "campaigns.read",
+    "content.read",
+    "analytics.read",
+    "ai.read",
+    "attendance.read",
+    "leave_requests.create",
+  ],
   MARKETING_MANAGER: [
     "users.read",
     "departments.read",
@@ -387,6 +411,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
  */
 export const DEFAULT_PERMISSION_SCOPES: Record<string, Partial<Record<PermissionKey, PermissionScope>>> = {
   MANAGER: { "tasks.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
+  TEAM_LEAD: { "tasks.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
   MARKETING_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
   SALES_MANAGER: { "tasks.read": "DEPARTMENT", "leads.read": "DEPARTMENT", "attendance.read": "DEPARTMENT" },
   MARKETING_STAFF: { "tasks.read": "OWN", "leads.read": "OWN", "attendance.read": "OWN" },
@@ -400,6 +425,7 @@ export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Quản trị viên",
   DIRECTOR: "Giám đốc",
   MANAGER: "Trưởng phòng",
+  TEAM_LEAD: "Trưởng nhóm",
   MARKETING_MANAGER: "Trưởng phòng Marketing",
   MARKETING_STAFF: "Nhân viên Marketing",
   SALES_MANAGER: "Trưởng phòng Kinh doanh",

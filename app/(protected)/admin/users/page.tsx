@@ -10,9 +10,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
 import { UserDialog } from "./user-dialog";
 import { UserStatusToggle } from "./user-status-toggle";
-import { createUserAction, updateUserAction } from "./actions";
+import { createUserAction, updateUserAction, deleteUserAction } from "./actions";
 
 export const metadata: Metadata = { title: "Người dùng — VIMOVE OS" };
 
@@ -105,6 +106,13 @@ export default async function UsersPage() {
                           />
                         )}
                         {canDeactivate && <UserStatusToggle userId={u.id} status={u.status} />}
+                        {canDeactivate && (
+                          <ConfirmDeleteButton
+                            title={`Xoá vĩnh viễn "${u.name}"?`}
+                            description="Chỉ xoá được nếu tài khoản này chưa tạo dữ liệu gì trong hệ thống (công việc, dự án, chấm công...). Nếu đã có dữ liệu, dùng nút Vô hiệu hoá ở trên để giữ lại lịch sử."
+                            onConfirm={deleteUserAction.bind(null, u.id)}
+                          />
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
