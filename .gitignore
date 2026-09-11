@@ -47,3 +47,6 @@ __pycache__/
 *.pyc
 .coverage
 coverage-ui.json
+
+.vercel
+.env*
