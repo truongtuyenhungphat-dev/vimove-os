@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LayoutDashboard, Package, ShoppingCart, Users2, Megaphone, Warehouse, FileBarChart, Bot } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users2, Megaphone, Warehouse, FileBarChart, Bot, ShieldCheck, Workflow, Radio } from "lucide-react";
 
 // Always dark regardless of the app's light/dark theme — a deliberate,
 // fixed marketing-panel look (like the reference design), not something
@@ -31,11 +31,20 @@ const CHANNELS = [
   { label: "Khác", pct: 9, color: "#94a3b8" },
 ];
 
+const FEATURE_CHIPS = [
+  { label: "Bảo mật phân quyền", icon: ShieldCheck },
+  { label: "Tự động hoá quy trình", icon: Workflow },
+  { label: "Dữ liệu thời gian thực", icon: Radio },
+];
+
 function DashboardPreviewCard() {
   const C = 2 * Math.PI * 26;
   let acc = 0;
   return (
-    <div className="w-[300px] overflow-hidden rounded-xl border border-black/5 bg-white text-neutral-900 shadow-2xl">
+    <div
+      className="w-[300px] -rotate-2 overflow-hidden rounded-xl border border-black/5 bg-white text-neutral-900 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] ring-1 ring-white/10 transition-transform duration-500 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 hover:rotate-0"
+      style={{ animationDuration: "700ms", animationDelay: "150ms", animationFillMode: "backwards" }}
+    >
       <div className="flex items-center justify-between border-b px-3 py-2">
         <span className="flex items-center gap-1.5 text-[11px] font-semibold tracking-tight">
           <Image src="/logo-mark.png" alt="" aria-hidden="true" width={14} height={14} />
@@ -122,26 +131,29 @@ function DashboardPreviewCard() {
 export function LoginHeroPanel() {
   return (
     <div className="relative hidden overflow-hidden bg-neutral-950 lg:flex lg:w-[55%] lg:flex-col lg:justify-between lg:p-12">
-      {/* Decorative dot grid + glow — no real photograph available, so the
-          "in context" feel comes from the dashboard preview card below
-          instead of a background photo. */}
+      {/* Aurora trôi chậm (2 khối màu, lệch pha nhau) + lớp grain mảnh phủ trên
+          cùng — thay cho 2 vòng glow tĩnh của bản trước, tạo cảm giác "phần
+          mềm hiện đại 2026" thay vì chỉ là nền tối phẳng. Không có ảnh chụp
+          sản phẩm thật nên vẫn dựa vào DashboardPreviewCard bên dưới để gợi
+          bối cảnh, thay vì ảnh nền. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay bg-grain-overlay" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        className="animate-login-aurora-a pointer-events-none absolute -top-24 -right-24 size-[32rem] rounded-full opacity-40 blur-3xl"
+        style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
+      />
+      <div
+        aria-hidden
+        className="animate-login-aurora-b pointer-events-none absolute -bottom-40 -left-20 size-[30rem] rounded-full opacity-25 blur-3xl"
+        style={{ background: "radial-gradient(circle, oklch(0.6 0.18 305), transparent 70%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
           backgroundSize: "28px 28px",
         }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full opacity-30 blur-3xl"
-        style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-16 size-[28rem] rounded-full opacity-20 blur-3xl"
-        style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
       />
 
       <span className="relative flex items-center gap-2 text-xl font-semibold tracking-tight text-white">
@@ -149,23 +161,33 @@ export function LoginHeroPanel() {
         VIMOVE <span className="text-primary">OS</span>
       </span>
 
-      <div className="relative flex flex-col gap-6">
+      <div className="relative flex flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <h2 className="text-3xl leading-tight font-semibold text-white">
-            Không gian làm việc thông minh.
-            <br />
-            Vận hành hiệu quả hơn.
+          <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium tracking-[0.1em] text-primary uppercase backdrop-blur-sm">
+            <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+            Smart operations. Brighter growth.
+          </p>
+          <h2 className="max-w-md text-4xl leading-[1.15] font-semibold tracking-tight text-white text-balance">
+            Không gian làm việc thông minh.{" "}
+            <span className="bg-gradient-to-r from-primary to-sky-300 bg-clip-text text-transparent">
+              Vận hành hiệu quả hơn.
+            </span>
           </h2>
           <p className="max-w-sm text-sm text-white/60">
             Kết nối sản phẩm, đội ngũ, dữ liệu và AI trong một nền tảng duy nhất.
           </p>
-          <p className="flex items-center gap-2 text-[11px] font-medium tracking-[0.15em] text-primary uppercase">
-            <span className="h-px w-6 bg-primary" />
-            Smart operations. Brighter growth.
-          </p>
         </div>
 
         <DashboardPreviewCard />
+
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {FEATURE_CHIPS.map(({ label, icon: Icon }) => (
+            <span key={label} className="flex items-center gap-1.5 text-xs font-medium text-white/50">
+              <Icon className="size-3.5 text-primary" aria-hidden="true" />
+              {label}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

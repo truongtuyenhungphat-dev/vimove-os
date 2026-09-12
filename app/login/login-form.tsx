@@ -48,7 +48,7 @@ export function LoginForm({
         <>
           <form action={googleSignInAction}>
             <input type="hidden" name="callbackUrl" value={callbackUrl} />
-            <Button type="submit" variant="outline" className="w-full">
+            <Button type="submit" variant="outline" size="lg" className="w-full rounded-xl">
               <GoogleIcon /> Đăng nhập với Google
             </Button>
           </form>
@@ -61,24 +61,42 @@ export function LoginForm({
         </>
       )}
 
+      {/* Input to hơn (h-11) và bo góc rộng hơn (rounded-xl) so với InputGroup
+          mặc định (h-8, dùng cho bảng dữ liệu dày đặc) — màn đăng nhập chỉ có
+          2 trường nên ưu tiên cảm giác thoáng/hiện đại hơn là compact. */}
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <InputGroup>
-            <InputGroupAddon>
+          <InputGroup className="h-11 rounded-xl transition-shadow">
+            <InputGroupAddon className="pl-3.5 text-muted-foreground group-focus-within/input-group:text-primary">
               <Mail />
             </InputGroupAddon>
-            <InputGroupInput id="email" name="email" type="email" placeholder="admin@vimove.vn" required autoFocus />
+            <InputGroupInput
+              id="email"
+              name="email"
+              type="email"
+              placeholder="admin@vimove.vn"
+              required
+              autoFocus
+              className="text-[15px]"
+            />
           </InputGroup>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Mật khẩu</Label>
-          <InputGroup>
-            <InputGroupAddon>
+          <InputGroup className="h-11 rounded-xl transition-shadow">
+            <InputGroupAddon className="pl-3.5 text-muted-foreground group-focus-within/input-group:text-primary">
               <Lock />
             </InputGroupAddon>
-            <InputGroupInput id="password" name="password" type="password" placeholder="••••••••" required />
+            <InputGroupInput
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              required
+              className="text-[15px]"
+            />
           </InputGroup>
         </div>
 
@@ -93,10 +111,10 @@ export function LoginForm({
         </div>
 
         {state?.error && (
-          <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{state.error}</p>
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{state.error}</p>
         )}
 
-        <Button type="submit" className="mt-2 w-full" disabled={isPending}>
+        <Button type="submit" size="lg" className="mt-2 w-full rounded-xl" disabled={isPending}>
           {isPending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
           {isPending ? "Đang đăng nhập..." : "Đăng nhập"}
           {!isPending && <ArrowRight className="size-4" aria-hidden="true" />}

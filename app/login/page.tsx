@@ -14,8 +14,17 @@ export default async function LoginPage({
 
   return (
     <div className="flex min-h-screen">
-      <div className="flex flex-1 items-center justify-center px-6 py-10">
-        <div className="w-full max-w-sm">
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-6 py-10">
+        {/* Glow nền rất mờ phía sau card — cùng tông primary với panel tối bên
+            cạnh, tạo cảm giác 2 nửa trang thuộc cùng một hệ thống thay vì
+            trắng phẳng đột ngột. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 left-1/2 size-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.05] blur-3xl"
+          style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
+        />
+
+        <div className="relative w-full max-w-sm animate-in fade-in slide-in-from-bottom-3 duration-700">
           <div className="mb-8 flex flex-col gap-1 lg:hidden">
             <span className="flex items-center gap-2 text-xl font-semibold tracking-tight">
               <Image src="/logo-mark.png" alt="" aria-hidden="true" width={28} height={28} priority />
@@ -24,9 +33,9 @@ export default async function LoginPage({
             <p className="text-sm text-muted-foreground">Business Operating System</p>
           </div>
 
-          <div className="mb-6">
-            <h1 className="text-lg font-semibold">Chào mừng trở lại</h1>
-            <p className="text-sm text-muted-foreground">Đăng nhập để tiếp tục làm việc cùng VIMOVE OS</p>
+          <div className="mb-7">
+            <h1 className="text-2xl font-semibold tracking-tight">Chào mừng trở lại</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Đăng nhập để tiếp tục làm việc cùng VIMOVE OS</p>
           </div>
 
           <LoginForm callbackUrl={callbackUrl ?? "/dashboard"} googleEnabled={!!process.env.AUTH_GOOGLE_ID} />
