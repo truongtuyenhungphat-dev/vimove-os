@@ -1,4 +1,5 @@
 import "server-only";
+import { z } from "zod";
 import { prisma } from "@/lib/db/client";
 import { writeAuditLog } from "@/services/core/audit";
 import type { LandingPageStatus } from "@/lib/marketing/types";
@@ -115,10 +116,29 @@ export async function removeForm(id: string) {
 export async function submitForm(landingFormId: string, data: Record<string, string>) {
   const form = await prisma.landingForm.findUnique({
     where: { id: landingFormId },
-    include: { landingPage: { select: { organizationId: true } } },
+    include: { landingPage: { select: { organizationId: true, status: true } } },
   });
   if (!form) throw new Error("Form không tồn tại");
-  const submission = await prisma.formSubmission.create({ data: { landingFormId, data } });
+  if (form.landingPage.status !== "PUBLISHED") {
+    throw new Error("Form đã ngừng nhận thông tin");
+  }
+  const fields = z.array(z.object({
+    key: z.string().min(1),
+    label: z.string(),
+    type: z.enum(["text", "email", "phone", "textarea"]),
+    required: z.boolean().optional(),
+  })).parse(form.fields);
+  const input = z.record(z.string(), z.string()).parse(data);
+  const validated: Record<string, string> = Object.create(null);
+  for (const field of fields) {
+    const value = Object.hasOwn(input, field.key) ? input[field.key].trim() : "";
+    if (field.required && !value) throw new Error(`${field.label}: vui lòng nhập thông tin`);
+    if (value && field.type === "email" && !z.email().safeParse(value).success) {
+      throw new Error(`${field.label}: email không hợp lệ`);
+    }
+    validated[field.key] = value;
+  }
+  const submission = await prisma.formSubmission.create({ data: { landingFormId, data: validated } });
   return { submission, organizationId: form.landingPage.organizationId };
 }
 

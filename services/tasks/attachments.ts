@@ -13,6 +13,6 @@ export async function addAttachmentLink(taskId: string, uploaderId: string, data
 }
 
 export async function removeAttachment(taskId: string, actorId: string, attachmentId: string) {
-  const attachment = await prisma.taskAttachment.delete({ where: { id: attachmentId } });
+  const attachment = await prisma.taskAttachment.delete({ where: { id: attachmentId, taskId } });
   await writeTaskActivity({ taskId, actorId, type: "ATTACHMENT_REMOVED", payload: { label: attachment.label } });
 }

@@ -1,0 +1,380 @@
+[
+  {
+    "id": "5YNp4pmjBrbKRixUqPED",
+    "name": "Vali Kéo Vimove 8090",
+    "price": 1090000,
+    "oldPrice": 1981000,
+    "category": "vali",
+    "material": "Nhựa PP",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)"
+    ],
+    "colors": [
+      "Ghi xanh",
+      "Đen",
+      "Ghi đậm",
+      "Hồng tím",
+      "Xanh nhạt",
+      "Ghi xám"
+    ],
+    "description": "Vali Kéo Vimove 8090\\nNhựa PP Dai dẻo chịu lực đàn hồi cao, xe oto cáng lên cũng không vỡ.\\n1. Dây khóa chống rạch.\\n2. Cổng sạc usb kết nối với điện thoại.\\n3. Ngăn chống thấm nước.",
+    "images": [
+      "../assets/images/products/vali-8090-1.jpg",
+      "../assets/images/products/vali-8090-2.jpg",
+      "../assets/images/products/vali-8090-3.jpg",
+      "../assets/images/products/vali-8090-4.jpg",
+      "../assets/images/products/vali-8090-5.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175827,
+      "_nanoseconds": 326000000
+    }
+  },
+  {
+    "id": "KluAMtcSJXh7twi0tj0O",
+    "name": "Vali Kéo Vimove 8810",
+    "price": 1905000,
+    "oldPrice": 3463000,
+    "category": "vali",
+    "material": "Nhựa ABS / PC",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)",
+      "Bộ 3 (20+24+28)"
+    ],
+    "colors": [
+      "Cam đào",
+      "Đen",
+      "Bạc",
+      "Trắng",
+      "Xanh hồng"
+    ],
+    "description": "Vali Kéo Vimove 8810 — Nhựa ABS Cao Cấp, Khóa TSA\\nBảo hành phụ kiện trọn đời.",
+    "images": [
+      "../assets/images/products/vali-8810-1.jpg",
+      "../assets/images/products/vali-8810-2.jpg",
+      "../assets/images/products/vali-8810-3.jpg",
+      "../assets/images/products/vali-8810-4.jpg",
+      "../assets/images/products/vali-8810-5.jpg",
+      "../assets/images/products/vali-8810-6.jpg",
+      "../assets/images/products/vali-8810-7.jpg",
+      "../assets/images/products/vali-8810-8.jpg",
+      "../assets/images/products/vali-8810-9.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381304,
+      "_nanoseconds": 930000000
+    }
+  },
+  {
+    "id": "N1RS9xB5QPAsk2ATO611",
+    "name": "Vali Kéo Vimove 8803",
+    "price": 1393000,
+    "oldPrice": 2532000,
+    "category": "vali",
+    "material": "Nhựa PP",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)"
+    ],
+    "colors": [
+      "Ghi đậm",
+      "Hồng tím",
+      "Ghi xanh",
+      "Xanh than",
+      "Xanh nhạt",
+      "Đen"
+    ],
+    "description": "Vali Kéo Vimove 8803\\nNhựa PP Dai dẻo chịu lực đàn hồi cao, xe oto cáng lên cũng không vỡ.\\n1. Dây khóa mở rộng tăng thêm 25% diện tích chứa đồ.\\n2. Cổng sạc usb kết nối với điện thoại.",
+    "images": [
+      "../assets/images/products/vali-8803-1.jpg",
+      "../assets/images/products/vali-8803-2.jpg",
+      "../assets/images/products/vali-8803-3.jpg",
+      "../assets/images/products/vali-8803-4.jpg",
+      "../assets/images/products/vali-8803-5.jpg",
+      "../assets/images/products/vali-8803-6.jpg",
+      "../assets/images/products/vali-8803-7.jpg",
+      "../assets/images/products/vali-8803-8.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175827,
+      "_nanoseconds": 129000000
+    }
+  },
+  {
+    "id": "PfnkMRiLFUAsDmIVgKlY",
+    "name": "Vali Kéo Vimove 8810",
+    "price": 1905000,
+    "oldPrice": 3463000,
+    "category": "vali",
+    "material": "Nhựa ABS / PC",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)",
+      "Bộ 3 (20+24+28)"
+    ],
+    "colors": [
+      "Cam đào",
+      "Đen",
+      "Bạc",
+      "Trắng",
+      "Xanh hồng"
+    ],
+    "description": "Vali Kéo Vimove 8810 — Nhựa ABS Cao Cấp, Khóa TSA\\nBảo hành phụ kiện trọn đời.",
+    "images": [
+      "../assets/images/products/vali-8810-1.jpg",
+      "../assets/images/products/vali-8810-2.jpg",
+      "../assets/images/products/vali-8810-3.jpg",
+      "../assets/images/products/vali-8810-4.jpg",
+      "../assets/images/products/vali-8810-5.jpg",
+      "../assets/images/products/vali-8810-6.jpg",
+      "../assets/images/products/vali-8810-7.jpg",
+      "../assets/images/products/vali-8810-8.jpg",
+      "../assets/images/products/vali-8810-9.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175826,
+      "_nanoseconds": 706000000
+    }
+  },
+  {
+    "id": "XrfmGQvqjD2bnrcdOb7Q",
+    "name": "Vali Kéo Vimove 8803",
+    "price": 1393000,
+    "oldPrice": 2532000,
+    "category": "vali",
+    "material": "Nhựa PP",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)"
+    ],
+    "colors": [
+      "Ghi đậm",
+      "Hồng tím",
+      "Ghi xanh",
+      "Xanh than",
+      "Xanh nhạt",
+      "Đen"
+    ],
+    "description": "Vali Kéo Vimove 8803\\nNhựa PP Dai dẻo chịu lực đàn hồi cao, xe oto cáng lên cũng không vỡ.\\n1. Dây khóa mở rộng tăng thêm 25% diện tích chứa đồ.\\n2. Cổng sạc usb kết nối với điện thoại.",
+    "images": [
+      "../assets/images/products/vali-8803-1.jpg",
+      "../assets/images/products/vali-8803-2.jpg",
+      "../assets/images/products/vali-8803-3.jpg",
+      "../assets/images/products/vali-8803-4.jpg",
+      "../assets/images/products/vali-8803-5.jpg",
+      "../assets/images/products/vali-8803-6.jpg",
+      "../assets/images/products/vali-8803-7.jpg",
+      "../assets/images/products/vali-8803-8.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381305,
+      "_nanoseconds": 336000000
+    }
+  },
+  {
+    "id": "Z5AnYqqh5CRdDLUGZWUb",
+    "name": "Túi Laptop L102",
+    "price": 380000,
+    "oldPrice": 550000,
+    "category": "balo",
+    "material": "Vải D600",
+    "sizes": [
+      "13 inch",
+      "15.6 inch"
+    ],
+    "colors": [
+      "Đen",
+      "Ghi",
+      "Hồng gold"
+    ],
+    "description": "TÚI LAPTOP L102\\n- Chất liệu Polyester bền màu, chống nước, chống phai\\n- Lót nhung chống sốc bảo vệ laptop\\n- Quai xách chìm thanh lịch.",
+    "images": [
+      "../assets/images/products/tui-l102-1.jpg",
+      "../assets/images/products/tui-l102-2.jpg",
+      "../assets/images/products/tui-l102-3.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175827,
+      "_nanoseconds": 780000000
+    }
+  },
+  {
+    "id": "dpyC3NvEnQXfDXpwdVip",
+    "name": "Vali Kéo Vimove 8090",
+    "price": 1090000,
+    "oldPrice": 1981000,
+    "category": "vali",
+    "material": "Nhựa PP",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)",
+      "28 inch (Gia đình)"
+    ],
+    "colors": [
+      "Ghi xanh",
+      "Đen",
+      "Ghi đậm",
+      "Hồng tím",
+      "Xanh nhạt",
+      "Ghi xám"
+    ],
+    "description": "Vali Kéo Vimove 8090\\nNhựa PP Dai dẻo chịu lực đàn hồi cao, xe oto cáng lên cũng không vỡ.\\n1. Dây khóa chống rạch.\\n2. Cổng sạc usb kết nối với điện thoại.\\n3. Ngăn chống thấm nước.",
+    "images": [
+      "../assets/images/products/vali-8090-1.jpg",
+      "../assets/images/products/vali-8090-2.jpg",
+      "../assets/images/products/vali-8090-3.jpg",
+      "../assets/images/products/vali-8090-4.jpg",
+      "../assets/images/products/vali-8090-5.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381305,
+      "_nanoseconds": 464000000
+    }
+  },
+  {
+    "id": "jd5WVScUgLBGpu11zztD",
+    "name": "Túi Laptop L102",
+    "price": 380000,
+    "oldPrice": 550000,
+    "category": "balo",
+    "material": "Vải D600",
+    "sizes": [
+      "13 inch",
+      "15.6 inch"
+    ],
+    "colors": [
+      "Đen",
+      "Ghi",
+      "Hồng gold"
+    ],
+    "description": "TÚI LAPTOP L102\\n- Chất liệu Polyester bền màu, chống nước, chống phai\\n- Lót nhung chống sốc bảo vệ laptop\\n- Quai xách chìm thanh lịch.",
+    "images": [
+      "../assets/images/products/tui-l102-1.jpg",
+      "../assets/images/products/tui-l102-2.jpg",
+      "../assets/images/products/tui-l102-3.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381306,
+      "_nanoseconds": 16000000
+    }
+  },
+  {
+    "id": "lSvD6HRDLqwPvzbk9KMK",
+    "name": "Túi Laptop L100",
+    "price": 350000,
+    "oldPrice": 500000,
+    "category": "balo",
+    "material": "Vải D600",
+    "sizes": [
+      "13 inch",
+      "15.6 inch"
+    ],
+    "colors": [
+      "Ghi sữa",
+      "Ghi xanh",
+      "Hồng gold"
+    ],
+    "description": "TÚI LAPTOP L100 ngang\\n- Lót nhung chống sốc, bảo vệ laptop\\n- Ngăn phụ kiện bên ngoài để thêm dây sạc laptop.",
+    "images": [
+      "../assets/images/products/tui-l100-1.jpg",
+      "../assets/images/products/tui-l100-2.jpg",
+      "../assets/images/products/tui-l100-3.jpg",
+      "../assets/images/products/tui-l100-4.jpg",
+      "../assets/images/products/tui-l100-5.jpg",
+      "../assets/images/products/tui-l100-6.jpg",
+      "../assets/images/products/tui-l100-7.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175827,
+      "_nanoseconds": 641000000
+    }
+  },
+  {
+    "id": "mS7m4hfeQdrGExa3wkpa",
+    "name": "Vali Kéo Vimove 621",
+    "price": 909000,
+    "oldPrice": 1653000,
+    "category": "vali",
+    "material": "Nhựa ABS",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)"
+    ],
+    "colors": [
+      "Cam đào",
+      "Đen"
+    ],
+    "description": "Vali Kéo Vimove 621\\nNhựa ABS giảm chầy xước chịu lực 50 đến 60kg.\\n1. Ngăn laptop riêng biệt.\\n2. Dây khóa mở rộng.\\n3. Khay đựng cốc rảnh tay.\\n4. Móc treo đồ cạnh hông.",
+    "images": [
+      "../assets/images/products/vali-621-1.jpg",
+      "../assets/images/products/vali-621-2.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381305,
+      "_nanoseconds": 565000000
+    }
+  },
+  {
+    "id": "s93UzqdPNOHHjSirYPgU",
+    "name": "Vali Kéo Vimove 621",
+    "price": 909000,
+    "oldPrice": 1653000,
+    "category": "vali",
+    "material": "Nhựa ABS",
+    "sizes": [
+      "20 inch (Cabin)",
+      "24 inch (Ký gửi)"
+    ],
+    "colors": [
+      "Cam đào",
+      "Đen"
+    ],
+    "description": "Vali Kéo Vimove 621\\nNhựa ABS giảm chầy xước chịu lực 50 đến 60kg.\\n1. Ngăn laptop riêng biệt.\\n2. Dây khóa mở rộng.\\n3. Khay đựng cốc rảnh tay.\\n4. Móc treo đồ cạnh hông.",
+    "images": [
+      "../assets/images/products/vali-621-1.jpg",
+      "../assets/images/products/vali-621-2.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1784175827,
+      "_nanoseconds": 469000000
+    }
+  },
+  {
+    "id": "wSB49T2N5CFI1ia0cG45",
+    "name": "Túi Laptop L100",
+    "price": 350000,
+    "oldPrice": 500000,
+    "category": "balo",
+    "material": "Vải D600",
+    "sizes": [
+      "13 inch",
+      "15.6 inch"
+    ],
+    "colors": [
+      "Ghi sữa",
+      "Ghi xanh",
+      "Hồng gold"
+    ],
+    "description": "TÚI LAPTOP L100 ngang\\n- Lót nhung chống sốc, bảo vệ laptop\\n- Ngăn phụ kiện bên ngoài để thêm dây sạc laptop.",
+    "images": [
+      "../assets/images/products/tui-l100-1.jpg",
+      "../assets/images/products/tui-l100-2.jpg",
+      "../assets/images/products/tui-l100-3.jpg",
+      "../assets/images/products/tui-l100-4.jpg",
+      "../assets/images/products/tui-l100-5.jpg",
+      "../assets/images/products/tui-l100-6.jpg",
+      "../assets/images/products/tui-l100-7.jpg"
+    ],
+    "createdAt": {
+      "_seconds": 1782381305,
+      "_nanoseconds": 696000000
+    }
+  }
+]

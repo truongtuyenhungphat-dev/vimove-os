@@ -9,5 +9,5 @@ export async function addComment(taskId: string, authorId: string, body: string)
 }
 
 export async function deleteComment(taskId: string, commentId: string) {
-  await prisma.taskComment.delete({ where: { id: commentId } });
+  await prisma.taskComment.delete({ where: { id: commentId, taskId } });
 }

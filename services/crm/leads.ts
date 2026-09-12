@@ -97,6 +97,44 @@ export async function createLead(
   return lead;
 }
 
+// Pipeline mặc định để gán lead từ form công khai (không có session để chọn
+// pipeline/stage như tạo lead trong app) — id cố định từ prisma/seed.ts,
+// không đổi tên/xoá pipeline "Pipeline bán hàng" + stage "Mới" nếu không sửa
+// cả chỗ này.
+const PUBLIC_LEAD_PIPELINE_ID = "seed-pipeline-1";
+const PUBLIC_LEAD_STAGE_ID = "seed-stage-new";
+
+/** Form liên hệ công khai (Phase 16) — không có session/actorId, không lọc
+ * theo organizationId (hệ thống hiện chỉ có 1 tổ chức "vimove"), giống
+ * findWarrantyByCode/getPublishedLandingPageBySlugGlobal. Tạo Lead thật
+ * trong CRM (source WEBSITE) thay vì chỉ gửi email — nhân viên Sales thấy
+ * ngay trong Pipeline, không phải hộp thư riêng dễ bị bỏ sót. */
+export async function createLeadFromContactFormGlobal(data: {
+  organizationId: string;
+  contactName: string;
+  phone: string;
+  email?: string | null;
+  interest?: string | null;
+  message: string;
+}) {
+  const noteParts = [data.interest ? `Quan tâm: ${data.interest}` : null, data.message].filter(Boolean);
+  const lead = await prisma.lead.create({
+    data: {
+      organizationId: data.organizationId,
+      name: `Liên hệ website — ${data.contactName}`,
+      contactName: data.contactName,
+      email: data.email || null,
+      phone: data.phone,
+      source: "WEBSITE",
+      pipelineId: PUBLIC_LEAD_PIPELINE_ID,
+      stageId: PUBLIC_LEAD_STAGE_ID,
+      activities: { create: { type: "NOTE", content: noteParts.join("\n") } },
+    },
+  });
+  await writeEvent({ organizationId: data.organizationId, type: "lead.created", entityType: "Lead", entityId: lead.id, occurredAt: lead.createdAt });
+  return lead;
+}
+
 export async function updateLead(
   organizationId: string,
   actorId: string,

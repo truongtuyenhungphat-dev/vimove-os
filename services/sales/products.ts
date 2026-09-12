@@ -2,8 +2,8 @@ import "server-only";
 import { prisma } from "@/lib/db/client";
 import { writeAuditLog } from "@/services/core/audit";
 
-function serializeProduct<T extends { price: unknown }>(product: T) {
-  return { ...product, price: Number(product.price) };
+function serializeProduct<T extends { price: unknown; oldPrice?: unknown }>(product: T) {
+  return { ...product, price: Number(product.price), oldPrice: product.oldPrice == null ? null : Number(product.oldPrice) };
 }
 
 export async function listProducts(organizationId: string, includeInactive = true) {
@@ -12,6 +12,23 @@ export async function listProducts(organizationId: string, includeInactive = tru
     orderBy: { createdAt: "desc" },
   });
   return products.map(serializeProduct);
+}
+
+/** Danh mục công khai (Phase 16) — không lọc theo organizationId, giống
+ * getPublishedLandingPageBySlugGlobal/findWarrantyByCode: khách ẩn danh
+ * không có session/organization context, và hệ thống hiện chỉ có 1 tổ
+ * chức "vimove" nên không cần disambiguation. */
+export async function listPublishedProductsGlobal(filters: { category?: string } = {}) {
+  const products = await prisma.product.findMany({
+    where: { isPublished: true, ...(filters.category ? { category: filters.category } : {}) },
+    orderBy: { createdAt: "desc" },
+  });
+  return products.map(serializeProduct);
+}
+
+export async function getPublishedProductBySlugGlobal(slug: string) {
+  const product = await prisma.product.findFirst({ where: { slug, isPublished: true } });
+  return product ? serializeProduct(product) : null;
 }
 
 export async function createProduct(

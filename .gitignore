@@ -54,6 +54,10 @@ coverage-ui.json
 # committed. Kept locally only, deleted once the migration has run against
 # production.
 scripts/data/legacy-*.json
+# ...except legacy-products.json (Phase 16 product catalog migration) — plain
+# product catalog data (name/price/images/etc.), no customer PII, safe to keep
+# in the public repo so scripts/migrate-product-catalog.ts stays reproducible.
+!scripts/data/legacy-products.json
 
 .vercel
 .env*

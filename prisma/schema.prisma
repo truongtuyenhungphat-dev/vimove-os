@@ -1082,6 +1082,11 @@ model LeadActivity {
   @@map("lead_activities")
 }
 
+// isPublished/slug/images/... (Phase 16) — marketing/catalog fields added on
+// top of the original sales-oriented model, for the public site's product
+// pages migrated from the old Firebase system. isPublished defaults false so
+// existing internal/demo Product rows (used for order line items only,
+// never had marketing content) don't suddenly appear on the public site.
 model Product {
   id             String   @id @default(cuid())
   organizationId String
@@ -1092,6 +1097,16 @@ model Product {
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  slug        String?  @unique
+  oldPrice    Decimal? @db.Decimal(14, 2)
+  category    String?
+  material    String?
+  sizes       String[] @default([])
+  colors      String[] @default([])
+  description String?
+  images      String[] @default([])
+  isPublished Boolean  @default(false)
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   orderItems   OrderItem[]
