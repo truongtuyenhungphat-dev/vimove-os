@@ -48,5 +48,12 @@ __pycache__/
 .coverage
 coverage-ui.json
 
+# Raw customer PII exported from the legacy Firebase system for the one-time
+# Phase 15 warranty migration (scripts/migrate-warranty-data.ts) — real names/
+# phones/emails/addresses. This repo is PUBLIC on GitHub; these must never be
+# committed. Kept locally only, deleted once the migration has run against
+# production.
+scripts/data/legacy-*.json
+
 .vercel
 .env*
