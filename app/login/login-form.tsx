@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { loginAction, googleSignInAction, type LoginState } from "./actions";
 
 function GoogleIcon() {
@@ -39,6 +40,7 @@ export function LoginForm({
   googleEnabled: boolean;
 }) {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(loginAction, undefined);
+  const [remember, setRemember] = useState(true);
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,16 +65,31 @@ export function LoginForm({
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="name@vimove.vn" required autoFocus />
+          <InputGroup>
+            <InputGroupAddon>
+              <Mail />
+            </InputGroupAddon>
+            <InputGroupInput id="email" name="email" type="email" placeholder="admin@vimove.vn" required autoFocus />
+          </InputGroup>
         </div>
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Mật khẩu</Label>
-            <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground hover:underline">
-              Quên mật khẩu?
-            </Link>
-          </div>
-          <Input id="password" name="password" type="password" placeholder="••••••••" required />
+          <Label htmlFor="password">Mật khẩu</Label>
+          <InputGroup>
+            <InputGroupAddon>
+              <Lock />
+            </InputGroupAddon>
+            <InputGroupInput id="password" name="password" type="password" placeholder="••••••••" required />
+          </InputGroup>
+        </div>
+
+        <div className="flex items-center justify-between text-xs">
+          <label className="flex items-center gap-2 text-muted-foreground">
+            <Checkbox checked={remember} onCheckedChange={(v) => setRemember(v === true)} />
+            Ghi nhớ đăng nhập
+          </label>
+          <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground hover:underline">
+            Quên mật khẩu?
+          </Link>
         </div>
 
         {state?.error && (
@@ -82,6 +99,7 @@ export function LoginForm({
         <Button type="submit" className="mt-2 w-full" disabled={isPending}>
           {isPending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
           {isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+          {!isPending && <ArrowRight className="size-4" aria-hidden="true" />}
         </Button>
       </form>
     </div>

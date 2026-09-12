@@ -30,6 +30,10 @@ export default async function LoginPage({
           </div>
 
           <LoginForm callbackUrl={callbackUrl ?? "/dashboard"} googleEnabled={!!process.env.AUTH_GOOGLE_ID} />
+
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            © {new Date().getFullYear()} VIMOVE OS. All rights reserved.
+          </p>
         </div>
       </div>
 
