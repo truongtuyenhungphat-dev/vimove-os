@@ -22,6 +22,7 @@ import {
   ShoppingCart,
   Package,
   Store,
+  BadgeCheck,
   Megaphone,
   FileEdit,
   Share2,
@@ -123,6 +124,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Đơn hàng", href: "/sales/orders", icon: ShoppingCart, permission: "orders.read" },
       { label: "Sản phẩm", href: "/sales/products", icon: Package, permission: "sales_catalog.manage" },
       { label: "Kênh bán", href: "/sales/channels", icon: Store, permission: "sales_catalog.manage" },
+      { label: "Bảo hành", href: "/sales/warranty", icon: BadgeCheck, permission: "warranty.read" },
     ],
   },
   {

@@ -72,6 +72,12 @@ export const PERMISSIONS = [
   { key: "orders.delete", resource: "orders", action: "delete", description: "Xoá đơn hàng" },
   { key: "sales_catalog.manage", resource: "sales_catalog", action: "manage", description: "Quản lý pipeline/stage, sản phẩm, kênh bán" },
 
+  // Bảo hành (Phase 15) — di trú từ hệ thống Firebase cũ
+  { key: "warranty.read", resource: "warranty", action: "read", description: "Xem bảo hành đã đăng ký" },
+  { key: "warranty.create", resource: "warranty", action: "create", description: "Đăng ký bảo hành mới" },
+  { key: "warranty.update", resource: "warranty", action: "update", description: "Sửa thông tin bảo hành, đổi trạng thái" },
+  { key: "warranty.delete", resource: "warranty", action: "delete", description: "Xoá bảo hành" },
+
   // Marketing (Phase 5)
   { key: "campaigns.read", resource: "campaigns", action: "read", description: "Xem chiến dịch & KPI" },
   { key: "campaigns.create", resource: "campaigns", action: "create", description: "Tạo chiến dịch mới" },
