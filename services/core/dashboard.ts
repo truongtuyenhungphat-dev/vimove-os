@@ -37,6 +37,14 @@ function startOfWeek(d: Date) {
 export async function getDashboardOverview(organizationId: string, userId: string) {
   const now = new Date();
 
+  const taskListSelect = {
+    id: true,
+    title: true,
+    status: true,
+    priority: true,
+    dueAt: true,
+  } as const;
+
   const [
     users,
     departments,
@@ -53,6 +61,14 @@ export async function getDashboardOverview(organizationId: string, userId: strin
     activeWarranties,
     warrantiesExpiringSoon,
     todayAttendance,
+    myTaskStatusCounts,
+    myOverdueList,
+    myDueTodayList,
+    myUpcomingList,
+    recentlyUpdatedTasks,
+    activeWorkflowRuns,
+    pendingLeaveRequests,
+    aiRecommendationsPending,
   ] = await Promise.all([
     prisma.user.count({ where: { organizationId, status: "ACTIVE" } }),
     prisma.department.count({ where: { organizationId } }),
@@ -97,7 +113,62 @@ export async function getDashboardOverview(organizationId: string, userId: strin
       orderBy: { occurredAt: "desc" },
       select: { type: true, occurredAt: true },
     }),
+    // Nhóm dữ liệu cho donut "Việc của tôi" — tham khảo bố cục Tổng quan của
+    // MISA AMIS Công việc (donut + số ở giữa + legend theo trạng thái) —
+    // dùng ĐÚNG 5 trạng thái Task thật, không rút gọn/gộp giả.
+    prisma.task.groupBy({
+      by: ["status"],
+      where: { organizationId, assigneeId: userId },
+      _count: { _all: true },
+    }),
+    // 3 nhóm "cần làm" theo mốc thời gian (không phải theo trạng thái) — tham
+    // khảo tab Quá hạn/Đến hạn/Sắp đến hạn của MISA, limit 5 dòng mỗi tab vì
+    // đây là widget xem nhanh trên Dashboard, xem đủ thì bấm "Xem tất cả" ->
+    // /work/my-tasks (đã có bảng đầy đủ + lọc theo trạng thái ở đó).
+    prisma.task.findMany({
+      where: { organizationId, assigneeId: userId, status: { notIn: ["DONE", "CANCELLED"] }, dueAt: { lt: startOfDay(now) } },
+      select: taskListSelect,
+      orderBy: { dueAt: "asc" },
+      take: 5,
+    }),
+    prisma.task.findMany({
+      where: {
+        organizationId,
+        assigneeId: userId,
+        status: { notIn: ["DONE", "CANCELLED"] },
+        dueAt: { gte: startOfDay(now), lte: endOfDay(now) },
+      },
+      select: taskListSelect,
+      orderBy: { dueAt: "asc" },
+      take: 5,
+    }),
+    prisma.task.findMany({
+      where: {
+        organizationId,
+        assigneeId: userId,
+        status: { notIn: ["DONE", "CANCELLED"] },
+        dueAt: { gt: endOfDay(now), lte: new Date(now.getTime() + 7 * 86400000) },
+      },
+      select: taskListSelect,
+      orderBy: { dueAt: "asc" },
+      take: 5,
+    }),
+    // Thay cho "Công việc được ghim" của MISA — Task ở đây chưa có field pin,
+    // dùng "cập nhật gần đây" (updatedAt, toàn tổ chức) làm bản thay thế THẬT
+    // thay vì tự thêm 1 field/tính năng ghim mới nằm ngoài phạm vi yêu cầu.
+    prisma.task.findMany({
+      where: { organizationId },
+      select: { id: true, title: true, status: true, updatedAt: true, assignee: { select: { name: true } } },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+    }),
+    prisma.workflowRun.count({ where: { organizationId, status: { in: ["RUNNING", "AWAITING_APPROVAL"] } } }),
+    prisma.leaveRequest.count({ where: { organizationId, approvalRequest: { status: "PENDING" } } }),
+    prisma.aiRecommendation.count({ where: { organizationId, status: "PENDING" } }),
   ]);
+
+  const taskStatusCounts: Record<string, number> = { TODO: 0, IN_PROGRESS: 0, IN_REVIEW: 0, DONE: 0, CANCELLED: 0 };
+  for (const row of myTaskStatusCounts) taskStatusCounts[row.status] = row._count._all;
 
   return {
     org: { users, departments, teams },
@@ -111,5 +182,11 @@ export async function getDashboardOverview(organizationId: string, userId: strin
       checkedInToday: !!todayAttendance && todayAttendance.type === "CHECK_IN",
       lastEventAt: todayAttendance?.occurredAt ?? null,
     },
+    myTaskStatusCounts: taskStatusCounts,
+    myTaskDueLists: { overdue: myOverdueList, dueToday: myDueTodayList, upcoming: myUpcomingList },
+    recentlyUpdatedTasks,
+    process: { activeRuns: activeWorkflowRuns },
+    leave: { pending: pendingLeaveRequests },
+    ai: { recommendationsPending: aiRecommendationsPending },
   };
 }

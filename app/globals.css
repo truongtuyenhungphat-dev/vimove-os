@@ -166,3 +166,19 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
 }
+
+/* Card viền gradient mềm — tham khảo card "Nhắc việc hôm nay"/"AI gợi ý hành
+ * động" của MISA AMIS (Tổng quan), giữ đúng màu thương hiệu VIMOVE OS
+ * (--primary xanh dương) thay vì màu xanh lá/hồng của MISA — chỉ mượn CẤU
+ * TRÚC (viền gradient mềm bao quanh nền card trắng), không mượn màu.
+ * Dùng: <div class="gradient-border-card"><div class="rounded-[calc(var(--radius-xl)-1px)] bg-card ...">nội dung</div></div> */
+.gradient-border-card {
+  padding: 1px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 50%, transparent),
+    color-mix(in oklch, var(--primary) 15%, transparent) 55%,
+    transparent 80%
+  );
+}
