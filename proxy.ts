@@ -17,10 +17,13 @@ const AUTH_PATHS = ["/login", "/forgot-password"];
 // public/sw.js) khi mất mạng: được cache tĩnh sẵn trong trình duyệt và trả về TRỰC
 // TIẾP từ cache khi navigate lúc offline (server không hề chạy) — nhưng vẫn cần mở
 // công khai để lần đầu precache (`cache.addAll` lúc SW install) không bị chặn.
-// "/san-pham", "/ve-chung-toi", "/lien-he" — website công khai Vimove.com.vn (Phase
-// 16, di trú từ hệ thống Firebase cũ) — cùng lý do với "/lp": khách vãng lai xem
-// không cần đăng nhập, và nhân viên đang đăng nhập vẫn xem được (không bị đẩy đi).
-const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he"];
+// "/san-pham", "/ve-chung-toi", "/lien-he", "/bao-hanh" — website công khai
+// Vimove.com.vn (Phase 16, di trú từ hệ thống Firebase cũ) — cùng lý do với
+// "/lp": khách vãng lai xem không cần đăng nhập, và nhân viên đang đăng nhập
+// vẫn xem được (không bị đẩy đi). "/bao-hanh" còn là đích redirect tương lai
+// của domain vimove.net (in trên QR code sản phẩm, xem _redirects ở repo web
+// cũ) — ?tab=register phải luôn mở công khai không qua đăng nhập.
+const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he", "/bao-hanh"];
 // Trang chủ công khai — so sánh CHÍNH XÁC "/" (không dùng startsWith như các path
 // khác ở trên) vì mọi pathname đều "bắt đầu bằng /", startsWith("/") sẽ vô tình mở
 // công khai toàn bộ ứng dụng kể cả /dashboard, /work, ...

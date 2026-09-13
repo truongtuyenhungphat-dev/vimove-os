@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db/client";
 import { writeAuditLog } from "@/services/core/audit";
+import { writeEvent } from "@/services/analytics/events";
 import type { WarrantyStatus } from "@/lib/warranty/types";
 
 const warrantyListInclude = {
@@ -45,6 +46,94 @@ export async function findWarrantyByCode(warrantyCode: string) {
     where: { warrantyCode },
     include: { customer: { select: { name: true, phone: true } } },
   });
+}
+
+/** Tra cứu công khai theo SĐT khách hàng — trả về TẤT CẢ bảo hành khớp (một
+ * khách có thể đăng ký nhiều sản phẩm). Cùng lý do bỏ qua organizationId như
+ * findWarrantyByCode ở trên: không có session, và SĐT không phải khoá đủ
+ * nhạy cảm để cần disambiguation theo tổ chức (hệ thống hiện chỉ có 1 org). */
+export async function findWarrantiesByPhoneGlobal(phone: string) {
+  return prisma.warranty.findMany({
+    where: { customer: { phone } },
+    include: { customer: { select: { name: true, phone: true } } },
+    orderBy: { registeredAt: "desc" },
+  });
+}
+
+const WARRANTY_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // bỏ ký tự dễ nhầm: I/O/0/1 — giữ nguyên bộ ký tự của cổng cũ (Firebase) để mã cũ/mới cùng "họ" VM-XXXXXX.
+
+async function generateWarrantyCode() {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let code = "VM-";
+    for (let i = 0; i < 6; i++) code += WARRANTY_CODE_CHARS[Math.floor(Math.random() * WARRANTY_CODE_CHARS.length)];
+    if (!(await prisma.warranty.findUnique({ where: { warrantyCode: code }, select: { id: true } }))) return code;
+  }
+  throw new Error("Không tạo được mã bảo hành, vui lòng thử lại");
+}
+
+/** Đăng ký bảo hành công khai (cổng /bao-hanh, không cần đăng nhập) — tương
+ * đương "Agent CRM Synchronizer" của cổng Firebase cũ: tự sinh mã, tự tìm
+ * hoặc tạo Customer theo SĐT (không unique constraint nên so khớp thủ công),
+ * rồi tạo Warranty. Hạn bảo hành mặc định = ngày mua + 24 tháng, giống công
+ * thức cũ. Không có actorId (khách ẩn danh) nên không ghi audit log — dùng
+ * writeEvent (cùng cách createLeadFromContactFormGlobal xử lý) để vẫn có vết
+ * cho báo cáo/automation. */
+export async function createWarrantyFromPublicFormGlobal(data: {
+  organizationId: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  customerAddress?: string | null;
+  productId?: string | null;
+  productName: string;
+  color?: string | null;
+  size?: string | null;
+  purchaseChannel?: string | null;
+  purchaseDate: Date;
+}) {
+  const existingCustomer = await prisma.customer.findFirst({
+    where: { organizationId: data.organizationId, phone: data.customerPhone },
+  });
+  const customer = existingCustomer
+    ? await prisma.customer.update({
+        where: { id: existingCustomer.id },
+        data: {
+          name: data.customerName || existingCustomer.name,
+          email: data.customerEmail || existingCustomer.email,
+          address: data.customerAddress || existingCustomer.address,
+        },
+      })
+    : await prisma.customer.create({
+        data: {
+          organizationId: data.organizationId,
+          name: data.customerName,
+          phone: data.customerPhone,
+          email: data.customerEmail || null,
+          address: data.customerAddress || null,
+        },
+      });
+
+  const warrantyExpiry = new Date(data.purchaseDate);
+  warrantyExpiry.setMonth(warrantyExpiry.getMonth() + 24);
+  const warrantyCode = await generateWarrantyCode();
+
+  const warranty = await prisma.warranty.create({
+    data: {
+      organizationId: data.organizationId,
+      customerId: customer.id,
+      productId: data.productId || null,
+      productName: data.productName,
+      color: data.color || null,
+      size: data.size || null,
+      purchaseChannel: data.purchaseChannel || null,
+      purchaseDate: data.purchaseDate,
+      warrantyExpiry,
+      warrantyCode,
+      status: "ACTIVE",
+    },
+  });
+  await writeEvent({ organizationId: data.organizationId, type: "warranty.registered", entityType: "Warranty", entityId: warranty.id, occurredAt: warranty.createdAt });
+  return warranty;
 }
 
 export async function createWarranty(

@@ -6,6 +6,7 @@ import { listPublishedProductsGlobal } from "@/services/sales/products";
 const CATEGORY_LABELS: Record<string, string> = { vali: "Vali kéo", balo: "Túi / Balo" };
 
 const FOOTER_SUPPORT_LINKS = [
+  { href: "/bao-hanh", label: "Bảo hành" },
   { href: "/ve-chung-toi", label: "Về chúng tôi" },
   { href: "/lien-he", label: "Liên hệ" },
 ];
@@ -39,6 +40,9 @@ export default async function PublicLayout({ children }: { children: React.React
                 </div>
               )}
             </div>
+            <Link href="/bao-hanh" className="hover:text-primary">
+              Bảo hành
+            </Link>
             <Link href="/ve-chung-toi" className="hover:text-primary">
               Về chúng tôi
             </Link>
