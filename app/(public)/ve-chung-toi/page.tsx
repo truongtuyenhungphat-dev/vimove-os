@@ -40,8 +40,21 @@ const COMPANY_INFO = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col">
-      <section className="bg-neutral-950 px-4 py-16 text-white">
-        <div className="mx-auto max-w-3xl text-center">
+      {/* Hero tối "aurora" — cùng ngôn ngữ thị giác với app/login (xem hero-panel.tsx +
+       * keyframes trong globals.css) để trang công khai và hệ thống nội bộ nhất quán. */}
+      <section className="relative overflow-hidden bg-neutral-950 px-4 py-16 text-white sm:py-20">
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay bg-grain-overlay" />
+        <div
+          aria-hidden
+          className="animate-login-aurora-a pointer-events-none absolute -top-24 -left-24 size-[28rem] rounded-full opacity-30 blur-3xl"
+          style={{ background: "radial-gradient(circle, var(--primary), transparent 70%)" }}
+        />
+        <div
+          aria-hidden
+          className="animate-login-aurora-b pointer-events-none absolute -bottom-32 -right-16 size-[26rem] rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, oklch(0.6 0.18 305), transparent 70%)" }}
+        />
+        <div className="relative mx-auto max-w-3xl text-center">
           <p className="text-sm font-medium tracking-wide text-primary uppercase">Câu chuyện của chúng tôi</p>
           <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">Vimove — Khởi Đầu Từ Đam Mê Du Lịch</h1>
           <p className="mt-4 text-sm leading-relaxed text-neutral-300 sm:text-base">

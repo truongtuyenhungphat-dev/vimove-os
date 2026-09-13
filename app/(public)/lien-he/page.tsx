@@ -49,6 +49,16 @@ export default function ContactPage() {
             Điền thông tin bên dưới, chúng tôi sẽ liên hệ lại trong vòng 30 phút (giờ hành chính).
           </p>
           <ContactForm />
+
+          <div className="mt-6 flex flex-col items-center gap-3 rounded-xl border bg-card p-5 text-center">
+            <p className="text-sm text-muted-foreground">Hoặc gọi ngay để được tư vấn nhanh nhất:</p>
+            <a
+              href="tel:0988512352"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground"
+            >
+              <Phone className="size-4" aria-hidden="true" /> 0988 512 352
+            </a>
+          </div>
         </div>
 
         <div>
@@ -66,6 +76,23 @@ export default function ContactPage() {
               </details>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Bản đồ văn phòng — cùng địa chỉ + toạ độ nhúng thật đã dùng trên bản Firebase
+       * cũ (lien-he/index.html), giữ nguyên vì đây là thông tin công khai xác thực. */}
+      <div className="mt-14">
+        <h2 className="mb-4 text-lg font-semibold">Tìm Chúng Tôi Trên Bản Đồ</h2>
+        <div className="overflow-hidden rounded-xl border">
+          <iframe
+            title="Vị trí văn phòng Vimove — 290 Nguyễn Trãi, Đại Mỗ, Hà Nội"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.938!2d105.7856!3d20.9771!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134537b3fbe8a1f%3A0x35a17b1d0f26a37d!2s290%20Nguy%E1%BB%85n%20Tr%C3%A3i%2C%20%C4%90%E1%BA%A1i%20M%E1%BB%97%2C%20Nam%20T%E1%BB%AB%20Li%C3%AAm%2C%20H%C3%A0%20N%E1%BB%99i!5e0!3m2!1svi!2svn!4v1718000000000!5m2!1svi!2svn"
+            width="100%"
+            height="380"
+            style={{ border: 0, display: "block" }}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
         </div>
       </div>
     </div>
