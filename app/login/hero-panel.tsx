@@ -32,11 +32,13 @@ const STATS = [
   { label: "Sản phẩm", value: "320", delta: "+6%" },
 ];
 
-const CHANNELS = [
-  { label: "Website", pct: 45, color: "#2563eb" },
-  { label: "Shopee", pct: 29, color: "#f97316" },
-  { label: "Tiktok Shop", pct: 18, color: "#111827" },
-  { label: "Khác", pct: 9, color: "#94a3b8" },
+// Lịch làm việc hôm nay — thay cho biểu đồ tròn "Kênh bán hàng" trước đó,
+// đúng tinh thần "không gian văn phòng hiện đại" (họp hành, nhịp làm việc
+// trong ngày) hơn là một chỉ số kinh doanh trừu tượng.
+const SCHEDULE = [
+  { time: "09:00", label: "Họp giao ban tuần", color: "#2563eb" },
+  { time: "11:30", label: "Gặp đối tác vận chuyển", color: "#f97316" },
+  { time: "14:00", label: "Duyệt chiến dịch marketing", color: "#16a34a" },
 ];
 
 const FEATURE_CHIPS = [
@@ -46,8 +48,6 @@ const FEATURE_CHIPS = [
 ];
 
 function DashboardPreviewCard() {
-  const C = 2 * Math.PI * 26;
-  let acc = 0;
   return (
     <div
       className="w-[300px] -rotate-2 overflow-hidden rounded-xl border border-black/5 bg-white text-neutral-900 shadow-[0_35px_70px_-20px_rgba(0,0,0,0.65)] ring-1 ring-white/15 transition-transform duration-500 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 hover:rotate-0"
@@ -98,36 +98,15 @@ function DashboardPreviewCard() {
             </svg>
           </div>
           <div className="rounded-md border p-1.5">
-            <p className="mb-1 text-[7px] text-neutral-500">Kênh bán hàng</p>
-            <div className="flex items-center gap-2">
-              <svg viewBox="0 0 64 64" className="size-9 shrink-0 -rotate-90">
-                {CHANNELS.map((c) => {
-                  const frac = c.pct / 100;
-                  const seg = (
-                    <circle
-                      key={c.label}
-                      cx="32"
-                      cy="32"
-                      r="26"
-                      fill="none"
-                      stroke={c.color}
-                      strokeWidth="8"
-                      strokeDasharray={`${frac * C} ${C}`}
-                      strokeDashoffset={-acc * C}
-                    />
-                  );
-                  acc += frac;
-                  return seg;
-                })}
-              </svg>
-              <div className="flex flex-1 flex-col gap-0.5">
-                {CHANNELS.map((c) => (
-                  <span key={c.label} className="flex items-center gap-1 text-[7px] text-neutral-600">
-                    <span className="size-1.5 rounded-full" style={{ background: c.color }} />
-                    {c.label} {c.pct}%
-                  </span>
-                ))}
-              </div>
+            <p className="mb-1 text-[7px] text-neutral-500">Lịch làm việc hôm nay</p>
+            <div className="flex flex-col gap-1">
+              {SCHEDULE.map((s) => (
+                <div key={s.time} className="flex items-center gap-1.5">
+                  <span className="size-1.5 shrink-0 rounded-full" style={{ background: s.color }} />
+                  <span className="w-7 shrink-0 text-[7px] font-medium text-neutral-500">{s.time}</span>
+                  <span className="truncate text-[7px] text-neutral-700">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
