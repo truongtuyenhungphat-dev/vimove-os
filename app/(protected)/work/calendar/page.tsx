@@ -83,6 +83,8 @@ export default async function CalendarPage({
         monthDate={monthDate}
         tasks={calendarTasks}
         onReschedule={rescheduleCalendarTaskAction}
+        onCreateTask={canCreate ? createTaskAction : undefined}
+        canCreate={canCreate}
         taskBasePath="/work/tasks"
       />
     </>
