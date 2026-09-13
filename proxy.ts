@@ -45,7 +45,13 @@ export default auth((req) => {
   const host = req.headers.get("host")?.split(":")[0] ?? "";
 
   if (WARRANTY_QR_HOSTS.includes(host) && pathname === "/") {
-    const url = new URL("/bao-hanh", req.nextUrl.origin);
+    // Dùng header Host thật (biến `host` ở trên) để dựng origin, KHÔNG dùng
+    // req.nextUrl.origin — phát hiện thực tế trên production multi-domain:
+    // NextAuth's auth() wrapper canonical hoá nextUrl.origin về domain chính
+    // (AUTH_URL/vimove-os.vercel.app) bất kể Host header thật của request,
+    // nên dùng nextUrl.origin ở đây sẽ đá khách từ vimove.net sang thẳng
+    // vimove-os.vercel.app thay vì ở lại đúng domain họ đang truy cập.
+    const url = new URL(`https://${host}/bao-hanh`);
     url.searchParams.set("tab", "register");
     return NextResponse.redirect(url);
   }
