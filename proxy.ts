@@ -29,9 +29,27 @@ const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he",
 // công khai toàn bộ ứng dụng kể cả /dashboard, /work, ...
 const OPEN_ROOT = "/";
 
+// Domain vimove.net in trên QR code bảo hành của sản phẩm (không phải domain
+// chính vimove.com.vn) — mọi request vào ĐÚNG root "/" của domain này phải
+// nhảy thẳng sang cổng đăng ký bảo hành, giống hệt hành vi `_redirects` của
+// site Firebase/Netlify cũ (`http(s)://vimove.net/ -> /chinh-sach-bao-hanh/
+// ?tab=register 302!`) — chỉ đổi đích sang route Next.js tương ứng. Chỉ khớp
+// CHÍNH XÁC "/", không phải toàn bộ domain, để các asset (_next/*, ảnh...)
+// mà trang /bao-hanh cần vẫn tải được bình thường trên domain này, không bị
+// redirect-loop (đúng lý do site cũ ghi rõ trong comment `_redirects`).
+const WARRANTY_QR_HOSTS = ["vimove.net", "www.vimove.net"];
+
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
+  const host = req.headers.get("host")?.split(":")[0] ?? "";
+
+  if (WARRANTY_QR_HOSTS.includes(host) && pathname === "/") {
+    const url = new URL("/bao-hanh", req.nextUrl.origin);
+    url.searchParams.set("tab", "register");
+    return NextResponse.redirect(url);
+  }
+
   const isAuthPath = AUTH_PATHS.some((path) => pathname.startsWith(path));
   const isOpenPath = pathname === OPEN_ROOT || OPEN_PATHS.some((path) => pathname.startsWith(path));
 
