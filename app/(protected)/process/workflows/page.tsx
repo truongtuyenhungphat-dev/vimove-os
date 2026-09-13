@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Workflow as WorkflowIcon } from "lucide-react";
+import { Workflow as WorkflowIcon, Play, PlayCircle } from "lucide-react";
 import { requirePermission, hasPermission } from "@/lib/auth/rbac";
 import { listWorkflows } from "@/services/process/workflows";
 import { PageHeader } from "@/components/shared/page-header";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,8 @@ export default async function WorkflowsPage() {
   const canManage = hasPermission(session, "workflows.manage");
 
   const workflows = await listWorkflows(session.user.organizationId);
+  const activeCount = workflows.filter((w) => w.isActive).length;
+  const totalRuns = workflows.reduce((sum, w) => sum + w._count.runs, 0);
 
   return (
     <>
@@ -25,6 +28,14 @@ export default async function WorkflowsPage() {
         description="Tự động hoá quy trình bằng kéo-thả node"
         actions={canManage ? <WorkflowCreateDialog action={createWorkflowAction} /> : undefined}
       />
+
+      {workflows.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+          <KpiCard label="Tổng workflow" value={workflows.length} icon={WorkflowIcon} tone="primary" />
+          <KpiCard label="Đang bật" value={activeCount} icon={PlayCircle} tone="muted" />
+          <KpiCard label="Tổng lượt chạy" value={totalRuns} icon={Play} tone="muted" />
+        </div>
+      )}
 
       {workflows.length === 0 ? (
         <Card>

@@ -68,7 +68,11 @@ export function TeamDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="team-department">Phòng ban (tuỳ chọn)</Label>
-            <Select name="departmentId" defaultValue={team?.departmentId ?? undefined}>
+            <Select
+              name="departmentId"
+              items={departments.map((d) => ({ value: d.id, label: d.name }))}
+              defaultValue={team?.departmentId ?? undefined}
+            >
               <SelectTrigger id="team-department" className="w-full">
                 <SelectValue placeholder="Không có" />
               </SelectTrigger>

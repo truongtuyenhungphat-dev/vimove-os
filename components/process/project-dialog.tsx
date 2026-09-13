@@ -108,7 +108,11 @@ export function ProjectDialog({
           {mode === "edit" && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="project-status">Trạng thái</Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as ProjectStatus)}>
+              <Select
+                items={PROJECT_STATUSES.map((s) => ({ value: s, label: PROJECT_STATUS_LABELS[s] }))}
+                value={status}
+                onValueChange={(v) => setStatus(v as ProjectStatus)}
+              >
                 <SelectTrigger id="project-status" className="w-full">
                   <SelectValue />
                 </SelectTrigger>

@@ -21,6 +21,14 @@ import { cn } from "@/lib/utils";
 
 type Board = Record<TaskStatus, TaskCardData[]>;
 
+const STATUS_DOT: Record<TaskStatus, string> = {
+  TODO: "bg-muted-foreground/50",
+  IN_PROGRESS: "bg-primary",
+  IN_REVIEW: "bg-amber-500",
+  DONE: "bg-emerald-500",
+  CANCELLED: "bg-destructive",
+};
+
 export function KanbanBoard({
   board,
   onMove,
@@ -146,13 +154,18 @@ function KanbanColumn({
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-center justify-between px-1">
-        <p className="text-sm font-medium">{TASK_STATUS_LABELS[status]}</p>
-        <span className="text-xs text-muted-foreground">{tasks.length}</span>
+        <p className="flex items-center gap-1.5 text-sm font-medium">
+          <span className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[status])} aria-hidden="true" />
+          {TASK_STATUS_LABELS[status]}
+        </p>
+        <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
+          {tasks.length}
+        </span>
       </div>
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-24 flex-col gap-2 rounded-lg border border-dashed border-border/60 p-2 transition-colors",
+          "flex min-h-24 flex-col gap-2 rounded-lg border border-dashed border-border/60 bg-muted/20 p-2 transition-colors",
           isOver && "border-primary/50 bg-primary/5"
         )}
       >

@@ -180,6 +180,7 @@ export function TaskDetailView({
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-medium text-muted-foreground">Trạng thái</p>
               <Select
+                items={TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABELS[s] }))}
                 value={task.status}
                 disabled={!canEdit || isPending}
                 onValueChange={(v) =>

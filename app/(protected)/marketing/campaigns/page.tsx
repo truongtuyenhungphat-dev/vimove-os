@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Megaphone } from "lucide-react";
+import { Megaphone, Play, Wallet, TrendingUp, Target } from "lucide-react";
 import { requirePermission, hasPermission } from "@/lib/auth/rbac";
 import { listCampaigns } from "@/services/marketing/campaigns";
 import { listProjects } from "@/services/projects/projects";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -35,6 +36,11 @@ export default async function CampaignsPage() {
     listProjects(session.user.organizationId),
   ]);
 
+  const activeCampaigns = campaigns.filter((c) => c.status === "ACTIVE").length;
+  const totalRevenue = campaigns.reduce((sum, c) => sum + c.kpis.revenue, 0);
+  const totalLeads = campaigns.reduce((sum, c) => sum + c.kpis.leads, 0);
+  const totalProfit = campaigns.reduce((sum, c) => sum + c.kpis.profit, 0);
+
   return (
     <>
       <PageHeader
@@ -42,6 +48,15 @@ export default async function CampaignsPage() {
         description="Spend/Revenue/ROAS/Leads/CPL/Orders/CAC/Profit tính theo dữ liệu thật (Spend = 0 tới khi nối Ads ở Phase 6)"
         actions={canCreate ? <CampaignDialog mode="create" projects={projects.map((p) => ({ id: p.id, name: p.name }))} action={createCampaignAction} /> : undefined}
       />
+
+      {campaigns.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <KpiCard label="Đang chạy" value={activeCampaigns} icon={Play} tone={activeCampaigns > 0 ? "primary" : "muted"} hint={`/ ${campaigns.length} chiến dịch`} />
+          <KpiCard label="Tổng Revenue quy về" value={formatVnd(totalRevenue)} icon={Wallet} tone="primary" />
+          <KpiCard label="Tổng lead" value={totalLeads} icon={Target} tone="muted" />
+          <KpiCard label="Tổng Profit" value={formatVnd(totalProfit)} icon={TrendingUp} tone={totalProfit >= 0 ? "primary" : "muted"} />
+        </div>
+      )}
 
       <Card>
         <CardContent className="overflow-x-auto p-0">

@@ -11,6 +11,15 @@ import { RunStepList } from "@/components/process/run-step-list";
 import { WORKFLOW_RUN_STATUS_LABELS, type WorkflowRunStatus } from "@/lib/process/types";
 import { decideRunStepAction } from "../actions";
 
+const RUN_STATUS_STYLE: Record<WorkflowRunStatus, string> = {
+  PENDING: "bg-muted text-muted-foreground",
+  RUNNING: "bg-primary/10 text-primary",
+  AWAITING_APPROVAL: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  SUCCEEDED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  FAILED: "bg-destructive/10 text-destructive",
+  CANCELLED: "bg-muted text-muted-foreground",
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ runId: string }> }): Promise<Metadata> {
   const { runId } = await params;
   return { title: "Run log — VIMOVE OS", description: runId };
@@ -29,7 +38,7 @@ export default async function RunDetailPage({ params }: { params: Promise<{ runI
         title={`Run log: ${run.workflow.name}`}
         description={`Chạy bởi ${run.createdBy.name} · ${format(run.createdAt, "dd/MM/yyyy HH:mm")}`}
         actions={
-          <Badge variant="outline" className="border-transparent bg-muted font-normal">
+          <Badge variant="outline" className={`border-transparent font-normal ${RUN_STATUS_STYLE[run.status as WorkflowRunStatus]}`}>
             {WORKFLOW_RUN_STATUS_LABELS[run.status as WorkflowRunStatus]}
           </Badge>
         }

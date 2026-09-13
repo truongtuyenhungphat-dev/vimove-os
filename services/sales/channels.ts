@@ -4,7 +4,11 @@ import { writeAuditLog } from "@/services/core/audit";
 import type { SalesChannelType } from "@/lib/sales/types";
 
 export async function listSalesChannels(organizationId: string) {
-  return prisma.salesChannel.findMany({ where: { organizationId }, orderBy: { createdAt: "asc" } });
+  return prisma.salesChannel.findMany({
+    where: { organizationId },
+    include: { _count: { select: { orders: true } } },
+    orderBy: { createdAt: "asc" },
+  });
 }
 
 export async function createSalesChannel(organizationId: string, actorId: string, data: { name: string; type: SalesChannelType }) {

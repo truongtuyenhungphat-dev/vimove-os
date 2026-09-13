@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Users2, Settings2 } from "lucide-react";
+import { Users2, Settings2, UserPlus, Wallet, Trophy, Target } from "lucide-react";
 import { requirePermission, hasPermission, buildVisibilityScope } from "@/lib/auth/rbac";
 import { listPipelines } from "@/services/crm/pipelines";
 import { listLeadsBoard } from "@/services/crm/leads";
 import { listUsers } from "@/services/core/users";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { Button } from "@/components/ui/button";
 import { LeadDialog } from "@/components/crm/lead-dialog";
 import { LeadPipelineBoard, type StageColumn } from "@/components/crm/lead-pipeline-board";
@@ -14,6 +15,10 @@ import type { LeadCardData } from "@/components/crm/lead-card";
 import { createLeadAction, moveLeadStageAction } from "./actions";
 
 export const metadata: Metadata = { title: "Lead — VIMOVE OS" };
+
+function formatVnd(n: number) {
+  return n.toLocaleString("vi-VN") + "đ";
+}
 
 export default async function LeadsPage({
   searchParams,
@@ -68,6 +73,17 @@ export default async function LeadsPage({
   const activeUsers = users.filter((u) => u.status === "ACTIVE").map((u) => ({ id: u.id, name: u.name }));
   const firstStageId = stages[0]?.id ?? "";
 
+  // KPI dải đầu trang — tính từ chính `leads` đã tải cho board (đã scope theo
+  // pipeline + visibility), không query thêm để tránh N+1.
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const newLeadsThisWeek = leads.filter((l) => new Date(l.createdAt) >= sevenDaysAgo).length;
+  const openPipelineValue = leads
+    .filter((l) => l.stage.type === "OPEN")
+    .reduce((sum, l) => sum + (l.value ?? 0), 0);
+  const wonCount = leads.filter((l) => l.stage.type === "WON").length;
+  const lostCount = leads.filter((l) => l.stage.type === "LOST").length;
+  const conversionRate = wonCount + lostCount > 0 ? (wonCount / (wonCount + lostCount)) * 100 : 0;
+
   return (
     <>
       <PageHeader
@@ -101,6 +117,13 @@ export default async function LeadsPage({
           </div>
         }
       />
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard label="Lead mới tuần này" value={newLeadsThisWeek} icon={UserPlus} tone={newLeadsThisWeek > 0 ? "primary" : "muted"} />
+        <KpiCard label="Tổng lead trong pipeline" value={leads.length} icon={Target} tone="muted" />
+        <KpiCard label="Giá trị đang mở" value={formatVnd(openPipelineValue)} icon={Wallet} tone="primary" hint="Tổng giá trị lead chưa thắng/thua" />
+        <KpiCard label="Tỷ lệ chuyển đổi" value={`${conversionRate.toFixed(0)}%`} icon={Trophy} tone="muted" hint={`${wonCount} thắng / ${lostCount} thua`} />
+      </div>
 
       <LeadPipelineBoard stages={stages} leadsByStage={leadsByStage} onMove={moveLeadStageAction} leadBasePath="/crm/leads" />
     </>

@@ -29,6 +29,20 @@ export async function listWarranties(organizationId: string, filters: { status?:
   });
 }
 
+/** Dải KPI đầu trang danh sách bảo hành — cùng công thức "sắp hết hạn 30 ngày"
+ * với services/core/dashboard.ts để số liệu nhất quán giữa Dashboard và trang này. */
+export async function getWarrantySummary(organizationId: string) {
+  const now = new Date();
+  const in30Days = new Date(now.getTime() + 30 * 86400000);
+  const [total, active, expiringSoon, claimed] = await Promise.all([
+    prisma.warranty.count({ where: { organizationId } }),
+    prisma.warranty.count({ where: { organizationId, status: "ACTIVE" } }),
+    prisma.warranty.count({ where: { organizationId, status: "ACTIVE", warrantyExpiry: { gte: now, lte: in30Days } } }),
+    prisma.warranty.count({ where: { organizationId, status: "CLAIMED" } }),
+  ]);
+  return { total, active, expiringSoon, claimed };
+}
+
 export async function getWarranty(organizationId: string, id: string) {
   return prisma.warranty.findFirst({
     where: { id, organizationId },

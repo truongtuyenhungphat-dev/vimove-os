@@ -125,7 +125,7 @@ export function TaskDialog({
           {mode === "create" && templates && templates.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-template">Tạo từ mẫu (tuỳ chọn)</Label>
-              <Select onValueChange={(v) => applyTemplate(String(v))}>
+              <Select items={templates.map((t) => ({ value: t.id, label: t.name }))} onValueChange={(v) => applyTemplate(String(v))}>
                 <SelectTrigger id="task-template" className="w-full">
                   <SelectValue placeholder="Không dùng mẫu" />
                 </SelectTrigger>
@@ -153,7 +153,11 @@ export function TaskDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-priority">Độ ưu tiên</Label>
-              <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
+              <Select
+                items={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+                value={priority}
+                onValueChange={(v) => setPriority(v as TaskPriority)}
+              >
                 <SelectTrigger id="task-priority" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -182,7 +186,11 @@ export function TaskDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-assignee">Người phụ trách</Label>
-              <Select name="assigneeId" defaultValue={task?.assigneeId ?? undefined}>
+              <Select
+                name="assigneeId"
+                items={assignees.map((a) => ({ value: a.id, label: a.name }))}
+                defaultValue={task?.assigneeId ?? undefined}
+              >
                 <SelectTrigger id="task-assignee" className="w-full">
                   <SelectValue placeholder="Chưa gán" />
                 </SelectTrigger>
@@ -197,7 +205,11 @@ export function TaskDialog({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-team">Nhóm</Label>
-              <Select name="teamId" defaultValue={task?.teamId ?? undefined}>
+              <Select
+                name="teamId"
+                items={teams.map((t) => ({ value: t.id, label: t.name }))}
+                defaultValue={task?.teamId ?? undefined}
+              >
                 <SelectTrigger id="task-team" className="w-full">
                   <SelectValue placeholder="Không có" />
                 </SelectTrigger>
@@ -215,7 +227,11 @@ export function TaskDialog({
           {projects && projects.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-project">Dự án</Label>
-              <Select name="projectId" defaultValue={task?.projectId ?? undefined}>
+              <Select
+                name="projectId"
+                items={projects.map((p) => ({ value: p.id, label: p.name }))}
+                defaultValue={task?.projectId ?? undefined}
+              >
                 <SelectTrigger id="task-project" className="w-full">
                   <SelectValue placeholder="Không thuộc dự án nào" />
                 </SelectTrigger>

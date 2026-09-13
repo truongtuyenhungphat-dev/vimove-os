@@ -24,6 +24,30 @@ export async function listOrders(organizationId: string, filters: { status?: Ord
   return orders.map(serializeOrder);
 }
 
+/** Dải KPI đầu trang danh sách đơn hàng — dùng aggregate/count, không kéo
+ * toàn bộ bản ghi về app layer. */
+export async function getOrdersSummary(organizationId: string) {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const revenueFilter = { organizationId, status: { notIn: ["CANCELLED", "REFUNDED"] as OrderStatus[] } };
+
+  const [ordersThisMonth, monthAgg, pendingFulfillment, allAgg] = await Promise.all([
+    prisma.order.count({ where: { organizationId, orderDate: { gte: startOfMonth } } }),
+    prisma.order.aggregate({ where: { ...revenueFilter, orderDate: { gte: startOfMonth } }, _sum: { totalAmount: true } }),
+    prisma.order.count({ where: { organizationId, status: "CONFIRMED" } }),
+    prisma.order.aggregate({ where: revenueFilter, _sum: { totalAmount: true }, _count: true }),
+  ]);
+
+  const totalRevenue = Number(allAgg._sum.totalAmount ?? 0);
+  return {
+    ordersThisMonth,
+    revenueThisMonth: Number(monthAgg._sum.totalAmount ?? 0),
+    pendingFulfillment,
+    aov: allAgg._count > 0 ? totalRevenue / allAgg._count : 0,
+  };
+}
+
 export async function getOrder(organizationId: string, id: string) {
   const order = await prisma.order.findFirst({
     where: { id, organizationId },

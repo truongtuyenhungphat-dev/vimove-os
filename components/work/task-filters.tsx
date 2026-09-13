@@ -36,6 +36,7 @@ export function TaskFilters({
         onChange={(e) => setParam("search", e.target.value || undefined)}
       />
       <Select
+        items={[{ value: "all", label: "Tất cả trạng thái" }, ...TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABELS[s] }))]}
         value={searchParams.get("status") ?? "all"}
         onValueChange={(v) => setParam("status", v === "all" ? undefined : String(v))}
       >
@@ -52,6 +53,7 @@ export function TaskFilters({
         </SelectContent>
       </Select>
       <Select
+        items={[{ value: "all", label: "Tất cả độ ưu tiên" }, ...TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))]}
         value={searchParams.get("priority") ?? "all"}
         onValueChange={(v) => setParam("priority", v === "all" ? undefined : String(v))}
       >
@@ -68,6 +70,7 @@ export function TaskFilters({
         </SelectContent>
       </Select>
       <Select
+        items={[{ value: "all", label: "Tất cả người phụ trách" }, ...assignees.map((a) => ({ value: a.id, label: a.name }))]}
         value={searchParams.get("assigneeId") ?? "all"}
         onValueChange={(v) => setParam("assigneeId", v === "all" ? undefined : String(v))}
       >
@@ -85,6 +88,7 @@ export function TaskFilters({
       </Select>
       {tags.length > 0 && (
         <Select
+          items={[{ value: "all", label: "Tất cả nhãn" }, ...tags.map((t) => ({ value: t.id, label: t.name }))]}
           value={searchParams.get("tagId") ?? "all"}
           onValueChange={(v) => setParam("tagId", v === "all" ? undefined : String(v))}
         >

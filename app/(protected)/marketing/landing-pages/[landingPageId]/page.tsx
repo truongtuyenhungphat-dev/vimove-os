@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, UsersRound, FormInput } from "lucide-react";
 import { requirePermission, hasPermission } from "@/lib/auth/rbac";
 import { getLandingPage, listSubmissions } from "@/services/marketing/landing-pages";
 import { listCampaigns } from "@/services/marketing/campaigns";
 import { PageHeader } from "@/components/shared/page-header";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LandingPageDialog } from "@/components/marketing/landing-page-dialog";
@@ -68,6 +69,11 @@ export default async function LandingPageDetailPage({ params }: { params: Promis
         }
       />
 
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <KpiCard label="Lượt đăng ký" value={submissions.length} icon={UsersRound} tone={submissions.length > 0 ? "primary" : "muted"} />
+        <KpiCard label="Form thu lead" value={page.forms.length} icon={FormInput} tone="muted" />
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{page.headline}</CardTitle>
@@ -77,7 +83,7 @@ export default async function LandingPageDetailPage({ params }: { params: Promis
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Đăng ký ({submissions.length})</CardTitle>
+          <CardTitle className="text-base">Danh sách đăng ký</CardTitle>
         </CardHeader>
         <CardContent>
           {submissions.length === 0 ? (

@@ -15,6 +15,21 @@ export async function listCustomers(organizationId: string, search?: string) {
   });
 }
 
+/** Dải KPI đầu trang danh sách khách hàng — 3 count query đơn giản, không kéo
+ * toàn bộ bản ghi. */
+export async function getCustomersSummary(organizationId: string) {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [total, newThisMonth, withOrders] = await Promise.all([
+    prisma.customer.count({ where: { organizationId } }),
+    prisma.customer.count({ where: { organizationId, createdAt: { gte: startOfMonth } } }),
+    prisma.customer.count({ where: { organizationId, orders: { some: {} } } }),
+  ]);
+  return { total, newThisMonth, withOrders };
+}
+
 /** Customer 360: profile + leads + orders + LTV (tổng tiền các order không bị huỷ/hoàn). */
 export async function getCustomer360(organizationId: string, id: string) {
   const customer = await prisma.customer.findFirst({

@@ -117,7 +117,11 @@ export function UserDialog({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="user-department">Phòng ban</Label>
-            <Select name="departmentId" defaultValue={user?.departmentId ?? undefined}>
+            <Select
+              name="departmentId"
+              items={departments.map((d) => ({ value: d.id, label: d.name }))}
+              defaultValue={user?.departmentId ?? undefined}
+            >
               <SelectTrigger id="user-department" className="w-full">
                 <SelectValue placeholder="Không có" />
               </SelectTrigger>

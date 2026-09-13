@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ClipboardList } from "lucide-react";
+import { ListTodo, AlarmClockOff, CalendarClock, CheckCircle2 } from "lucide-react";
 import { requirePermission, hasPermission } from "@/lib/auth/rbac";
 import { listMyTasks } from "@/services/tasks/tasks";
 import { listTaskTemplates } from "@/services/tasks/templates";
@@ -8,11 +7,9 @@ import { listTags } from "@/services/tasks/tags";
 import { listUsers } from "@/services/core/users";
 import { listTeams } from "@/services/core/teams";
 import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { TaskDialog } from "@/components/work/task-dialog";
-import { TaskStatusBadge, TaskPriorityBadge } from "@/components/work/task-badges";
+import { MyTasksBoard } from "@/components/work/my-tasks-board";
 import { createTaskAction } from "../tasks/actions";
 import type { TaskPriority } from "@/lib/work/types";
 
@@ -39,6 +36,14 @@ export default async function MyTasksPage() {
     checklistItems: (t.checklistItems as string[] | null) ?? [],
   }));
 
+  const now = new Date();
+  const openTasks = tasks.filter((t) => t.status !== "DONE" && t.status !== "CANCELLED");
+  const overdue = openTasks.filter((t) => t.dueAt && new Date(t.dueAt).getTime() < now.getTime()).length;
+  const dueToday = openTasks.filter(
+    (t) => t.dueAt && new Date(t.dueAt).toDateString() === now.toDateString()
+  ).length;
+  const done = tasks.filter((t) => t.status === "DONE").length;
+
   return (
     <>
       <PageHeader
@@ -58,50 +63,14 @@ export default async function MyTasksPage() {
         }
       />
 
-      <Card>
-        <CardContent className="p-0">
-          {tasks.length === 0 ? (
-            <div className="p-6">
-              <EmptyState
-                icon={ClipboardList}
-                title="Bạn chưa có công việc nào"
-                description="Công việc được gán cho bạn sẽ hiện ở đây."
-              />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Công việc</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Độ ưu tiên</TableHead>
-                  <TableHead>Hạn</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tasks.map((task) => (
-                  <TableRow key={task.id}>
-                    <TableCell>
-                      <Link href={`/work/tasks/${task.id}`} className="font-medium hover:underline">
-                        {task.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <TaskStatusBadge status={task.status} />
-                    </TableCell>
-                    <TableCell>
-                      <TaskPriorityBadge priority={task.priority} />
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {task.dueAt ? new Date(task.dueAt).toLocaleDateString("vi-VN") : "—"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiCard label="Đang xử lý" value={openTasks.length} icon={ListTodo} tone={openTasks.length > 0 ? "primary" : "muted"} />
+        <KpiCard label="Quá hạn" value={overdue} icon={AlarmClockOff} tone={overdue > 0 ? "warning" : "muted"} />
+        <KpiCard label="Đến hạn hôm nay" value={dueToday} icon={CalendarClock} tone={dueToday > 0 ? "warning" : "muted"} />
+        <KpiCard label="Đã hoàn thành" value={done} icon={CheckCircle2} tone="muted" hint={`Trên tổng ${tasks.length} việc`} />
+      </div>
+
+      <MyTasksBoard tasks={tasks} now={now} />
     </>
   );
 }

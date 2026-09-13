@@ -75,7 +75,11 @@ export function DepartmentDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="dept-parent">Trực thuộc (tuỳ chọn)</Label>
-            <Select name="parentId" defaultValue={department?.parentId ?? undefined}>
+            <Select
+              name="parentId"
+              items={parentOptions.map((opt) => ({ value: opt.id, label: opt.name }))}
+              defaultValue={department?.parentId ?? undefined}
+            >
               <SelectTrigger id="dept-parent" className="w-full">
                 <SelectValue placeholder="Không có" />
               </SelectTrigger>

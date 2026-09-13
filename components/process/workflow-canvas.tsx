@@ -389,7 +389,14 @@ function ActionConfigFields({
     <>
       <div className="flex flex-col gap-1.5">
         <Label>Loại action</Label>
-        <Select value={c.actionKind ?? "notify"} onValueChange={(v) => onChange({ ...c, actionKind: v } as WorkflowNodeConfig)}>
+        <Select
+          items={[
+            { value: "notify", label: "Gửi thông báo cho 1 người" },
+            { value: "audit_log", label: "Ghi log" },
+          ]}
+          value={c.actionKind ?? "notify"}
+          onValueChange={(v) => onChange({ ...c, actionKind: v } as WorkflowNodeConfig)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -402,7 +409,11 @@ function ActionConfigFields({
       {(c.actionKind ?? "notify") === "notify" && (
         <div className="flex flex-col gap-1.5">
           <Label>Người nhận</Label>
-          <Select value={c.userId ?? ""} onValueChange={(v) => onChange({ ...c, userId: String(v) } as WorkflowNodeConfig)}>
+          <Select
+            items={users.map((u) => ({ value: u.id, label: u.name }))}
+            value={c.userId ?? ""}
+            onValueChange={(v) => onChange({ ...c, userId: String(v) } as WorkflowNodeConfig)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Chọn người..." />
             </SelectTrigger>
@@ -434,7 +445,17 @@ function ConditionConfigFields({ config, onChange }: { config: WorkflowNodeConfi
       </div>
       <div className="flex flex-col gap-1.5">
         <Label>Toán tử</Label>
-        <Select value={c.operator ?? "eq"} onValueChange={(v) => onChange({ ...c, operator: v } as WorkflowNodeConfig)}>
+        <Select
+          items={[
+            { value: "eq", label: "Bằng" },
+            { value: "neq", label: "Khác" },
+            { value: "contains", label: "Chứa" },
+            { value: "gt", label: "Lớn hơn" },
+            { value: "lt", label: "Nhỏ hơn" },
+          ]}
+          value={c.operator ?? "eq"}
+          onValueChange={(v) => onChange({ ...c, operator: v } as WorkflowNodeConfig)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -486,7 +507,14 @@ function WebhookConfigFields({ config, onChange }: { config: WorkflowNodeConfig;
       </div>
       <div className="flex flex-col gap-1.5">
         <Label>Method</Label>
-        <Select value={c.method ?? "POST"} onValueChange={(v) => onChange({ ...c, method: v as "GET" | "POST" } as WorkflowNodeConfig)}>
+        <Select
+          items={[
+            { value: "POST", label: "POST" },
+            { value: "GET", label: "GET" },
+          ]}
+          value={c.method ?? "POST"}
+          onValueChange={(v) => onChange({ ...c, method: v as "GET" | "POST" } as WorkflowNodeConfig)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -543,7 +571,14 @@ function ApprovalConfigFields({
       </div>
       <div className="flex flex-col gap-1.5">
         <Label>Chế độ</Label>
-        <Select value={c.mode ?? "SEQUENTIAL"} onValueChange={(v) => onChange({ ...c, mode: v as "SEQUENTIAL" | "PARALLEL" } as WorkflowNodeConfig)}>
+        <Select
+          items={[
+            { value: "SEQUENTIAL", label: "Tuần tự" },
+            { value: "PARALLEL", label: "Song song" },
+          ]}
+          value={c.mode ?? "SEQUENTIAL"}
+          onValueChange={(v) => onChange({ ...c, mode: v as "SEQUENTIAL" | "PARALLEL" } as WorkflowNodeConfig)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>

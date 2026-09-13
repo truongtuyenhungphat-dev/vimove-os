@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { SocialAccountDialog } from "@/components/marketing/social-account-dialog";
 import { SocialPostDialog } from "@/components/marketing/social-post-dialog";
 import { SocialPostStatusSelect } from "@/components/marketing/social-post-status-select";
-import { SOCIAL_PLATFORM_LABELS } from "@/lib/marketing/types";
+import { SOCIAL_PLATFORM_LABELS, SOCIAL_POST_STATUS_LABELS } from "@/lib/marketing/types";
 import { createSocialAccountAction, deleteSocialAccountAction, createSocialPostAction, updateSocialPostStatusAction, deleteSocialPostAction } from "./actions";
 
 export const metadata: Metadata = { title: "Social — VIMOVE OS" };
@@ -80,7 +80,7 @@ export default async function SocialPage() {
                       <SocialPostStatusSelect postId={p.id} status={p.status} onChange={updateSocialPostStatusAction} />
                     ) : (
                       <Badge variant="outline" className="border-transparent bg-muted font-normal">
-                        {p.status}
+                        {SOCIAL_POST_STATUS_LABELS[p.status]}
                       </Badge>
                     )}
                     {canManage && (

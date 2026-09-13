@@ -5,11 +5,19 @@ import { writeAuditLog } from "@/services/core/audit";
 import type { LandingPageStatus } from "@/lib/marketing/types";
 
 export async function listLandingPages(organizationId: string) {
-  return prisma.landingPage.findMany({
+  const pages = await prisma.landingPage.findMany({
     where: { organizationId },
-    include: { campaign: { select: { id: true, name: true } }, _count: { select: { forms: true } } },
+    include: {
+      campaign: { select: { id: true, name: true } },
+      _count: { select: { forms: true } },
+      forms: { select: { _count: { select: { submissions: true } } } },
+    },
     orderBy: { createdAt: "desc" },
   });
+  return pages.map(({ forms, ...page }) => ({
+    ...page,
+    submissionCount: forms.reduce((sum, f) => sum + f._count.submissions, 0),
+  }));
 }
 
 export async function getLandingPage(organizationId: string, id: string) {

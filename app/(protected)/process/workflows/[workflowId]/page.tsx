@@ -7,10 +7,22 @@ import { getWorkflow } from "@/services/process/workflows";
 import { listUsers } from "@/services/core/users";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { History } from "lucide-react";
 import { WorkflowCanvas } from "@/components/process/workflow-canvas";
 import { TriggerEventSelect } from "@/components/process/trigger-event-select";
 import { WORKFLOW_RUN_STATUS_LABELS, type WorkflowDefinition, type WorkflowRunStatus } from "@/lib/process/types";
 import { saveDraftAction, publishAction, runWorkflowAction, setTriggerEventTypeAction } from "../actions";
+
+const RUN_STATUS_STYLE: Record<WorkflowRunStatus, string> = {
+  PENDING: "bg-muted text-muted-foreground",
+  RUNNING: "bg-primary/10 text-primary",
+  AWAITING_APPROVAL: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  SUCCEEDED: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  FAILED: "bg-destructive/10 text-destructive",
+  CANCELLED: "bg-muted text-muted-foreground",
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ workflowId: string }> }): Promise<Metadata> {
   const { workflowId } = await params;
@@ -53,19 +65,24 @@ export default async function WorkflowBuilderPage({ params }: { params: Promise<
       <Card>
         <CardContent>
           <p className="mb-2 text-sm font-medium">Lịch sử chạy gần đây</p>
-          <div className="flex flex-col gap-1.5">
-            {workflow.runs.map((r) => (
-              <Link
-                key={r.id}
-                href={`/process/runs/${r.id}`}
-                className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-accent"
-              >
-                <span className="flex-1 text-muted-foreground">{format(r.createdAt, "dd/MM/yyyy HH:mm")}</span>
-                <span>{WORKFLOW_RUN_STATUS_LABELS[r.status as WorkflowRunStatus]}</span>
-              </Link>
-            ))}
-            {workflow.runs.length === 0 && <p className="text-sm text-muted-foreground">Chưa chạy lần nào.</p>}
-          </div>
+          {workflow.runs.length === 0 ? (
+            <EmptyState icon={History} title="Chưa chạy lần nào" description="Bấm Chạy thử ở trên để tạo lượt chạy đầu tiên." />
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              {workflow.runs.map((r) => (
+                <Link
+                  key={r.id}
+                  href={`/process/runs/${r.id}`}
+                  className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-accent"
+                >
+                  <span className="flex-1 text-muted-foreground">{format(r.createdAt, "dd/MM/yyyy HH:mm")}</span>
+                  <Badge variant="outline" className={`border-transparent font-normal ${RUN_STATUS_STYLE[r.status as WorkflowRunStatus]}`}>
+                    {WORKFLOW_RUN_STATUS_LABELS[r.status as WorkflowRunStatus]}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </>

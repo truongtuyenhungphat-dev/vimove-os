@@ -82,7 +82,14 @@ export function RequestApprovalDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="approval-mode">Chế độ duyệt</Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as "SEQUENTIAL" | "PARALLEL")}>
+              <Select
+                items={[
+                  { value: "SEQUENTIAL", label: "Tuần tự" },
+                  { value: "PARALLEL", label: "Song song" },
+                ]}
+                value={mode}
+                onValueChange={(v) => setMode(v as "SEQUENTIAL" | "PARALLEL")}
+              >
                 <SelectTrigger id="approval-mode" className="w-full">
                   <SelectValue />
                 </SelectTrigger>

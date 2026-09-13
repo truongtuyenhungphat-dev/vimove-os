@@ -83,7 +83,11 @@ export function TemplateDialog({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="template-priority">Độ ưu tiên mặc định</Label>
-            <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
+            <Select
+              items={TASK_PRIORITIES.map((p) => ({ value: p, label: TASK_PRIORITY_LABELS[p] }))}
+              value={priority}
+              onValueChange={(v) => setPriority(v as TaskPriority)}
+            >
               <SelectTrigger id="template-priority" className="w-full">
                 <SelectValue />
               </SelectTrigger>

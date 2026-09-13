@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
+import { Mail, Send, CalendarClock, FileEdit } from "lucide-react";
 import { requirePermission, hasPermission } from "@/lib/auth/rbac";
 import { listEmailCampaigns } from "@/services/marketing/email-campaigns";
 import { listCampaigns } from "@/services/marketing/campaigns";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmailCampaignDialog } from "@/components/marketing/email-campaign-dialog";
 import { EmailStatusSelect } from "@/components/marketing/email-status-select";
+import { EMAIL_CAMPAIGN_STATUS_LABELS } from "@/lib/marketing/types";
 import { createEmailCampaignAction, updateEmailCampaignStatusAction, deleteEmailCampaignAction } from "./actions";
 
 export const metadata: Metadata = { title: "Email Campaign — VIMOVE OS" };
+
+const STATUS_STYLE: Record<string, string> = {
+  DRAFT: "bg-muted text-muted-foreground",
+  SCHEDULED: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  SENT: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+};
 
 export default async function EmailCampaignsPage() {
   const session = await requirePermission("marketing_channels.read");
@@ -23,6 +32,10 @@ export default async function EmailCampaignsPage() {
     listCampaigns(session.user.organizationId),
   ]);
 
+  const sentCount = emails.filter((e) => e.status === "SENT").length;
+  const scheduledCount = emails.filter((e) => e.status === "SCHEDULED").length;
+  const draftCount = emails.filter((e) => e.status === "DRAFT").length;
+
   return (
     <>
       <PageHeader
@@ -31,11 +44,19 @@ export default async function EmailCampaignsPage() {
         actions={canManage ? <EmailCampaignDialog campaigns={campaigns.map((c) => ({ id: c.id, name: c.name }))} action={createEmailCampaignAction} /> : undefined}
       />
 
+      {emails.length > 0 && (
+        <div className="grid grid-cols-3 gap-4">
+          <KpiCard label="Đã gửi" value={sentCount} icon={Send} tone="primary" />
+          <KpiCard label="Đã lên lịch" value={scheduledCount} icon={CalendarClock} tone="muted" />
+          <KpiCard label="Nháp" value={draftCount} icon={FileEdit} tone="muted" />
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           {emails.length === 0 ? (
             <div className="p-6">
-              <EmptyState icon={Mail} title="Chưa có email campaign nào" />
+              <EmptyState icon={Mail} title="Chưa có email campaign nào" description="Tạo email campaign đầu tiên để bắt đầu." />
             </div>
           ) : (
             <Table>
@@ -58,7 +79,9 @@ export default async function EmailCampaignsPage() {
                       {canManage ? (
                         <EmailStatusSelect emailId={e.id} status={e.status} onChange={updateEmailCampaignStatusAction} />
                       ) : (
-                        e.status
+                        <Badge variant="outline" className={`border-transparent font-normal ${STATUS_STYLE[e.status]}`}>
+                          {EMAIL_CAMPAIGN_STATUS_LABELS[e.status]}
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell>

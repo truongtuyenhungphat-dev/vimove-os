@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarOff } from "lucide-react";
+import { CalendarOff, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { requirePermission, hasPermission, buildVisibilityScope } from "@/lib/auth/rbac";
 import { listOrgLeaveRequests } from "@/services/attendance/leave";
 import { listUsers } from "@/services/core/users";
 import { PageHeader } from "@/components/shared/page-header";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,10 @@ export default async function LeaveRequestsPage() {
     .filter((u) => u.status === "ACTIVE" && u.id !== session.user.id)
     .map((u) => ({ id: u.id, name: u.name }));
 
+  const pendingCount = requests.filter((r) => r.approvalRequest.status === "PENDING").length;
+  const approvedCount = requests.filter((r) => r.approvalRequest.status === "APPROVED").length;
+  const rejectedCount = requests.filter((r) => r.approvalRequest.status === "REJECTED").length;
+
   return (
     <>
       <PageHeader
@@ -43,6 +48,15 @@ export default async function LeaveRequestsPage() {
         }
         actions={canCreate ? <LeaveRequestDialog approvers={approverOptions} action={createLeaveRequestAction} /> : undefined}
       />
+
+      {requests.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <KpiCard label="Tổng đơn" value={requests.length} icon={CalendarOff} tone="primary" />
+          <KpiCard label="Chờ duyệt" value={pendingCount} icon={Clock} tone={pendingCount > 0 ? "warning" : "muted"} />
+          <KpiCard label="Đã duyệt" value={approvedCount} icon={CheckCircle2} tone="muted" />
+          <KpiCard label="Đã từ chối" value={rejectedCount} icon={XCircle} tone="muted" />
+        </div>
+      )}
 
       <Card>
         <CardContent className="p-0">

@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ContentDialog } from "@/components/marketing/content-dialog";
 import { ContentAssetsPanel } from "@/components/marketing/content-assets-panel";
-import { CONTENT_TYPE_LABELS, CONTENT_STATUS_LABELS, SOCIAL_PLATFORM_LABELS } from "@/lib/marketing/types";
+import { CONTENT_TYPE_LABELS, CONTENT_STATUS_LABELS, SOCIAL_PLATFORM_LABELS, SOCIAL_POST_STATUS_LABELS } from "@/lib/marketing/types";
 import { updateContentAction, deleteContentAction, addAssetAction, removeAssetAction } from "../actions";
 
 export const metadata: Metadata = { title: "Chi tiết nội dung — VIMOVE OS" };
@@ -87,7 +87,7 @@ export default async function ContentDetailPage({ params }: { params: Promise<{ 
                   <div key={p.id} className="flex items-center justify-between rounded-lg border border-border p-2 text-sm">
                     <span>{SOCIAL_PLATFORM_LABELS[p.socialAccount.platform]} · {p.socialAccount.name}</span>
                     <Badge variant="outline" className="border-transparent bg-muted font-normal">
-                      {p.status}
+                      {SOCIAL_POST_STATUS_LABELS[p.status]}
                     </Badge>
                   </div>
                 ))}

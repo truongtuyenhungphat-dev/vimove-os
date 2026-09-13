@@ -12,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sparkline } from "@/components/analytics/sparkline";
 import { RecomputeButton } from "@/components/analytics/recompute-button";
 import { AD_PLATFORM_LABELS } from "@/lib/ads/types";
+import { CONTENT_STATUS_LABELS } from "@/lib/marketing/types";
 import { Users, Target, Trophy, Wallet, ListTodo, AlertTriangle, FileEdit, ShoppingCart, Megaphone, BarChart3 } from "lucide-react";
 import { recomputeDailyMetricsAction } from "./actions";
 
@@ -158,7 +159,7 @@ export default async function AnalyticsPage() {
             <CardContent className="flex flex-col gap-1.5 pt-6 text-sm">
               {content.byStatus.map((s) => (
                 <div key={s.status} className="flex items-center justify-between">
-                  <span>{s.status}</span>
+                  <span>{CONTENT_STATUS_LABELS[s.status]}</span>
                   <span className="font-medium">{s.count}</span>
                 </div>
               ))}
