@@ -4,13 +4,21 @@ import { MapPin, Phone, Mail, Clock, UserRound, Truck } from "lucide-react";
 import { listPublishedProductsGlobal } from "@/services/sales/products";
 import { MobileNav } from "@/components/public/mobile-nav";
 import { FloatingContact } from "@/components/public/floating-contact";
-
-const CATEGORY_LABELS: Record<string, string> = { vali: "Vali kéo", balo: "Túi / Balo" };
+import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const FOOTER_SUPPORT_LINKS = [
   { href: "/bao-hanh", label: "Bảo hành" },
   { href: "/ve-chung-toi", label: "Về chúng tôi" },
   { href: "/lien-he", label: "Liên hệ" },
+];
+
+// Kênh mạng xã hội/bán hàng thật — site cũ có icon nhưng đều trỏ link "#" giả,
+// nên bản mới chỉ liệt kê khi có URL thật (không hiển thị link chết).
+const SOCIAL_LINKS = [
+  { href: "https://www.facebook.com/vybevietnam.official", label: "Facebook" },
+  { href: "https://www.tiktok.com/@vybevietnam", label: "TikTok" },
+  { href: "https://shopee.vn/vybe.vietnam", label: "Shopee" },
+  { href: "https://zalo.me/0988512352", label: "Zalo" },
 ];
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -120,6 +128,13 @@ export default async function PublicLayout({ children }: { children: React.React
                 <Clock className="size-4 shrink-0" aria-hidden="true" /> 8:00 - 21:00 (Thứ 2 - Chủ nhật)
               </span>
             </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
+              {SOCIAL_LINKS.map((s) => (
+                <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white">
+                  {s.label}
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -147,9 +162,6 @@ export default async function PublicLayout({ children }: { children: React.React
                   {l.label}
                 </Link>
               ))}
-              <a href="https://zalo.me/0988512352" target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                Chat Zalo
-              </a>
             </div>
           </div>
         </div>

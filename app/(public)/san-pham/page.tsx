@@ -3,10 +3,9 @@ import Link from "next/link";
 import { PackageSearch, Phone } from "lucide-react";
 import { listPublishedProductsGlobal } from "@/services/sales/products";
 import { ProductCard } from "@/components/public/product-card";
+import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 export const metadata: Metadata = { title: "Sản phẩm — Vimove" };
-
-const CATEGORY_LABELS: Record<string, string> = { vali: "Vali kéo", balo: "Túi / Balo" };
 
 export default async function ProductCatalogPage({
   searchParams,

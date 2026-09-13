@@ -7,8 +7,7 @@ import { getPublishedProductBySlugGlobal, listPublishedProductsGlobal } from "@/
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/public/product-card";
-
-const CATEGORY_LABELS: Record<string, string> = { vali: "Vali kéo", balo: "Túi / Balo" };
+import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const GUARANTEES = [
   { icon: ShieldCheck, title: "Bảo hành 24 tháng", desc: "Chính hãng toàn quốc" },

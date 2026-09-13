@@ -10,6 +10,7 @@ import {
   Phone,
   Luggage,
   Backpack,
+  Package,
   Lock,
   Undo2,
   Quote,
@@ -35,6 +36,7 @@ const USPS = [
 const CATEGORY_SHOWCASE = [
   { cat: "vali", icon: Luggage, title: "Vali Kéo", desc: "Nhựa ABS / PP / PC bền bỉ" },
   { cat: "balo", icon: Backpack, title: "Túi & Balo Laptop", desc: "Chống sốc, chống thấm nước" },
+  { cat: "phu-kien", icon: Package, title: "Phụ Kiện Du Lịch", desc: "Túi trùm vali, túi đựng đồ" },
 ];
 
 const FEATURES = [
@@ -71,6 +73,15 @@ export default async function HomePage() {
   for (const p of products) {
     if (!p.category) continue;
     categoryCounts.set(p.category, (categoryCounts.get(p.category) ?? 0) + 1);
+  }
+  // "Sản phẩm nổi bật" = vali/túi chủ lực (đúng như tiêu đề phụ bên dưới), ưu
+  // tiên giá trị cao trước — mặc định listPublishedProductsGlobal() sắp theo
+  // createdAt desc nên phụ kiện giá rẻ mới thêm sẽ chiếm hết chỗ nếu không lọc.
+  const featuredProducts = [...products]
+    .filter((p) => p.category !== "phu-kien")
+    .sort((a, b) => b.price - a.price);
+  if (featuredProducts.length < 8) {
+    featuredProducts.push(...products.filter((p) => p.category === "phu-kien"));
   }
 
   return (
@@ -127,7 +138,7 @@ export default async function HomePage() {
           <h2 className="text-xl font-semibold sm:text-2xl">Danh Mục Sản Phẩm</h2>
           <p className="mt-1 text-sm text-muted-foreground">Khám phá đa dạng các sản phẩm hành lý chất lượng cao</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CATEGORY_SHOWCASE.map(({ cat, icon: Icon, title, desc }) => (
             <Link
               key={cat}
@@ -161,11 +172,11 @@ export default async function HomePage() {
               Xem tất cả <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </div>
-          {products.length === 0 ? (
+          {featuredProducts.length === 0 ? (
             <p className="text-sm text-muted-foreground">Đang cập nhật sản phẩm.</p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {products.slice(0, 8).map((p) => (
+              {featuredProducts.slice(0, 8).map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
