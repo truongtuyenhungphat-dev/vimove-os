@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { LoginHeroPanel } from "./hero-panel";
+import { APP_VERSION, APP_CREDIT } from "@/lib/version";
 
 export const metadata: Metadata = { title: "Đăng nhập — VIMOVE OS" };
 
@@ -42,6 +43,9 @@ export default async function LoginPage({
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             © {new Date().getFullYear()} VIMOVE OS. All rights reserved.
+          </p>
+          <p className="mt-1 text-center text-[11px] text-muted-foreground/70">
+            Ver {APP_VERSION} · {APP_CREDIT}
           </p>
         </div>
       </div>

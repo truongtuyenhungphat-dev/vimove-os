@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LayoutDashboard, Package, ShoppingCart, Users2, Megaphone, Warehouse, FileBarChart, Bot, ShieldCheck, Workflow, Radio } from "lucide-react";
+import { ShieldCheck, Workflow, Radio } from "lucide-react";
 
 // Xanh dương thương hiệu cố định cho panel LUÔN TỐI này — cùng hue (263) với
 // --primary của hệ thống nhưng lightness cao hơn (0.7 thay vì 0.49/0.63),
@@ -9,111 +9,11 @@ import { LayoutDashboard, Package, ShoppingCart, Users2, Megaphone, Warehouse, F
 // gần đen phẳng, nhưng bị chìm khi rơi vào vùng sáng của ảnh nền văn phòng.
 const LOGIN_ACCENT = "oklch(0.7 0.15 263)";
 
-// Always dark regardless of the app's light/dark theme — a deliberate,
-// fixed marketing-panel look (like the reference design), not something
-// that should flip with the visitor's OS preference the way the app UI
-// itself does. Literal dark colors instead of the theme-following
-// --sidebar token, which is WHITE in light mode.
-const NAV_ITEMS = [
-  { label: "Tổng quan", icon: LayoutDashboard, active: true },
-  { label: "Sản phẩm", icon: Package },
-  { label: "Đơn hàng", icon: ShoppingCart },
-  { label: "Khách hàng", icon: Users2 },
-  { label: "Marketing", icon: Megaphone },
-  { label: "Kho vận", icon: Warehouse },
-  { label: "Báo cáo", icon: FileBarChart },
-  { label: "AI Assistant", icon: Bot },
-];
-
-const STATS = [
-  { label: "Tổng đơn hàng", value: "1,284", delta: "+12%" },
-  { label: "Doanh thu", value: "2.8 tỷ", delta: "+18%" },
-  { label: "Khách hàng mới", value: "456", delta: "+24%" },
-  { label: "Sản phẩm", value: "320", delta: "+6%" },
-];
-
-// Lịch làm việc hôm nay — thay cho biểu đồ tròn "Kênh bán hàng" trước đó,
-// đúng tinh thần "không gian văn phòng hiện đại" (họp hành, nhịp làm việc
-// trong ngày) hơn là một chỉ số kinh doanh trừu tượng.
-const SCHEDULE = [
-  { time: "09:00", label: "Họp giao ban tuần", color: "#2563eb" },
-  { time: "11:30", label: "Gặp đối tác vận chuyển", color: "#f97316" },
-  { time: "14:00", label: "Duyệt chiến dịch marketing", color: "#16a34a" },
-];
-
 const FEATURE_CHIPS = [
   { label: "Bảo mật phân quyền", icon: ShieldCheck },
   { label: "Tự động hoá quy trình", icon: Workflow },
   { label: "Dữ liệu thời gian thực", icon: Radio },
 ];
-
-function DashboardPreviewCard() {
-  return (
-    <div
-      className="w-[300px] -rotate-2 overflow-hidden rounded-xl border border-black/5 bg-white text-neutral-900 shadow-[0_35px_70px_-20px_rgba(0,0,0,0.65)] ring-1 ring-white/15 transition-transform duration-500 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 hover:rotate-0"
-      style={{ animationDuration: "700ms", animationDelay: "150ms", animationFillMode: "backwards" }}
-    >
-      <div className="flex items-center justify-between border-b px-3 py-2">
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold tracking-tight">
-          <Image src="/logo-mark.png" alt="" aria-hidden="true" width={14} height={14} />
-          VIMOVE OS
-        </span>
-        <span className="size-4 rounded-full bg-neutral-200" />
-      </div>
-      <div className="flex">
-        <div className="flex w-[74px] shrink-0 flex-col gap-0.5 border-r p-1.5">
-          {NAV_ITEMS.map(({ label, icon: Icon, active }) => (
-            <span
-              key={label}
-              className={`flex items-center gap-1 rounded px-1 py-0.5 text-[8px] leading-tight ${
-                active ? "bg-primary/10 font-medium text-primary" : "text-neutral-500"
-              }`}
-            >
-              <Icon className="size-2.5 shrink-0" aria-hidden />
-              {label}
-            </span>
-          ))}
-        </div>
-        <div className="flex-1 space-y-2 p-2">
-          <div className="grid grid-cols-2 gap-1.5">
-            {STATS.map((s) => (
-              <div key={s.label} className="rounded-md border bg-neutral-50 px-1.5 py-1">
-                <p className="text-[7px] text-neutral-500">{s.label}</p>
-                <p className="text-[11px] font-semibold">{s.value}</p>
-                <p className="text-[7px] font-medium text-emerald-600">▲ {s.delta}</p>
-              </div>
-            ))}
-          </div>
-          <div className="rounded-md border p-1.5">
-            <p className="mb-1 text-[7px] text-neutral-500">Doanh thu theo tháng</p>
-            <svg viewBox="0 0 120 30" className="h-6 w-full text-primary">
-              <polyline
-                points="0,24 15,18 30,20 45,12 60,15 75,8 90,10 105,4 120,6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <div className="rounded-md border p-1.5">
-            <p className="mb-1 text-[7px] text-neutral-500">Lịch làm việc hôm nay</p>
-            <div className="flex flex-col gap-1">
-              {SCHEDULE.map((s) => (
-                <div key={s.time} className="flex items-center gap-1.5">
-                  <span className="size-1.5 shrink-0 rounded-full" style={{ background: s.color }} />
-                  <span className="w-7 shrink-0 text-[7px] font-medium text-neutral-500">{s.time}</span>
-                  <span className="truncate text-[7px] text-neutral-700">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function LoginHeroPanel() {
   return (
@@ -139,20 +39,19 @@ export function LoginHeroPanel() {
         className="object-cover object-[center_38%]"
       />
 
-      {/* Scrim 2 lớp: (1) tối dần từ trên xuống — nhạt nhất ngay dưới logo
-          (~9-16%) để lộ khung cửa sổ/cây xanh, rồi tối trở lại chắc chắn từ
-          chỗ badge bắt đầu (~22%) trở xuống hết panel, đậm dần về phía dưới
-          nơi đặt headline/card/chip; (2) tối nhẹ bên trái nơi khối chữ căn
-          trái, nhạt dần sang phải để vẫn lộ phần sáng nhất của ảnh (cửa sổ).
-          Mốc % ở đây khớp với vị trí thực tế của badge/headline/card trong
-          layout justify-between bên dưới — đừng đổi bố cục mà không xét lại
-          các mốc này. */}
+      {/* Scrim 2 lớp: (1) tối dần từ trên xuống, nhạt nhất ở giữa panel — chỗ
+          để lộ rõ nhất bàn làm việc/ghế/cây xanh của ảnh (không còn bị che
+          bởi DashboardPreviewCard như bản trước, ảnh cần được "thấy" rõ hơn
+          theo đúng yêu cầu) — rồi tối dần trở lại ở dưới cùng, nơi đặt đoạn
+          mô tả + feature chip, để chữ luôn đọc rõ; (2) tối nhẹ bên trái nơi
+          khối chữ căn trái, nhạt dần sang phải để vẫn lộ phần sáng nhất của
+          ảnh (cửa sổ). */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(8,11,18,0.5) 0%, rgba(8,11,18,0.3) 13%, rgba(8,11,18,0.52) 24%, rgba(8,11,18,0.62) 45%, rgba(8,11,18,0.72) 68%, rgba(6,9,15,0.93) 100%)",
+            "linear-gradient(to bottom, rgba(8,11,18,0.55) 0%, rgba(8,11,18,0.15) 22%, rgba(8,11,18,0.1) 45%, rgba(8,11,18,0.45) 70%, rgba(6,9,15,0.82) 100%)",
         }}
       />
       <div
@@ -197,8 +96,6 @@ export function LoginHeroPanel() {
             làm việc trong một không gian.
           </p>
         </div>
-
-        <DashboardPreviewCard />
 
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           {FEATURE_CHIPS.map(({ label, icon: Icon }) => (
