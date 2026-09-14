@@ -7,7 +7,7 @@ import { FloatingContact } from "@/components/public/floating-contact";
 import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const FOOTER_SUPPORT_LINKS = [
-  { href: "/bao-hanh", label: "Bảo hành" },
+  { href: "/chinh-sach-bao-hanh", label: "Bảo hành" },
   { href: "/ve-chung-toi", label: "Về chúng tôi" },
   { href: "/lien-he", label: "Liên hệ" },
 ];
@@ -70,7 +70,7 @@ export default async function PublicLayout({ children }: { children: React.React
                 </div>
               )}
             </div>
-            <Link href="/bao-hanh" className="hover:text-primary">
+            <Link href="/chinh-sach-bao-hanh" className="hover:text-primary">
               Bảo hành
             </Link>
             <Link href="/ve-chung-toi" className="hover:text-primary">

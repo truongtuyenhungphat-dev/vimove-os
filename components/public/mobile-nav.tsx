@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ", icon: Home },
   { href: "/san-pham", label: "Sản phẩm", icon: Package },
-  { href: "/bao-hanh", label: "Bảo hành", icon: ShieldCheck },
+  { href: "/chinh-sach-bao-hanh", label: "Bảo hành", icon: ShieldCheck },
   { href: "/ve-chung-toi", label: "Về chúng tôi", icon: Building2 },
   { href: "/lien-he", label: "Liên hệ", icon: Phone },
 ];

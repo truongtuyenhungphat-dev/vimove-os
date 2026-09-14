@@ -17,13 +17,18 @@ const AUTH_PATHS = ["/login", "/forgot-password"];
 // public/sw.js) khi mất mạng: được cache tĩnh sẵn trong trình duyệt và trả về TRỰC
 // TIẾP từ cache khi navigate lúc offline (server không hề chạy) — nhưng vẫn cần mở
 // công khai để lần đầu precache (`cache.addAll` lúc SW install) không bị chặn.
-// "/san-pham", "/ve-chung-toi", "/lien-he", "/bao-hanh" — website công khai
-// Vimove.com.vn (Phase 16, di trú từ hệ thống Firebase cũ) — cùng lý do với
-// "/lp": khách vãng lai xem không cần đăng nhập, và nhân viên đang đăng nhập
-// vẫn xem được (không bị đẩy đi). "/bao-hanh" còn là đích redirect tương lai
-// của domain vimove.net (in trên QR code sản phẩm, xem _redirects ở repo web
-// cũ) — ?tab=register phải luôn mở công khai không qua đăng nhập.
-const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he", "/bao-hanh"];
+// "/san-pham", "/ve-chung-toi", "/lien-he", "/chinh-sach-bao-hanh" — website
+// công khai Vimove.com.vn (Phase 16, di trú từ hệ thống Firebase cũ) — cùng lý
+// do với "/lp": khách vãng lai xem không cần đăng nhập, và nhân viên đang đăng
+// nhập vẫn xem được (không bị đẩy đi). "/chinh-sach-bao-hanh" GIỮ NGUYÊN đúng
+// path của site cũ (route ban đầu đặt là "/bao-hanh" rồi đổi lại — path cũ đã
+// in sẵn trên vật liệu marketing/QR code sản phẩm ngoài đời thật, đổi tên path
+// sẽ làm hỏng mọi link/QR cũ đang lưu hành, xem lỗi thật đã gặp: khách bấm link
+// cũ bị middleware chặn về /login vì path không nằm trong OPEN_PATHS) — cũng là
+// đích redirect của domain vimove.net (in trên QR code sản phẩm, xem
+// _redirects ở repo web cũ) — ?tab=register phải luôn mở công khai không qua
+// đăng nhập.
+const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he", "/chinh-sach-bao-hanh"];
 // Trang chủ công khai — so sánh CHÍNH XÁC "/" (không dùng startsWith như các path
 // khác ở trên) vì mọi pathname đều "bắt đầu bằng /", startsWith("/") sẽ vô tình mở
 // công khai toàn bộ ứng dụng kể cả /dashboard, /work, ...
@@ -35,8 +40,8 @@ const OPEN_ROOT = "/";
 // site Firebase/Netlify cũ (`http(s)://vimove.net/ -> /chinh-sach-bao-hanh/
 // ?tab=register 302!`) — chỉ đổi đích sang route Next.js tương ứng. Chỉ khớp
 // CHÍNH XÁC "/", không phải toàn bộ domain, để các asset (_next/*, ảnh...)
-// mà trang /bao-hanh cần vẫn tải được bình thường trên domain này, không bị
-// redirect-loop (đúng lý do site cũ ghi rõ trong comment `_redirects`).
+// mà trang /chinh-sach-bao-hanh cần vẫn tải được bình thường trên domain này,
+// không bị redirect-loop (đúng lý do site cũ ghi rõ trong comment `_redirects`).
 const WARRANTY_QR_HOSTS = ["vimove.net", "www.vimove.net"];
 
 export default auth((req) => {
@@ -51,7 +56,7 @@ export default auth((req) => {
     // (AUTH_URL/vimove-os.vercel.app) bất kể Host header thật của request,
     // nên dùng nextUrl.origin ở đây sẽ đá khách từ vimove.net sang thẳng
     // vimove-os.vercel.app thay vì ở lại đúng domain họ đang truy cập.
-    const url = new URL(`https://${host}/bao-hanh`);
+    const url = new URL(`https://${host}/chinh-sach-bao-hanh`);
     url.searchParams.set("tab", "register");
     return NextResponse.redirect(url);
   }
