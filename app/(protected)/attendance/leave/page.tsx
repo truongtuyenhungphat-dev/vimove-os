@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatVnDate } from "@/lib/format";
 import { LeaveRequestDialog } from "@/components/attendance/leave-request-dialog";
 import { LEAVE_TYPE_LABELS, type LeaveType } from "@/lib/attendance/types";
 import { APPROVAL_STATUS_LABELS } from "@/lib/process/types";
@@ -81,7 +82,7 @@ export default async function LeaveRequestsPage() {
                     <TableCell>{r.user.name}</TableCell>
                     <TableCell>{LEAVE_TYPE_LABELS[r.type as LeaveType]}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {new Date(r.startDate).toLocaleDateString("vi-VN")} — {new Date(r.endDate).toLocaleDateString("vi-VN")}
+                      {formatVnDate(r.startDate)} — {formatVnDate(r.endDate)}
                     </TableCell>
                     <TableCell className="max-w-xs truncate text-muted-foreground">{r.reason || "—"}</TableCell>
                     <TableCell>

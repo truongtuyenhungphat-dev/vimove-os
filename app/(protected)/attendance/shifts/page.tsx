@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ShiftDialog } from "@/components/attendance/shift-dialog";
 import { AssignShiftForm } from "@/components/attendance/assign-shift-form";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { formatVnDate } from "@/lib/format";
 import { CalendarClock } from "lucide-react";
 import { createShiftAction, deleteShiftAction, assignShiftAction, removeShiftAssignmentAction } from "./actions";
 
@@ -87,7 +88,7 @@ export default async function ShiftsPage() {
               <TableBody>
                 {assignments.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell>{new Date(a.date).toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" })}</TableCell>
+                    <TableCell>{formatVnDate(a.date, { weekday: "short", day: "2-digit", month: "2-digit" })}</TableCell>
                     <TableCell>{a.user.name}</TableCell>
                     <TableCell>
                       <Badge variant="outline" style={{ borderColor: a.shift.colorHex, color: a.shift.colorHex }}>

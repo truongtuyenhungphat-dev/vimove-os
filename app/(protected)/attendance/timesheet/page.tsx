@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LEAVE_TYPE_LABELS } from "@/lib/attendance/types";
+import { formatVnDate, formatVnTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Bảng công — VIMOVE OS" };
 
@@ -97,10 +98,10 @@ export default async function TimesheetPage({
             <TableBody>
               {days.map((d) => (
                 <TableRow key={d.date}>
-                  <TableCell>{new Date(d.date).toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" })}</TableCell>
+                  <TableCell>{formatVnDate(d.date, { weekday: "short", day: "2-digit", month: "2-digit" })}</TableCell>
                   <TableCell className="text-muted-foreground">{d.shiftName ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{d.checkIn ? new Date(d.checkIn).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">{d.checkOut ? new Date(d.checkOut).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{d.checkIn ? formatVnTime(d.checkIn, { hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{d.checkOut ? formatVnTime(d.checkOut, { hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{d.workedHours > 0 ? `${d.workedHours}h` : "—"}</TableCell>
                   <TableCell>
                     {d.onLeave ? (

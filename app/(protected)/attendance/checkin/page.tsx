@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckinPanel } from "@/components/attendance/checkin-panel";
 import { ATTENDANCE_METHOD_LABELS } from "@/lib/attendance/types";
+import { formatVnTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Chấm công — VIMOVE OS" };
 
@@ -28,7 +29,7 @@ export default async function CheckinPage() {
           <p className="mb-2 text-sm font-medium">Lượt chấm công gần nhất hôm nay</p>
           {last ? (
             <p className="text-sm text-muted-foreground">
-              {last.type === "CHECK_IN" ? "Vào" : "Ra"} lúc {new Date(last.occurredAt).toLocaleTimeString("vi-VN")} — {ATTENDANCE_METHOD_LABELS[last.method]}
+              {last.type === "CHECK_IN" ? "Vào" : "Ra"} lúc {formatVnTime(last.occurredAt)} — {ATTENDANCE_METHOD_LABELS[last.method]}
               {last.location ? ` tại "${last.location.name}"` : ""}
               {last.distanceMeters !== null ? ` (cách ${Math.round(last.distanceMeters)}m)` : ""}
             </p>

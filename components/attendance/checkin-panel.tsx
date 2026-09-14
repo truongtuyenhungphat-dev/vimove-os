@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { checkInOrOutAction } from "@/app/(protected)/attendance/checkin/actions";
 import { ATTENDANCE_TYPE_LABELS, UNAVAILABLE_ATTENDANCE_METHODS } from "@/lib/attendance/types";
+import { formatVnTime } from "@/lib/format";
 
 export function CheckinPanel({
   nextType,
@@ -24,7 +25,7 @@ export function CheckinPanel({
     startTransition(async () => {
       try {
         const res = await checkInOrOutAction({ method: "MANUAL" });
-        toast.success(`${ATTENDANCE_TYPE_LABELS[res.type]} lúc ${new Date(res.occurredAt).toLocaleTimeString("vi-VN")}`);
+        toast.success(`${ATTENDANCE_TYPE_LABELS[res.type]} lúc ${formatVnTime(res.occurredAt)}`);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
       }
@@ -46,7 +47,7 @@ export function CheckinPanel({
               latitude: pos.coords.latitude,
               longitude: pos.coords.longitude,
             });
-            toast.success(`${ATTENDANCE_TYPE_LABELS[res.type]} lúc ${new Date(res.occurredAt).toLocaleTimeString("vi-VN")} — ${res.locationName}`);
+            toast.success(`${ATTENDANCE_TYPE_LABELS[res.type]} lúc ${formatVnTime(res.occurredAt)} — ${res.locationName}`);
           } catch (err) {
             toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
           }

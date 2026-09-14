@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { requirePermission } from "@/lib/auth/rbac";
 import { checkInOrOut } from "@/services/attendance/checkin";
 import { Button } from "@/components/ui/button";
+import { formatVnTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Chấm công QR — VIMOVE OS" };
 
@@ -35,7 +36,7 @@ export default async function QrCheckinPage({ params }: { params: Promise<{ toke
           <div>
             <p className="text-lg font-semibold">{result.type === "CHECK_IN" ? "Đã chấm công vào" : "Đã chấm công ra"} thành công</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Lúc {result.occurredAt.toLocaleTimeString("vi-VN")} {result.locationName ? `tại "${result.locationName}"` : ""}
+              Lúc {formatVnTime(result.occurredAt)} {result.locationName ? `tại "${result.locationName}"` : ""}
             </p>
           </div>
         </>
