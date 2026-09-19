@@ -1201,6 +1201,7 @@ model Warranty {
   size            String?
   purchaseChannel String?
   purchaseDate    DateTime?
+  activatedAt     DateTime?
   warrantyExpiry  DateTime?
   status          WarrantyStatus @default(ACTIVE)
   notes           String?

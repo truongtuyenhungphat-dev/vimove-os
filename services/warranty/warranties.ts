@@ -141,6 +141,7 @@ export async function createWarrantyFromPublicFormGlobal(data: {
       size: data.size || null,
       purchaseChannel: data.purchaseChannel || null,
       purchaseDate: data.purchaseDate,
+      activatedAt: new Date(),
       warrantyExpiry,
       warrantyCode,
       status: "ACTIVE",
@@ -161,6 +162,7 @@ export async function createWarranty(
     size?: string | null;
     purchaseChannel?: string | null;
     purchaseDate?: Date | null;
+    activatedAt?: Date | null;
     warrantyExpiry?: Date | null;
     warrantyCode: string;
     status?: WarrantyStatus;
@@ -180,6 +182,7 @@ export async function createWarranty(
       size: data.size || null,
       purchaseChannel: data.purchaseChannel || null,
       purchaseDate: data.purchaseDate ?? null,
+      activatedAt: data.activatedAt ?? null,
       warrantyExpiry: data.warrantyExpiry ?? null,
       warrantyCode: data.warrantyCode,
       status: data.status ?? "ACTIVE",
@@ -202,6 +205,7 @@ export async function updateWarranty(
     size?: string | null;
     purchaseChannel?: string | null;
     purchaseDate?: Date | null;
+    activatedAt?: Date | null;
     warrantyExpiry?: Date | null;
     status: WarrantyStatus;
     notes?: string | null;
@@ -220,6 +224,7 @@ export async function updateWarranty(
       size: data.size || null,
       purchaseChannel: data.purchaseChannel || null,
       purchaseDate: data.purchaseDate ?? null,
+      activatedAt: data.activatedAt ?? null,
       warrantyExpiry: data.warrantyExpiry ?? null,
       status: data.status,
       notes: data.notes || null,

@@ -83,6 +83,7 @@ export default async function WarrantyPage({
                   <TableHead className="hidden sm:table-cell">Khách hàng</TableHead>
                   <TableHead>Sản phẩm</TableHead>
                   <TableHead className="hidden sm:table-cell">Kênh mua</TableHead>
+                  <TableHead className="hidden md:table-cell">Kích hoạt</TableHead>
                   <TableHead className="hidden sm:table-cell">Hết hạn</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   {(canUpdate || canDelete) && <TableHead className="w-20" />}
@@ -114,6 +115,7 @@ export default async function WarrantyPage({
                       )}
                     </TableCell>
                     <TableCell className="hidden text-muted-foreground sm:table-cell">{w.purchaseChannel ?? "—"}</TableCell>
+                    <TableCell className="hidden text-muted-foreground md:table-cell">{fmtDate(w.activatedAt)}</TableCell>
                     <TableCell className="hidden text-muted-foreground sm:table-cell">{fmtDate(w.warrantyExpiry)}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`border-transparent font-normal ${STATUS_STYLE[w.status]}`}>
@@ -134,6 +136,7 @@ export default async function WarrantyPage({
                                 size: w.size,
                                 purchaseChannel: w.purchaseChannel,
                                 purchaseDate: w.purchaseDate ? w.purchaseDate.toISOString() : null,
+                                activatedAt: w.activatedAt ? w.activatedAt.toISOString() : null,
                                 warrantyExpiry: w.warrantyExpiry ? w.warrantyExpiry.toISOString() : null,
                                 warrantyCode: w.warrantyCode,
                                 status: w.status,

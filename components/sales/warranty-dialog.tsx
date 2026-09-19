@@ -29,6 +29,7 @@ export type WarrantyFormData = {
   size: string | null;
   purchaseChannel: string | null;
   purchaseDate: string | null;
+  activatedAt: string | null;
   warrantyExpiry: string | null;
   warrantyCode: string;
   status: WarrantyStatus;
@@ -151,9 +152,19 @@ export function WarrantyDialog({
               <Input id="warranty-purchase-date" name="purchaseDate" type="date" defaultValue={toDateInputValue(warranty?.purchaseDate ?? null)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="warranty-expiry">Hết hạn bảo hành</Label>
-              <Input id="warranty-expiry" name="warrantyExpiry" type="date" defaultValue={toDateInputValue(warranty?.warrantyExpiry ?? null)} />
+              <Label htmlFor="warranty-activated-at">Ngày kích hoạt bảo hành</Label>
+              <Input
+                id="warranty-activated-at"
+                name="activatedAt"
+                type="date"
+                defaultValue={toDateInputValue(warranty?.activatedAt ?? null) || (mode === "create" ? toDateInputValue(new Date().toISOString()) : "")}
+              />
             </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="warranty-expiry">Hết hạn bảo hành</Label>
+            <Input id="warranty-expiry" name="warrantyExpiry" type="date" defaultValue={toDateInputValue(warranty?.warrantyExpiry ?? null)} />
           </div>
 
           <div className="flex flex-col gap-1.5">
