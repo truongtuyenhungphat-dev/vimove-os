@@ -182,7 +182,9 @@ export async function createWarranty(
       size: data.size || null,
       purchaseChannel: data.purchaseChannel || null,
       purchaseDate: data.purchaseDate ?? null,
-      activatedAt: data.activatedAt ?? null,
+      // Luôn có mốc kích hoạt dù form không gửi giá trị — đây là "mốc thời gian
+      // ghi nhận" đáng tin cậy, không phụ thuộc admin có điền hay không.
+      activatedAt: data.activatedAt ?? new Date(),
       warrantyExpiry: data.warrantyExpiry ?? null,
       warrantyCode: data.warrantyCode,
       status: data.status ?? "ACTIVE",

@@ -72,6 +72,7 @@ export type WarrantyLookupResult = {
   size: string | null;
   purchaseChannel: string | null;
   purchaseDate: string | null; // ISO — chuyển từ Date sang string trước khi trả về Client Component
+  activatedAt: string | null;
   warrantyExpiry: string | null;
   status: WarrantyStatus;
   notes: string | null;
@@ -87,6 +88,7 @@ function toLookupResult(w: NonNullable<Awaited<ReturnType<typeof findWarrantyByC
     size: w.size,
     purchaseChannel: w.purchaseChannel,
     purchaseDate: w.purchaseDate ? w.purchaseDate.toISOString() : null,
+    activatedAt: w.activatedAt ? w.activatedAt.toISOString() : null,
     warrantyExpiry: w.warrantyExpiry ? w.warrantyExpiry.toISOString() : null,
     status: w.status,
     notes: w.notes,

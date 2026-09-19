@@ -50,6 +50,7 @@ export function WarrantyResultCard({ data }: { data: WarrantyLookupResult }) {
         {data.size && <Row label="Kích thước" value={data.size} />}
         {data.purchaseChannel && <Row label="Kênh mua" value={data.purchaseChannel} />}
         <Row label="Ngày mua" value={fmtDate(data.purchaseDate)} />
+        <Row label="Ngày kích hoạt" value={fmtDate(data.activatedAt)} />
         <Row label="Hết hạn BH" value={fmtDate(data.warrantyExpiry)} valueClassName={p && p.daysLeft === 0 ? "text-rose-600" : "text-emerald-600"} />
 
         {p && (
