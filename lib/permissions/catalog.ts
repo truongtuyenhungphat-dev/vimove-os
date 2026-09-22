@@ -93,6 +93,10 @@ export const PERMISSIONS = [
   { key: "production.delete", resource: "production", action: "delete", description: "Xoá thẻ sản xuất, thành viên, kênh" },
   { key: "marketing_channels.read", resource: "marketing_channels", action: "read", description: "Xem Social/Landing Page/Email Campaign" },
   { key: "marketing_channels.manage", resource: "marketing_channels", action: "manage", description: "Tạo/sửa tài khoản mạng xã hội, bài đăng, landing page, email campaign" },
+  { key: "channel_tracking.read", resource: "channel_tracking", action: "read", description: "Xem theo dõi kênh (follower/view/tương tác theo thời gian)" },
+  { key: "channel_tracking.create", resource: "channel_tracking", action: "create", description: "Thêm kênh mới vào danh sách theo dõi" },
+  { key: "channel_tracking.update", resource: "channel_tracking", action: "update", description: "Sửa/tạm dừng kênh, quét tay, sửa cấu hình Apify" },
+  { key: "channel_tracking.delete", resource: "channel_tracking", action: "delete", description: "Gỡ kênh khỏi danh sách theo dõi" },
 
   // Ads Integration (Phase 6)
   { key: "ads.read", resource: "ads", action: "read", description: "Xem kết nối quảng cáo, tài khoản, chiến dịch, số liệu" },

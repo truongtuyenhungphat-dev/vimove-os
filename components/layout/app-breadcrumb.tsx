@@ -51,6 +51,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   campaigns: "Chiến dịch",
   content: "Content Hub",
   "content-production": "Sản xuất Content",
+  "channel-tracking": "Theo dõi kênh",
+  export: "Xuất Excel",
   social: "Social",
   "landing-pages": "Landing Page",
   email: "Email Campaign",

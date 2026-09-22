@@ -749,6 +749,55 @@ async function main() {
 
   console.log("Marketing demo data: 1 chiến dịch (2 kênh), 3 nội dung, 1 tài khoản social + 1 bài đăng, 1 landing page (đã publish, 1 lượt đăng ký), 1 email campaign.");
 
+  // 9b. Theo dõi kênh (Phase 18) — cấu hình Actor Apify khuyến nghị, di trú nguyên
+  // văn từ supabase/seed.sql của app cũ "vimove-channels". TikTok/YouTube bật sẵn,
+  // Instagram/Facebook cài mapper sẵn nhưng tắt (is_active=false) — bật thủ công
+  // qua tab "Quét & Apify" khi cần, không phải sửa code.
+  const platformConfigs: { platform: string; apifyActor: string; inputTemplate: object; isActive: boolean }[] = [
+    {
+      platform: "TIKTOK",
+      apifyActor: "clockworks/tiktok-scraper",
+      inputTemplate: {
+        channel_key: "profiles",
+        channel_value: "username",
+        extra: { resultsPerPage: 10, shouldDownloadVideos: false, shouldDownloadCovers: false, profileScrapeSections: ["videos"], profileSorting: "latest" },
+      },
+      isActive: true,
+    },
+    {
+      platform: "YOUTUBE",
+      apifyActor: "streamers/youtube-scraper",
+      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { maxResults: 10, maxResultsShorts: 10 } },
+      isActive: true,
+    },
+    {
+      platform: "INSTAGRAM",
+      apifyActor: "apify/instagram-scraper",
+      inputTemplate: { channel_key: "directUrls", channel_value: "url", extra: { resultsType: "details", resultsLimit: 10 } },
+      isActive: false,
+    },
+    {
+      platform: "FACEBOOK",
+      apifyActor: "apify/facebook-posts-scraper",
+      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { resultsLimit: 10 } },
+      isActive: false,
+    },
+    {
+      platform: "FACEBOOK_PROFILE",
+      apifyActor: "apify/facebook-pages-scraper",
+      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true },
+      isActive: false,
+    },
+  ];
+  for (const cfg of platformConfigs) {
+    await prisma.channelPlatformConfig.upsert({
+      where: { organizationId_platform: { organizationId: organization.id, platform: cfg.platform } },
+      update: {},
+      create: { organizationId: organization.id, ...cfg },
+    });
+  }
+  console.log(`Theo dõi kênh: ${platformConfigs.length} cấu hình Actor mặc định (TikTok/YouTube bật sẵn).`);
+
   // 10. Chấm công (Phase 11) — 1 địa điểm (Văn phòng chính, Hà Nội), 2 mẫu ca, xếp ca
   // hôm nay/mai cho salesStaff + marketingStaff, vài lượt chấm công thật (thủ công)
   // trong tuần trước cho salesStaff để Bảng công không rỗng, 1 đơn nghỉ phép đã duyệt.

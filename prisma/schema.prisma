@@ -55,6 +55,10 @@ model Organization {
   contentPieces      ContentPiece[]
   productionEntries  ProductionEntry[]
   productionCreators ProductionCreator[]
+  trackedChannels       TrackedChannel[]
+  channelSnapshots      ChannelSnapshot[]
+  channelPlatformConfigs ChannelPlatformConfig[]
+  channelScrapeRuns      ChannelScrapeRun[]
   socialAccounts  SocialAccount[]
   socialPosts     SocialPost[]
   landingPages    LandingPage[]
@@ -1486,6 +1490,113 @@ model ProductionCreator {
   @@unique([organizationId, userId])
   @@index([organizationId])
   @@map("production_creators")
+}
+
+// ---------------------------------------------------------------------------
+// THEO DÕI KÊNH (Phase 18) — di trú từ app Supabase riêng "vimove-channels".
+// Quét chỉ số công khai (follower/view/video/tương tác) của kênh TikTok/YouTube/
+// Facebook/Instagram mỗi ngày qua Apify (async run + webhook), lưu snapshot theo
+// ngày. Khác ContentPiece/ProductionEntry ở trên (những cái đó theo dõi NỘI DUNG
+// nhóm mình SẢN XUẤT) — đây theo dõi TĂNG TRƯỞNG của các kênh (có thể là kênh nhà
+// hoặc kênh đối tác/đối thủ) từ bên ngoài, không cần đăng nhập nền tảng đó.
+// "FACEBOOK_PROFILE" là platform ảo trong ChannelPlatformConfig (không phải giá
+// trị TrackedChannel.platform nào) — xem services/channel-tracking/apify.ts.
+// ---------------------------------------------------------------------------
+
+enum TrackedPlatform {
+  TIKTOK
+  YOUTUBE
+  FACEBOOK
+  INSTAGRAM
+}
+
+enum TrackedChannelStatus {
+  ACTIVE
+  PAUSED
+  REMOVED
+}
+
+model TrackedChannel {
+  id                String               @id @default(cuid())
+  organizationId    String
+  platform          TrackedPlatform
+  url               String
+  username          String
+  label             String?
+  status            TrackedChannelStatus @default(ACTIVE)
+  baselineFollowers Int?
+  baselineViews     Int?
+  avatarUrl         String?
+  postIds           String[]             @default([]) // facebook: id bài đã quét được, cộng dồn ra tổng lũy kế
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  snapshots    ChannelSnapshot[]
+
+  @@unique([organizationId, platform, username])
+  @@index([organizationId, status])
+  @@map("tracked_channels")
+}
+
+/** 1 dòng = số liệu 1 kênh trong 1 ngày. `date` dạng "YYYY-MM-DD" theo giờ VN
+ * (khớp quy ước ProductionEntry.date ở trên) — so sánh chuỗi đúng thứ tự thời gian. */
+model ChannelSnapshot {
+  id             String   @id @default(cuid())
+  organizationId String
+  channelId      String
+  date           String
+  followers      Int?
+  totalViews     Int?
+  videosCount    Int?
+  engagement     Int?
+  raw            Json?
+  scrapeStatus   String   @default("ok")
+  createdAt      DateTime @default(now())
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  channel      TrackedChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, date])
+  @@index([channelId, date])
+  @@map("channel_snapshots")
+}
+
+/** Cấu hình Apify Actor theo nền tảng — đổi Actor khi lỗi/đổi nhà cung cấp không
+ * cần sửa code, chỉ sửa dòng này (qua UI, xem "Quét & Apify"). */
+model ChannelPlatformConfig {
+  id             String   @id @default(cuid())
+  organizationId String
+  platform       String
+  apifyActor     String
+  inputTemplate  Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, platform])
+  @@map("channel_platform_configs")
+}
+
+/** Nhật ký run Apify — theo dõi trạng thái + chi phí, hiện trong tab "Quét & Apify". */
+model ChannelScrapeRun {
+  id             String    @id @default(cuid())
+  organizationId String
+  runId          String?
+  platform       String?
+  actor          String?
+  status         String    @default("started")
+  channelsCount  Int?
+  costUsd        Float?
+  startedAt      DateTime  @default(now())
+  finishedAt     DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, startedAt])
+  @@map("channel_scrape_runs")
 }
 
 // Không có token OAuth — chỉ là danh mục tài khoản mạng xã hội để gắn khi lên lịch
