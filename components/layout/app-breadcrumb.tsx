@@ -50,6 +50,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   marketing: "Marketing",
   campaigns: "Chiến dịch",
   content: "Content Hub",
+  "content-production": "Sản xuất Content",
   social: "Social",
   "landing-pages": "Landing Page",
   email: "Email Campaign",

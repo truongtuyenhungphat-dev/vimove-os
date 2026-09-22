@@ -87,6 +87,10 @@ export const PERMISSIONS = [
   { key: "content.create", resource: "content", action: "create", description: "Tạo nội dung mới" },
   { key: "content.update", resource: "content", action: "update", description: "Sửa nội dung, đổi trạng thái, đính kèm" },
   { key: "content.delete", resource: "content", action: "delete", description: "Xoá nội dung" },
+  { key: "production.read", resource: "production", action: "read", description: "Xem tiến độ sản xuất content (bảng đếm & kanban)" },
+  { key: "production.create", resource: "production", action: "create", description: "Tạo thẻ sản xuất, thêm thành viên/kênh" },
+  { key: "production.update", resource: "production", action: "update", description: "Cập nhật tiến độ, đổi giai đoạn thẻ sản xuất" },
+  { key: "production.delete", resource: "production", action: "delete", description: "Xoá thẻ sản xuất, thành viên, kênh" },
   { key: "marketing_channels.read", resource: "marketing_channels", action: "read", description: "Xem Social/Landing Page/Email Campaign" },
   { key: "marketing_channels.manage", resource: "marketing_channels", action: "manage", description: "Tạo/sửa tài khoản mạng xã hội, bài đăng, landing page, email campaign" },
 

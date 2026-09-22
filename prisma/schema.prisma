@@ -51,6 +51,10 @@ model Organization {
   warranties      Warranty[]
   campaigns       Campaign[]
   contents        Content[]
+  productionChannels ProductionChannel[]
+  contentPieces      ContentPiece[]
+  productionEntries  ProductionEntry[]
+  productionCreators ProductionCreator[]
   socialAccounts  SocialAccount[]
   socialPosts     SocialPost[]
   landingPages    LandingPage[]
@@ -135,6 +139,10 @@ model User {
   createdContents    Content[]        @relation("ContentCreator")
   assignedContents   Content[]        @relation("ContentAssignee")
   contentAssets      ContentAsset[]
+  createdContentPieces  ContentPiece[]    @relation("ContentPieceCreator")
+  assignedContentPieces ContentPiece[]    @relation("ContentPieceAssignee")
+  productionEntries     ProductionEntry[]
+  productionCreatorOf   ProductionCreator[]
   createdSocialPosts SocialPost[]     @relation("SocialPostCreator")
   createdLandingPages LandingPage[]   @relation("LandingPageCreator")
   createdEmailCampaigns EmailCampaign[] @relation("EmailCampaignCreator")
@@ -1379,6 +1387,105 @@ model ContentAsset {
 
   @@index([contentId])
   @@map("content_assets")
+}
+
+// ---------------------------------------------------------------------------
+// SẢN XUẤT CONTENT (Phase 17) — bảng đếm tiến độ hằng ngày (Edit/Quay/Viết KB/Post
+// theo thành viên + kênh) và kanban riêng cho đội video ngắn — khác Content Hub ở
+// trên (Content Hub theo dõi TỪNG bài viết/campaign; đây theo dõi KHỐI LƯỢNG sản
+// xuất hằng ngày của cả team theo kênh). ContentPiece chuyển stage sẽ tự cộng dồn
+// vào ProductionEntry của ngày hôm đó (services/production/pieces.ts), tương tự
+// nguyên tắc "hoạt động ở module này tự đồng bộ module kia" đã áp dụng ở CRM.
+// ---------------------------------------------------------------------------
+
+enum ContentPieceStage {
+  IDEA
+  SCRIPT
+  SHOOT
+  EDIT
+  REVIEW
+  POSTED
+}
+
+model ProductionChannel {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  taskTypes      String[] @default([])
+  order          Int      @default(0)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  pieces       ContentPiece[]
+  entries      ProductionEntry[]
+
+  @@index([organizationId])
+  @@map("production_channels")
+}
+
+model ContentPiece {
+  id             String            @id @default(cuid())
+  organizationId String
+  title          String
+  channelId      String?
+  assigneeId     String?
+  stage          ContentPieceStage @default(IDEA)
+  position       Int               @default(0)
+  createdById    String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  channel      ProductionChannel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  assignee     User?              @relation("ContentPieceAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy    User               @relation("ContentPieceCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([organizationId, stage])
+  @@map("content_pieces")
+}
+
+/** Một dòng = tiến độ của 1 người trên 1 kênh trong 1 ngày. `counts` là map
+ * {"Edit": 2, "Quay": 1, ...} — dùng Json vì tập task type có thể mở rộng theo
+ * kênh (xem ProductionChannel.taskTypes), không cố định như cột riêng. */
+model ProductionEntry {
+  id             String   @id @default(cuid())
+  organizationId String
+  date           String
+  userId         String
+  channelId      String
+  counts         Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel      ProductionChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date, userId, channelId])
+  @@index([organizationId, date])
+  @@map("production_entries")
+}
+
+/** Roster đội sản xuất — ai xuất hiện trên bảng đếm tiến độ. Tách khỏi `User` (không
+ * phải mọi nhân viên trong công ty đều thuộc đội content) — quản lý qua nút "Quản
+ * lý thành viên" trên trang, chọn từ danh sách User có sẵn (không tạo user mới). */
+model ProductionCreator {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  order          Int      @default(0)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@map("production_creators")
 }
 
 // Không có token OAuth — chỉ là danh mục tài khoản mạng xã hội để gắn khi lên lịch

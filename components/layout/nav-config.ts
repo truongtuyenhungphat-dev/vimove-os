@@ -40,6 +40,7 @@ import {
   CalendarOff,
   CalendarClock,
   MapPinned,
+  Clapperboard,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions/catalog";
 
@@ -133,6 +134,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Chiến dịch", href: "/marketing/campaigns", icon: Megaphone, permission: "campaigns.read" },
       { label: "Content Hub", href: "/marketing/content", icon: FileEdit, permission: "content.read" },
+      { label: "Sản xuất Content", href: "/marketing/content-production", icon: Clapperboard, permission: "production.read" },
       { label: "Social", href: "/marketing/social", icon: Share2, permission: "marketing_channels.read" },
       { label: "Landing Page", href: "/marketing/landing-pages", icon: FileText, permission: "marketing_channels.read" },
       { label: "Email Campaign", href: "/marketing/email", icon: Mail, permission: "marketing_channels.read" },
