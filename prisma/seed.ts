@@ -779,7 +779,11 @@ async function main() {
     {
       platform: "FACEBOOK",
       apifyActor: "apify/facebook-posts-scraper",
-      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { resultsLimit: 10 } },
+      // resultsLimit=25 (không phải 10) — với 10, actor chỉ thấy 10 bài mới nhất/trang
+      // mỗi lần nên videosCount (cộng dồn postIds) gần như không tăng nếu trang đăng
+      // chậm hơn tốc độ quét — 25 giúp bắt kịp thực tế nhanh hơn, đổi lại chi phí Apify
+      // cao hơn (đã xác nhận với người dùng, chấp nhận đánh đổi để số liệu sát thật).
+      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { resultsLimit: 25 } },
       isActive: false,
     },
     {
