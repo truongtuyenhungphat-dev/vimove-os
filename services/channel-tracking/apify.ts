@@ -59,7 +59,17 @@ export async function startDailyScrape(organizationId: string): Promise<{ starte
       [key]: tpl.wrap_url ? values.map((url) => ({ url })) : values,
     };
 
+    // Actor pay-per-event (vd facebook-posts-scraper) mà không truyền maxItems thì
+    // Apify TỰ tính 1 maxTotalChargeUsd mặc định — nếu input (resultsLimit x số kênh)
+    // vượt ngưỡng đó, Actor âm thầm cắt bớt dataset giữa chừng (không lỗi, không log
+    // rõ ràng ở phía app) chứ không báo hết tiền — phát hiện được vì 1 lần test với
+    // resultsLimit=25 x 5 kênh bị cắt còn đúng 25 item dù input hợp lệ. Truyền maxItems
+    // tường minh = (per-channel limit) x số kênh x 1.2 để không bị cắt oan.
+    const perChannelLimit = num(tpl.extra?.resultsLimit) ?? num(tpl.extra?.resultsPerPage) ?? num(tpl.extra?.maxResults) ?? 25;
+    const maxItems = Math.ceil(perChannelLimit * list.length * 1.2);
+
     const run = await client.actor(cfg.apifyActor).start(input, {
+      maxItems,
       webhooks: [
         {
           eventTypes: ["ACTOR.RUN.SUCCEEDED", "ACTOR.RUN.FAILED", "ACTOR.RUN.TIMED_OUT", "ACTOR.RUN.ABORTED"],
