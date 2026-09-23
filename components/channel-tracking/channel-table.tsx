@@ -28,6 +28,7 @@ import {
   TRACKED_CHANNEL_STATUS_LABELS,
   fmtNumber,
   isLikesProxyMetric,
+  isPartialVideoMetric,
   type Platform,
   type TrackedChannelStatus,
 } from "@/lib/channel-tracking/types";
@@ -166,7 +167,10 @@ export function ChannelTable({
                   {fmtNumber(c.totalViews)}
                   {isLikesProxyMetric(c.platform as Platform) && <span className="ml-1 text-[10px]">❤</span>}
                 </TableCell>
-                <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">{fmtNumber(c.videosCount)}</TableCell>
+                <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">
+                  {fmtNumber(c.videosCount)}
+                  {isPartialVideoMetric(c.platform as Platform) && <span className="ml-1 text-[10px]">†</span>}
+                </TableCell>
                 <TableCell className="hidden lg:table-cell">
                   <div className="flex flex-col gap-0.5">
                     <DeltaText label="Follo" value={c.followersDelta7d} span={c.followersDelta7dSpan} />
@@ -223,6 +227,11 @@ export function ChannelTable({
       {channels.some((c) => isLikesProxyMetric(c.platform as Platform)) && (
         <p className="mt-1.5 text-xs text-muted-foreground">
           * TikTok không công khai API trả tổng view trọn đời — cột này với kênh TikTok (❤) là tổng lượt thích cộng dồn, không phải view.
+        </p>
+      )}
+      {channels.some((c) => isPartialVideoMetric(c.platform as Platform)) && (
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          † Facebook không công khai API trả tổng số video trọn đời của trang — cột Video (†) là số video cộng dồn từ các lần quét, có thể thấp hơn tổng thật.
         </p>
       )}
 

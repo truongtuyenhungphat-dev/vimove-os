@@ -265,7 +265,12 @@ export function normalizeItems(platform: ConfigPlatform, items: Record<string, u
       }));
   }
 
-  // FACEBOOK: apify/facebook-posts-scraper — item = post kèm thông tin trang.
+  // FACEBOOK: apify/facebook-posts-scraper — item = MỌI loại bài (ảnh/status/link/
+  // video), không riêng video. Phải lọc theo media[].__typename === "Video" thì
+  // "videosCount" mới đúng nghĩa "số VIDEO", không tính lẫn bài ảnh/status.
+  const isVideoPost = (p: Record<string, unknown>) =>
+    Array.isArray(p.media) && (p.media as Record<string, unknown>[]).some((m) => m?.__typename === "Video");
+
   // pageName trả về đã encode, không phải ID số trong URL khi kênh thêm bằng link
   // dạng facebook.com/<số-id> — nên nhóm theo inputUrl (URL đã gửi lên Actor, luôn
   // trùng TrackedChannel.url) để nhận diện đúng trang, rồi ghép thêm alias khác.
@@ -288,14 +293,15 @@ export function normalizeItems(platform: ConfigPlatform, items: Record<string, u
           return String(v).toLowerCase();
         }
       });
+    const videoPosts = list.filter(isVideoPost);
     return {
       ref: aliasParts.join(" | "),
       followers: num(first.pageFollowers) ?? num(first.followers), // Actor này không trả follower — luôn null
       totalViews: list.reduce((s, p) => s + (num(p.viewsCount) ?? num(p.videoPostViewCount) ?? 0), 0) || null,
-      // Actor chỉ trả về resultsLimit bài mới nhất mỗi lần — videosCount ở đây CHỈ là số
-      // bài quét được lần này; handleApifyCallback() cộng dồn postIds qua từng ngày.
-      videosCount: list.length,
-      postIds: list.map((p) => String(p.postId ?? p.facebookId ?? "")).filter(Boolean),
+      // Actor chỉ trả về resultsLimit bài mới nhất mỗi lần (mọi loại) — lọc còn video
+      // rồi handleApifyCallback() cộng dồn postIds VIDEO qua từng ngày ra tổng lũy kế.
+      videosCount: videoPosts.length,
+      postIds: videoPosts.map((p) => String(p.postId ?? p.facebookId ?? "")).filter(Boolean),
       engagement: list.reduce((s, p) => s + (num(p.likes) ?? 0) + (num(p.shares) ?? 0) + (num(p.comments) ?? 0), 0),
       avatarUrl: null, // Actor bài viết không đáng tin cho ảnh trang — dùng FACEBOOK_PROFILE
       bio: String(first.pageIntro ?? first.pageAbout ?? ""),

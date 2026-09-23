@@ -31,6 +31,14 @@ export function viewsMetricShortLabel(platform: Platform): string {
   return isLikesProxyMetric(platform) ? "Lượt thích" : "View";
 }
 
+/** Facebook không có API công khai trả "tổng số video trọn đời" của trang — cột
+ * `videosCount` cho Facebook là số VIDEO (đã lọc khỏi ảnh/status/link) cộng dồn từ
+ * các lần quét (Actor chỉ trả resultsLimit bài mới nhất/lần), nên là mức SÀN, có
+ * thể thấp hơn tổng thật nếu trang có video cũ hơn phạm vi đã quét được. */
+export function isPartialVideoMetric(platform: Platform): boolean {
+  return platform === "FACEBOOK";
+}
+
 export const TRACKED_CHANNEL_STATUSES = ["ACTIVE", "PAUSED", "REMOVED"] as const;
 export type TrackedChannelStatus = (typeof TRACKED_CHANNEL_STATUSES)[number];
 export const TRACKED_CHANNEL_STATUS_LABELS: Record<TrackedChannelStatus, string> = {
