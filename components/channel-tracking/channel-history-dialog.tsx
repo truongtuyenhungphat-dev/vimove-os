@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sparkline } from "./sparkline";
-import { fmtNumber } from "@/lib/channel-tracking/types";
+import { fmtNumber, viewsMetricShortLabel, type Platform } from "@/lib/channel-tracking/types";
 import { getChannelHistoryAction } from "@/app/(protected)/marketing/channel-tracking/actions";
 import type { ChannelRow } from "@/services/channel-tracking/channels";
 
@@ -56,7 +56,7 @@ export function ChannelHistoryDialog({ channel, open, onOpenChange }: { channel:
                   <TableRow>
                     <TableHead>Ngày</TableHead>
                     <TableHead className="text-right">Follower</TableHead>
-                    <TableHead className="text-right">View</TableHead>
+                    <TableHead className="text-right">{viewsMetricShortLabel(channel.platform as Platform)}</TableHead>
                     <TableHead className="text-right">Video</TableHead>
                     <TableHead className="text-right">Tương tác</TableHead>
                   </TableRow>

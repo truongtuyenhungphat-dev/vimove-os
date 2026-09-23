@@ -13,7 +13,7 @@ import { ChannelTable } from "@/components/channel-tracking/channel-table";
 import { AddChannelDialog } from "@/components/channel-tracking/add-channel-dialog";
 import { ScrapePanel } from "@/components/channel-tracking/scrape-panel";
 import { Sparkline } from "@/components/channel-tracking/sparkline";
-import { PLATFORM_LABEL, fmtNumber, type Platform } from "@/lib/channel-tracking/types";
+import { PLATFORM_LABEL, fmtNumber, isLikesProxyMetric, type Platform } from "@/lib/channel-tracking/types";
 import { addChannelAction, updateChannelAction, deleteChannelAction, scrapeNowAction, updatePlatformConfigAction } from "./actions";
 
 export const metadata: Metadata = { title: "Theo dõi kênh — VIMOVE OS" };
@@ -29,7 +29,12 @@ export default async function ChannelTrackingPage() {
 
   const active = channels.filter((c) => c.status !== "REMOVED");
   const totalFollowers = active.reduce((s, c) => s + (c.followers ?? 0), 0);
-  const totalViews = active.reduce((s, c) => s + (c.totalViews ?? 0), 0);
+  // TikTok không có "view trọn đời" thật (xem lib/channel-tracking/types.ts#isLikesProxyMetric)
+  // — loại khỏi tổng view để không cộng lẫn lượt thích TikTok vào view thật của
+  // Facebook/YouTube, làm sai con số tổng.
+  const viewableChannels = active.filter((c) => !isLikesProxyMetric(c.platform as Platform));
+  const totalViews = viewableChannels.reduce((s, c) => s + (c.totalViews ?? 0), 0);
+  const hasTiktok = active.some((c) => isLikesProxyMetric(c.platform as Platform));
   const followersDelta7d = active.reduce((s, c) => s + (c.followersDelta7d ?? 0), 0);
 
   const byPlatform = (["TIKTOK", "YOUTUBE", "FACEBOOK", "INSTAGRAM"] as Platform[]).map((p) => {
@@ -59,7 +64,13 @@ export default async function ChannelTrackingPage() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard label="Tổng follower" value={fmtNumber(totalFollowers)} icon={Users} tone="primary" />
-        <KpiCard label="Tổng view" value={fmtNumber(totalViews)} icon={Eye} tone="muted" />
+        <KpiCard
+          label="Tổng view"
+          value={fmtNumber(totalViews)}
+          icon={Eye}
+          tone="muted"
+          hint={hasTiktok ? "Không tính TikTok (không có view trọn đời)" : undefined}
+        />
         <KpiCard label="Kênh đang theo dõi" value={active.length} icon={Video} tone="muted" />
         <KpiCard
           label="Follower tăng (7 ngày)"

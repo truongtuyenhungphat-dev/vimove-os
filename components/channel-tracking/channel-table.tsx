@@ -23,7 +23,14 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Sparkline } from "./sparkline";
 import { EditChannelDialog } from "./edit-channel-dialog";
 import { ChannelHistoryDialog } from "./channel-history-dialog";
-import { PLATFORM_LABEL, TRACKED_CHANNEL_STATUS_LABELS, fmtNumber, type Platform, type TrackedChannelStatus } from "@/lib/channel-tracking/types";
+import {
+  PLATFORM_LABEL,
+  TRACKED_CHANNEL_STATUS_LABELS,
+  fmtNumber,
+  isLikesProxyMetric,
+  type Platform,
+  type TrackedChannelStatus,
+} from "@/lib/channel-tracking/types";
 import type { ChannelRow } from "@/services/channel-tracking/channels";
 
 const STATUS_STYLE: Record<TrackedChannelStatus, string> = {
@@ -39,16 +46,21 @@ const PLATFORM_STYLE: Record<Platform, string> = {
   INSTAGRAM: "bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400",
 };
 
-function DeltaText({ value, span }: { value: number | null; span: number | null }) {
-  if (value == null) return <span className="text-muted-foreground">—</span>;
-  const sign = value > 0 ? "+" : "";
-  const cls = value > 0 ? "text-emerald-600 dark:text-emerald-400" : value < 0 ? "text-rose-600 dark:text-rose-400" : "text-muted-foreground";
+function DeltaText({ label, value, span }: { label: string; value: number | null; span?: number | null }) {
+  const cls =
+    value == null || value === 0
+      ? "text-muted-foreground"
+      : value > 0
+        ? "text-emerald-600 dark:text-emerald-400"
+        : "text-rose-600 dark:text-rose-400";
   return (
-    <span className={cls}>
-      {sign}
-      {fmtNumber(value)}
-      {span != null && span !== 7 && <span className="text-muted-foreground"> /{span}d</span>}
-    </span>
+    <div className="flex items-center gap-1 text-xs">
+      <span className="w-6 shrink-0 text-muted-foreground">{label}</span>
+      <span className={cls}>
+        {value == null ? "—" : `${value > 0 ? "+" : ""}${fmtNumber(value)}`}
+        {span != null && span !== 7 && <span className="text-muted-foreground"> /{span}d</span>}
+      </span>
+    </div>
   );
 }
 
@@ -109,9 +121,9 @@ export function ChannelTable({
               <TableHead>Kênh</TableHead>
               <TableHead className="hidden sm:table-cell">Trạng thái</TableHead>
               <TableHead className="text-right">Follower</TableHead>
-              <TableHead className="hidden text-right md:table-cell">Tổng view</TableHead>
+              <TableHead className="hidden text-right md:table-cell">View / Thích*</TableHead>
               <TableHead className="hidden text-right lg:table-cell">Video</TableHead>
-              <TableHead className="hidden lg:table-cell">7 ngày</TableHead>
+              <TableHead className="hidden lg:table-cell">Tăng trưởng (7 ngày)</TableHead>
               <TableHead className="hidden xl:table-cell">Xu hướng</TableHead>
               <TableHead className="w-10" />
             </TableRow>
@@ -150,10 +162,17 @@ export function ChannelTable({
                 <TableCell className="text-right">
                   <p className="font-medium tabular-nums">{fmtNumber(c.followers)}</p>
                 </TableCell>
-                <TableCell className="hidden text-right tabular-nums text-muted-foreground md:table-cell">{fmtNumber(c.totalViews)}</TableCell>
+                <TableCell className="hidden text-right tabular-nums text-muted-foreground md:table-cell">
+                  {fmtNumber(c.totalViews)}
+                  {isLikesProxyMetric(c.platform as Platform) && <span className="ml-1 text-[10px]">❤</span>}
+                </TableCell>
                 <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">{fmtNumber(c.videosCount)}</TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <DeltaText value={c.followersDelta7d} span={c.followersDelta7dSpan} />
+                  <div className="flex flex-col gap-0.5">
+                    <DeltaText label="Follo" value={c.followersDelta7d} span={c.followersDelta7dSpan} />
+                    <DeltaText label={isLikesProxyMetric(c.platform as Platform) ? "Thích" : "View"} value={c.viewsDelta7d} />
+                    <DeltaText label="T.tác" value={c.engagementDelta7d} />
+                  </div>
                 </TableCell>
                 <TableCell className="hidden xl:table-cell">
                   <Sparkline points={c.followersSeries} />
@@ -201,6 +220,11 @@ export function ChannelTable({
           </TableBody>
         </Table>
       </div>
+      {channels.some((c) => isLikesProxyMetric(c.platform as Platform)) && (
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          * TikTok không công khai API trả tổng view trọn đời — cột này với kênh TikTok (❤) là tổng lượt thích cộng dồn, không phải view.
+        </p>
+      )}
 
       {editTarget && canUpdate && (
         <EditChannelDialog channel={editTarget} open onOpenChange={(open) => !open && setEditTarget(null)} updateAction={updateAction} />

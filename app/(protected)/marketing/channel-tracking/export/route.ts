@@ -1,7 +1,7 @@
 import ExcelJS from "exceljs";
 import { requirePermission } from "@/lib/auth/rbac";
 import { listTrackedChannels } from "@/services/channel-tracking/channels";
-import { PLATFORM_LABEL, todayVN, type Platform } from "@/lib/channel-tracking/types";
+import { PLATFORM_LABEL, todayVN, viewsMetricLabel, type Platform } from "@/lib/channel-tracking/types";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +19,13 @@ export async function GET() {
     { header: "Ghi chú", key: "label", width: 24 },
     { header: "Trạng thái", key: "status", width: 14 },
     { header: "Follower", key: "followers", width: 14 },
-    { header: "Tổng view", key: "views", width: 14 },
+    { header: "View/Thích", key: "views", width: 14 },
+    { header: "Loại chỉ số", key: "viewsType", width: 14 },
     { header: "Số video", key: "videos", width: 12 },
     { header: "Tương tác", key: "engagement", width: 14 },
     { header: "Follower tăng (7 ngày)", key: "f7", width: 20 },
-    { header: "View tăng (7 ngày)", key: "v7", width: 18 },
+    { header: "View/Thích tăng (7 ngày)", key: "v7", width: 20 },
+    { header: "Tương tác tăng (7 ngày)", key: "e7", width: 20 },
     { header: "Cập nhật gần nhất", key: "date", width: 16 },
   ];
   ws.getRow(1).font = { bold: true };
@@ -36,10 +38,12 @@ export async function GET() {
       status: c.status,
       followers: c.followers ?? "",
       views: c.totalViews ?? "",
+      viewsType: viewsMetricLabel(c.platform as Platform),
       videos: c.videosCount ?? "",
       engagement: c.engagement ?? "",
       f7: c.followersDelta7d ?? "",
       v7: c.viewsDelta7d ?? "",
+      e7: c.engagementDelta7d ?? "",
       date: c.lastSnapshotDate ?? "",
     });
   }

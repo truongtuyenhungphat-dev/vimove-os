@@ -17,6 +17,20 @@ export const PLATFORM_LABEL: Record<ConfigPlatform, string> = {
   FACEBOOK_PROFILE: "Facebook (trang)",
 };
 
+/** TikTok không công khai API trả tổng view trọn đời của kênh — cột `totalViews`
+ * cho TikTok thực chất chứa tổng lượt thích cộng dồn (field `heart` của Apify),
+ * KHÔNG phải view thật. Nhãn hiển thị phải phản ánh đúng bản chất này để không gây
+ * hiểu nhầm (khác Facebook/YouTube, nơi field này đúng là view thật). */
+export function isLikesProxyMetric(platform: Platform): boolean {
+  return platform === "TIKTOK";
+}
+export function viewsMetricLabel(platform: Platform): string {
+  return isLikesProxyMetric(platform) ? "Tổng lượt thích" : "Tổng view";
+}
+export function viewsMetricShortLabel(platform: Platform): string {
+  return isLikesProxyMetric(platform) ? "Lượt thích" : "View";
+}
+
 export const TRACKED_CHANNEL_STATUSES = ["ACTIVE", "PAUSED", "REMOVED"] as const;
 export type TrackedChannelStatus = (typeof TRACKED_CHANNEL_STATUSES)[number];
 export const TRACKED_CHANNEL_STATUS_LABELS: Record<TrackedChannelStatus, string> = {

@@ -16,13 +16,17 @@ export type ChannelDelta = {
   latest: Snapshot | null;
   followersDelta: number | null;
   viewsDelta: number | null;
+  engagementDelta: number | null;
   scannedToday: boolean;
   spanDays: number | null;
 };
 
-/** Từ danh sách snapshot của 1 kênh, lấy snapshot mới nhất và mức tăng follower/view
- * so với `days` ngày trước. Kênh mới theo dõi chưa đủ lịch sử thì tự lùi về mốc cũ
- * nhất đang có — `spanDays` cho biết khoảng cách thực tế đó. */
+/** Từ danh sách snapshot của 1 kênh, lấy snapshot mới nhất và mức tăng follower/view/
+ * tương tác so với `days` ngày trước. Kênh mới theo dõi chưa đủ lịch sử thì tự lùi về
+ * mốc cũ nhất đang có — `spanDays` cho biết khoảng cách thực tế đó. Lưu ý: engagement
+ * mỗi snapshot chỉ là tương tác của các bài/video quét được HÔM ĐÓ (không phải lũy kế
+ * toàn kênh — xem normalizeItems), nên delta này phản ánh xu hướng tương tác gần đây
+ * tăng/giảm, không phải "tổng tương tác tăng thêm". */
 export function computeDelta(snapshots: Snapshot[], today: string, days: number): ChannelDelta {
   const byDate = new Map(snapshots.map((s) => [s.date, s]));
   const sorted = [...snapshots].sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -34,16 +38,18 @@ export function computeDelta(snapshots: Snapshot[], today: string, days: number)
 
   let followersDelta: number | null = null;
   let viewsDelta: number | null = null;
+  let engagementDelta: number | null = null;
   let spanDays: number | null = null;
   if (latest && older && latest.date !== older.date) {
     if (latest.followers != null && older.followers != null) followersDelta = latest.followers - older.followers;
     if (latest.totalViews != null && older.totalViews != null) viewsDelta = latest.totalViews - older.totalViews;
+    if (latest.engagement != null && older.engagement != null) engagementDelta = latest.engagement - older.engagement;
     const a = new Date(`${older.date}T00:00:00Z`).getTime();
     const b = new Date(`${latest.date}T00:00:00Z`).getTime();
     spanDays = Math.round((b - a) / 86_400_000);
   }
 
-  return { latest, followersDelta, viewsDelta, scannedToday: byDate.get(today)?.scrapeStatus === "ok", spanDays };
+  return { latest, followersDelta, viewsDelta, engagementDelta, scannedToday: byDate.get(today)?.scrapeStatus === "ok", spanDays };
 }
 
 /** Chuỗi follower theo ngày (tăng dần), bỏ ngày thiếu số liệu — dùng vẽ sparkline. */
@@ -104,9 +110,11 @@ export async function listTrackedChannels(organizationId: string, opts: { showRe
       scannedToday: d7.scannedToday,
       followersDelta7d: d7.followersDelta,
       viewsDelta7d: d7.viewsDelta,
+      engagementDelta7d: d7.engagementDelta,
       followersDelta7dSpan: d7.spanDays,
       followersDelta30d: d30.followersDelta,
       viewsDelta30d: d30.viewsDelta,
+      engagementDelta30d: d30.engagementDelta,
       followersDelta30dSpan: d30.spanDays,
       followersSeries: followersSeries(snaps).slice(-14),
     };
