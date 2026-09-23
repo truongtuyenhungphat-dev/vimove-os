@@ -59,6 +59,7 @@ model Organization {
   channelSnapshots      ChannelSnapshot[]
   channelPlatformConfigs ChannelPlatformConfig[]
   channelScrapeRuns      ChannelScrapeRun[]
+  trainingVideos         TrainingVideo[]
   socialAccounts  SocialAccount[]
   socialPosts     SocialPost[]
   landingPages    LandingPage[]
@@ -145,6 +146,7 @@ model User {
   contentAssets      ContentAsset[]
   createdContentPieces  ContentPiece[]    @relation("ContentPieceCreator")
   assignedContentPieces ContentPiece[]    @relation("ContentPieceAssignee")
+  createdTrainingVideos TrainingVideo[]   @relation("TrainingVideoCreator")
   productionEntries     ProductionEntry[]
   productionCreatorOf   ProductionCreator[]
   createdSocialPosts SocialPost[]     @relation("SocialPostCreator")
@@ -2396,4 +2398,29 @@ model LeaveRequest {
 
   @@index([organizationId, userId])
   @@map("leave_requests")
+}
+
+/** Thư viện video đào tạo nội bộ (link YouTube + bài viết hướng dẫn trên MBS).
+ * `category` để dạng String tự do (không enum) vì danh mục sẽ mở rộng dần khi
+ * nhân sự đào tạo cập nhật thêm — UI gợi ý từ danh mục đang có + cho nhập mới.
+ * `order` giữ thứ tự STT gốc trong danh sách nguồn để hiển thị đúng trình tự học. */
+model TrainingVideo {
+  id             String    @id @default(cuid())
+  organizationId String
+  order          Int       @default(0)
+  category       String
+  title          String
+  publishedDate  DateTime? @db.Date
+  youtubeUrl     String
+  mbsUrl         String?
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("TrainingVideoCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, category])
+  @@index([organizationId, order])
+  @@map("training_videos")
 }

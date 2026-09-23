@@ -97,6 +97,10 @@ export const PERMISSIONS = [
   { key: "channel_tracking.create", resource: "channel_tracking", action: "create", description: "Thêm kênh mới vào danh sách theo dõi" },
   { key: "channel_tracking.update", resource: "channel_tracking", action: "update", description: "Sửa/tạm dừng kênh, quét tay, sửa cấu hình Apify" },
   { key: "channel_tracking.delete", resource: "channel_tracking", action: "delete", description: "Gỡ kênh khỏi danh sách theo dõi" },
+  { key: "training.read", resource: "training", action: "read", description: "Xem thư viện video đào tạo - học tập" },
+  { key: "training.create", resource: "training", action: "create", description: "Thêm video đào tạo mới" },
+  { key: "training.update", resource: "training", action: "update", description: "Sửa video đào tạo" },
+  { key: "training.delete", resource: "training", action: "delete", description: "Xoá video đào tạo" },
 
   // Ads Integration (Phase 6)
   { key: "ads.read", resource: "ads", action: "read", description: "Xem kết nối quảng cáo, tài khoản, chiến dịch, số liệu" },
