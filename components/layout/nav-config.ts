@@ -42,6 +42,7 @@ import {
   Clapperboard,
   Radar,
   GraduationCap,
+  ClipboardCheck,
 } from "lucide-react";
 import type { PermissionKey } from "@/lib/permissions/catalog";
 
@@ -89,6 +90,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Khối lượng công việc", href: "/work/workload", icon: Gauge, permission: "tasks.read" },
       { label: "Mẫu công việc", href: "/work/templates", icon: LayoutTemplate, permission: "task_templates.manage" },
       { label: "Approval Hub", href: "/work/approvals", icon: ShieldCheck, permission: "approvals.read" },
+      { label: "Báo cáo công việc", href: "/work/daily-report", icon: ClipboardCheck, permission: "daily_reports.read" },
     ],
   },
   {

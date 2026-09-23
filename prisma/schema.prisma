@@ -29,53 +29,55 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
-  departments Department[]
-  teams       Team[]
-  roles       Role[]
-  auditLogs   AuditLog[]
-  tasks       Task[]
-  tags        Tag[]
-  taskTemplates TaskTemplate[]
-  projects        Project[]
-  projectTemplates ProjectTemplate[]
-  workflows       Workflow[]
-  workflowRuns    WorkflowRun[]
-  approvalRequests ApprovalRequest[]
-  pipelines       Pipeline[]
-  customers       Customer[]
-  leads           Lead[]
-  products        Product[]
-  salesChannels   SalesChannel[]
-  orders          Order[]
-  warranties      Warranty[]
-  campaigns       Campaign[]
-  contents        Content[]
-  productionChannels ProductionChannel[]
-  contentPieces      ContentPiece[]
-  productionEntries  ProductionEntry[]
-  productionCreators ProductionCreator[]
-  trackedChannels       TrackedChannel[]
-  channelSnapshots      ChannelSnapshot[]
+  users                  User[]
+  departments            Department[]
+  teams                  Team[]
+  roles                  Role[]
+  auditLogs              AuditLog[]
+  tasks                  Task[]
+  tags                   Tag[]
+  taskTemplates          TaskTemplate[]
+  projects               Project[]
+  projectTemplates       ProjectTemplate[]
+  workflows              Workflow[]
+  workflowRuns           WorkflowRun[]
+  approvalRequests       ApprovalRequest[]
+  pipelines              Pipeline[]
+  customers              Customer[]
+  leads                  Lead[]
+  products               Product[]
+  salesChannels          SalesChannel[]
+  orders                 Order[]
+  warranties             Warranty[]
+  campaigns              Campaign[]
+  contents               Content[]
+  productionChannels     ProductionChannel[]
+  contentPieces          ContentPiece[]
+  productionEntries      ProductionEntry[]
+  productionCreators     ProductionCreator[]
+  trackedChannels        TrackedChannel[]
+  channelSnapshots       ChannelSnapshot[]
   channelPlatformConfigs ChannelPlatformConfig[]
   channelScrapeRuns      ChannelScrapeRun[]
   trainingVideos         TrainingVideo[]
-  socialAccounts  SocialAccount[]
-  socialPosts     SocialPost[]
-  landingPages    LandingPage[]
-  emailCampaigns  EmailCampaign[]
-  adConnections   AdConnection[]
-  events          Event[]
+  dailyReportItems       DailyReportItem[]
+  recurringTaskTemplates RecurringTaskTemplate[]
+  socialAccounts         SocialAccount[]
+  socialPosts            SocialPost[]
+  landingPages           LandingPage[]
+  emailCampaigns         EmailCampaign[]
+  adConnections          AdConnection[]
+  events                 Event[]
   attributionTouchpoints AttributionTouchpoint[]
   attributionEvents      AttributionEvent[]
-  dailyMetrics    DailyMetric[]
-  reports         Report[]
-  dataQualityIssues DataQualityIssue[]
-  aiConversations AiConversation[]
-  aiInsights      AiInsight[]
-  aiRecommendations AiRecommendation[]
-  aiActions       AiAction[]
-  errorLogs       ErrorLog[]
+  dailyMetrics           DailyMetric[]
+  reports                Report[]
+  dataQualityIssues      DataQualityIssue[]
+  aiConversations        AiConversation[]
+  aiInsights             AiInsight[]
+  aiRecommendations      AiRecommendation[]
+  aiActions              AiAction[]
+  errorLogs              ErrorLog[]
 
   attendanceLocations AttendanceLocation[]
   attendanceRecords   AttendanceRecord[]
@@ -124,43 +126,46 @@ model User {
   taskTimeLogs    TaskTimeLog[]
   taskTemplates   TaskTemplate[]
 
-  ownedProjects       Project[]          @relation("ProjectOwner")
-  projectMemberships  ProjectMember[]
-  projectFiles        ProjectFile[]
-  projectTemplates    ProjectTemplate[]
-  createdWorkflows    Workflow[]
+  dailyReportItems          DailyReportItem[]
+  createdRecurringTemplates RecurringTaskTemplate[]
+
+  ownedProjects           Project[]         @relation("ProjectOwner")
+  projectMemberships      ProjectMember[]
+  projectFiles            ProjectFile[]
+  projectTemplates        ProjectTemplate[]
+  createdWorkflows        Workflow[]
   createdWorkflowVersions WorkflowVersion[]
-  createdWorkflowRuns WorkflowRun[]
-  requestedApprovals  ApprovalRequest[]  @relation("ApprovalRequestedBy")
-  approvalSteps       ApprovalStep[]     @relation("ApprovalApprover")
-  escalatedApprovalSteps ApprovalStep[]  @relation("ApprovalEscalatedTo")
+  createdWorkflowRuns     WorkflowRun[]
+  requestedApprovals      ApprovalRequest[] @relation("ApprovalRequestedBy")
+  approvalSteps           ApprovalStep[]    @relation("ApprovalApprover")
+  escalatedApprovalSteps  ApprovalStep[]    @relation("ApprovalEscalatedTo")
 
-  ownedCustomers    Customer[]     @relation("CustomerOwner")
-  ownedLeads        Lead[]         @relation("LeadOwner")
-  leadActivities    LeadActivity[] @relation("LeadActivityActor")
-  ownedOrders       Order[]        @relation("OrderOwner")
+  ownedCustomers Customer[]     @relation("CustomerOwner")
+  ownedLeads     Lead[]         @relation("LeadOwner")
+  leadActivities LeadActivity[] @relation("LeadActivityActor")
+  ownedOrders    Order[]        @relation("OrderOwner")
 
-  createdCampaigns   Campaign[]       @relation("CampaignCreator")
-  createdContents    Content[]        @relation("ContentCreator")
-  assignedContents   Content[]        @relation("ContentAssignee")
-  contentAssets      ContentAsset[]
-  createdContentPieces  ContentPiece[]    @relation("ContentPieceCreator")
-  assignedContentPieces ContentPiece[]    @relation("ContentPieceAssignee")
-  createdTrainingVideos TrainingVideo[]   @relation("TrainingVideoCreator")
-  productionEntries     ProductionEntry[]
-  productionCreatorOf   ProductionCreator[]
-  createdSocialPosts SocialPost[]     @relation("SocialPostCreator")
-  createdLandingPages LandingPage[]   @relation("LandingPageCreator")
-  createdEmailCampaigns EmailCampaign[] @relation("EmailCampaignCreator")
-  connectedAdConnections AdConnection[] @relation("AdConnectionConnectedBy")
-  createdReports         Report[]       @relation("ReportCreator")
+  createdCampaigns       Campaign[]          @relation("CampaignCreator")
+  createdContents        Content[]           @relation("ContentCreator")
+  assignedContents       Content[]           @relation("ContentAssignee")
+  contentAssets          ContentAsset[]
+  createdContentPieces   ContentPiece[]      @relation("ContentPieceCreator")
+  assignedContentPieces  ContentPiece[]      @relation("ContentPieceAssignee")
+  createdTrainingVideos  TrainingVideo[]     @relation("TrainingVideoCreator")
+  productionEntries      ProductionEntry[]
+  productionCreatorOf    ProductionCreator[]
+  createdSocialPosts     SocialPost[]        @relation("SocialPostCreator")
+  createdLandingPages    LandingPage[]       @relation("LandingPageCreator")
+  createdEmailCampaigns  EmailCampaign[]     @relation("EmailCampaignCreator")
+  connectedAdConnections AdConnection[]      @relation("AdConnectionConnectedBy")
+  createdReports         Report[]            @relation("ReportCreator")
   aiConversations        AiConversation[]
-  approvedAiActions      AiAction[]     @relation("AiActionApprovedBy")
+  approvedAiActions      AiAction[]          @relation("AiActionApprovedBy")
 
-  attendanceRecords   AttendanceRecord[]
-  shiftAssignments    ShiftAssignment[]
-  leaveRequests       LeaveRequest[]
-  createdShifts       Shift[]              @relation("ShiftCreator")
+  attendanceRecords          AttendanceRecord[]
+  shiftAssignments           ShiftAssignment[]
+  leaveRequests              LeaveRequest[]
+  createdShifts              Shift[]              @relation("ShiftCreator")
   createdAttendanceLocations AttendanceLocation[] @relation("AttendanceLocationCreator")
 
   @@index([organizationId])
@@ -283,11 +288,11 @@ enum PermissionScope {
 }
 
 model RolePermission {
-  id           String           @id @default(cuid())
+  id           String          @id @default(cuid())
   roleId       String
   permissionId String
-  scope        PermissionScope  @default(ALL)
-  createdAt    DateTime         @default(now())
+  scope        PermissionScope @default(ALL)
+  createdAt    DateTime        @default(now())
 
   role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
@@ -320,14 +325,14 @@ enum NotificationType {
 }
 
 model Notification {
-  id        String            @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  type      NotificationType  @default(SYSTEM)
+  type      NotificationType @default(SYSTEM)
   title     String
   body      String?
   link      String?
   readAt    DateTime?
-  createdAt DateTime          @default(now())
+  createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -541,12 +546,12 @@ model TaskWatcher {
 
 // Timeline riêng cho Task Detail (khác AuditLog toàn hệ thống ở admin).
 model TaskActivity {
-  id        String            @id @default(cuid())
+  id        String           @id @default(cuid())
   taskId    String
   actorId   String?
   type      TaskActivityType
   payload   Json?
-  createdAt DateTime          @default(now())
+  createdAt DateTime         @default(now())
 
   task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
   actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
@@ -829,10 +834,10 @@ model WorkflowRun {
   createdById       String
   createdAt         DateTime          @default(now())
 
-  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  workflow        Workflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  workflowVersion WorkflowVersion @relation(fields: [workflowVersionId], references: [id], onDelete: Cascade)
-  createdBy       User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workflow        Workflow          @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  workflowVersion WorkflowVersion   @relation(fields: [workflowVersionId], references: [id], onDelete: Cascade)
+  createdBy       User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
   steps           WorkflowRunStep[]
 
   @@index([organizationId])
@@ -1321,13 +1326,13 @@ model Campaign {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  project      Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  createdBy    User              @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  channels     CampaignChannel[]
-  contents     Content[]
-  leads        Lead[]
-  landingPages LandingPage[]
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy      User              @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  channels       CampaignChannel[]
+  contents       Content[]
+  leads          Lead[]
+  landingPages   LandingPage[]
   emailCampaigns EmailCampaign[]
 
   @@index([organizationId])
@@ -1336,12 +1341,12 @@ model Campaign {
 }
 
 model CampaignChannel {
-  id             String               @id @default(cuid())
-  campaignId     String
-  type           MarketingChannelType
-  plannedBudget  Decimal?             @db.Decimal(14, 2)
-  notes          String?
-  createdAt      DateTime             @default(now())
+  id            String               @id @default(cuid())
+  campaignId    String
+  type          MarketingChannelType
+  plannedBudget Decimal?             @db.Decimal(14, 2)
+  notes         String?
+  createdAt     DateTime             @default(now())
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
@@ -1453,9 +1458,11 @@ model ContentPiece {
   @@map("content_pieces")
 }
 
-/** Một dòng = tiến độ của 1 người trên 1 kênh trong 1 ngày. `counts` là map
+/**
+ * Một dòng = tiến độ của 1 người trên 1 kênh trong 1 ngày. `counts` là map
  * {"Edit": 2, "Quay": 1, ...} — dùng Json vì tập task type có thể mở rộng theo
- * kênh (xem ProductionChannel.taskTypes), không cố định như cột riêng. */
+ * kênh (xem ProductionChannel.taskTypes), không cố định như cột riêng.
+ */
 model ProductionEntry {
   id             String   @id @default(cuid())
   organizationId String
@@ -1475,9 +1482,11 @@ model ProductionEntry {
   @@map("production_entries")
 }
 
-/** Roster đội sản xuất — ai xuất hiện trên bảng đếm tiến độ. Tách khỏi `User` (không
+/**
+ * Roster đội sản xuất — ai xuất hiện trên bảng đếm tiến độ. Tách khỏi `User` (không
  * phải mọi nhân viên trong công ty đều thuộc đội content) — quản lý qua nút "Quản
- * lý thành viên" trên trang, chọn từ danh sách User có sẵn (không tạo user mới). */
+ * lý thành viên" trên trang, chọn từ danh sách User có sẵn (không tạo user mới).
+ */
 model ProductionCreator {
   id             String   @id @default(cuid())
   organizationId String
@@ -1541,8 +1550,10 @@ model TrackedChannel {
   @@map("tracked_channels")
 }
 
-/** 1 dòng = số liệu 1 kênh trong 1 ngày. `date` dạng "YYYY-MM-DD" theo giờ VN
- * (khớp quy ước ProductionEntry.date ở trên) — so sánh chuỗi đúng thứ tự thời gian. */
+/**
+ * 1 dòng = số liệu 1 kênh trong 1 ngày. `date` dạng "YYYY-MM-DD" theo giờ VN
+ * (khớp quy ước ProductionEntry.date ở trên) — so sánh chuỗi đúng thứ tự thời gian.
+ */
 model ChannelSnapshot {
   id             String   @id @default(cuid())
   organizationId String
@@ -1564,8 +1575,10 @@ model ChannelSnapshot {
   @@map("channel_snapshots")
 }
 
-/** Cấu hình Apify Actor theo nền tảng — đổi Actor khi lỗi/đổi nhà cung cấp không
- * cần sửa code, chỉ sửa dòng này (qua UI, xem "Quét & Apify"). */
+/**
+ * Cấu hình Apify Actor theo nền tảng — đổi Actor khi lỗi/đổi nhà cung cấp không
+ * cần sửa code, chỉ sửa dòng này (qua UI, xem "Quét & Apify").
+ */
 model ChannelPlatformConfig {
   id             String   @id @default(cuid())
   organizationId String
@@ -1582,7 +1595,9 @@ model ChannelPlatformConfig {
   @@map("channel_platform_configs")
 }
 
-/** Nhật ký run Apify — theo dõi trạng thái + chi phí, hiện trong tab "Quét & Apify". */
+/**
+ * Nhật ký run Apify — theo dõi trạng thái + chi phí, hiện trong tab "Quét & Apify".
+ */
 model ChannelScrapeRun {
   id             String    @id @default(cuid())
   organizationId String
@@ -1621,16 +1636,16 @@ model SocialAccount {
 // "Đăng" là thao tác thủ công: user tự đăng trên nền tảng rồi bấm "Đánh dấu đã đăng"
 // — hệ thống KHÔNG tự gọi API mạng xã hội (chưa có credential thật).
 model SocialPost {
-  id              String            @id @default(cuid())
-  organizationId String
+  id              String           @id @default(cuid())
+  organizationId  String
   socialAccountId String
   contentId       String?
   caption         String
-  status          SocialPostStatus  @default(DRAFT)
+  status          SocialPostStatus @default(DRAFT)
   scheduledAt     DateTime?
   publishedAt     DateTime?
   createdById     String
-  createdAt       DateTime          @default(now())
+  createdAt       DateTime         @default(now())
 
   organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
@@ -1702,17 +1717,17 @@ model FormSubmission {
 // "Gửi" là đánh dấu trạng thái thủ công — CHƯA nối provider email thật (cần
 // RESEND_API_KEY hoặc tương đương), giống quyết định Google OAuth ở Phase 1.
 model EmailCampaign {
-  id              String               @id @default(cuid())
+  id             String              @id @default(cuid())
   organizationId String
-  campaignId      String?
-  name            String
-  subject         String
-  status          EmailCampaignStatus  @default(DRAFT)
-  scheduledAt     DateTime?
-  sentAt          DateTime?
-  recipientCount  Int?
-  createdById     String
-  createdAt       DateTime             @default(now())
+  campaignId     String?
+  name           String
+  subject        String
+  status         EmailCampaignStatus @default(DRAFT)
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  recipientCount Int?
+  createdById    String
+  createdAt      DateTime            @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   campaign     Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
@@ -1785,7 +1800,7 @@ model AdAccount {
   timezone     String
   createdAt    DateTime @default(now())
 
-  connection AdConnection  @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection AdConnection    @relation(fields: [connectionId], references: [id], onDelete: Cascade)
   campaigns  AdCampaign[]
   metrics    AdMetricDaily[]
 
@@ -1951,7 +1966,7 @@ model Event {
 // Ghi lại mỗi lượt truy cập landing page kèm UTM — visitorId là cookie ẩn danh, sống
 // theo trình duyệt khách truy cập (không gắn user hệ thống vì khách chưa đăng nhập).
 model AttributionTouchpoint {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   organizationId String
   visitorId      String
   landingPageId  String?
@@ -1960,8 +1975,8 @@ model AttributionTouchpoint {
   utmCampaign    String?
   utmContent     String?
   utmTerm        String?
-  occurredAt     DateTime  @default(now())
-  createdAt      DateTime  @default(now())
+  occurredAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -1981,18 +1996,18 @@ model AttributionTouchpoint {
 // idempotencyKey (thường = id của FormSubmission/Lead) chống tính trùng nếu action
 // bị gọi lại (vd network retry).
 model AttributionEvent {
-  id                 String   @id @default(cuid())
-  organizationId     String
-  type               String // vd "FORM_SUBMISSION"
-  entityType         String
-  entityId           String
-  idempotencyKey     String   @unique
-  firstTouchpointId  String?
-  lastTouchpointId   String?
-  occurredAt         DateTime @default(now())
-  createdAt          DateTime @default(now())
+  id                String   @id @default(cuid())
+  organizationId    String
+  type              String // vd "FORM_SUBMISSION"
+  entityType        String
+  entityId          String
+  idempotencyKey    String   @unique
+  firstTouchpointId String?
+  lastTouchpointId  String?
+  occurredAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
 
-  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization    Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   firstTouchpoint AttributionTouchpoint? @relation("FirstTouch", fields: [firstTouchpointId], references: [id], onDelete: SetNull)
   lastTouchpoint  AttributionTouchpoint? @relation("LastTouch", fields: [lastTouchpointId], references: [id], onDelete: SetNull)
 
@@ -2029,8 +2044,8 @@ model Report {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy    User            @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User           @relation("ReportCreator", fields: [createdById], references: [id], onDelete: Cascade)
   widgets      ReportWidget[]
 
   @@index([organizationId])
@@ -2057,17 +2072,17 @@ model ReportWidget {
 }
 
 model DataQualityIssue {
-  id             String                @id @default(cuid())
+  id             String               @id @default(cuid())
   organizationId String
   type           DataQualityIssueType
-  severity       DataQualitySeverity   @default(MEDIUM)
+  severity       DataQualitySeverity  @default(MEDIUM)
   entityType     String
   entityId       String
   description    String
-  status         DataQualityStatus     @default(OPEN)
-  detectedAt     DateTime              @default(now())
+  status         DataQualityStatus    @default(OPEN)
+  detectedAt     DateTime             @default(now())
   resolvedAt     DateTime?
-  createdAt      DateTime              @default(now())
+  createdAt      DateTime             @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -2170,7 +2185,7 @@ model AiInsight {
   detectedAt     DateTime          @default(now())
   createdAt      DateTime          @default(now())
 
-  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   recommendations AiRecommendation[]
 
   @@index([organizationId, type, detectedAt])
@@ -2400,10 +2415,12 @@ model LeaveRequest {
   @@map("leave_requests")
 }
 
-/** Thư viện video đào tạo nội bộ (link YouTube + bài viết hướng dẫn trên MBS).
+/**
+ * Thư viện video đào tạo nội bộ (link YouTube + bài viết hướng dẫn trên MBS).
  * `category` để dạng String tự do (không enum) vì danh mục sẽ mở rộng dần khi
  * nhân sự đào tạo cập nhật thêm — UI gợi ý từ danh mục đang có + cho nhập mới.
- * `order` giữ thứ tự STT gốc trong danh sách nguồn để hiển thị đúng trình tự học. */
+ * `order` giữ thứ tự STT gốc trong danh sách nguồn để hiển thị đúng trình tự học.
+ */
 model TrainingVideo {
   id             String    @id @default(cuid())
   organizationId String
@@ -2423,4 +2440,78 @@ model TrainingVideo {
   @@index([organizationId, category])
   @@index([organizationId, order])
   @@map("training_videos")
+}
+
+// ---------------------------------------------------------------------------
+// BÁO CÁO CÔNG VIỆC HÀNG NGÀY — thay quy trình Google Sheets thủ công của team
+// Marketing. "Việc được giao" (loại thứ 3 ngoài cố định/tự thêm) KHÔNG có model
+// riêng — đọc thẳng từ Task (assigneeId + dueAt đúng ngày) để không trùng nguồn
+// sự thật với Work Hub.
+// ---------------------------------------------------------------------------
+
+enum DailyReportItemSource {
+  FIXED
+  ADHOC
+}
+
+enum DailyReportItemStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  POSTPONED
+}
+
+/**
+ * Mẫu đầu việc lặp lại theo vai trò — gắn theo `roleTitle` (khớp User.title) chứ
+ * không theo user cụ thể, để áp dụng đồng loạt cho cả nhóm cùng vai trò.
+ */
+model RecurringTaskTemplate {
+  id             String       @id @default(cuid())
+  organizationId String
+  title          String
+  roleTitle      String
+  priority       TaskPriority @default(MEDIUM)
+  position       Int          @default(0)
+  isActive       Boolean      @default(true)
+  createdById    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  items DailyReportItem[]
+
+  @@index([organizationId, roleTitle])
+  @@map("recurring_task_templates")
+}
+
+/**
+ * 1 dòng = 1 đầu việc (cố định hoặc tự thêm) của 1 người trong 1 ngày. `date`
+ * dạng "YYYY-MM-DD" giờ VN — cùng quy ước ProductionEntry.date/ChannelSnapshot.date.
+ * `templateId` NULL (ADHOC) không đụng unique constraint vì Postgres coi mỗi NULL
+ * là giá trị riêng biệt — nên chỉ chặn sinh trùng item FIXED cùng template/ngày.
+ */
+model DailyReportItem {
+  id             String                @id @default(cuid())
+  organizationId String
+  userId         String
+  date           String
+  title          String
+  priority       TaskPriority          @default(MEDIUM)
+  status         DailyReportItemStatus @default(TODO)
+  source         DailyReportItemSource
+  templateId     String?
+  note           String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  organization Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template     RecurringTaskTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date, templateId])
+  @@index([organizationId, date])
+  @@index([userId, date])
+  @@map("daily_report_items")
 }

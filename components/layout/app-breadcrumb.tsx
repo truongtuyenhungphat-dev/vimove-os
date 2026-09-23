@@ -35,6 +35,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   workload: "Khối lượng công việc",
   templates: "Mẫu công việc",
   approvals: "Approval Hub",
+  "daily-report": "Báo cáo công việc",
   projects: "Dự án",
   process: "Process",
   workflows: "Workflow Builder",

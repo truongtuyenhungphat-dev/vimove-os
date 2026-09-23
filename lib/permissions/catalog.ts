@@ -101,6 +101,9 @@ export const PERMISSIONS = [
   { key: "training.create", resource: "training", action: "create", description: "Thêm video đào tạo mới" },
   { key: "training.update", resource: "training", action: "update", description: "Sửa video đào tạo" },
   { key: "training.delete", resource: "training", action: "delete", description: "Xoá video đào tạo" },
+  { key: "daily_reports.read", resource: "daily_reports", action: "read", description: "Xem báo cáo công việc hàng ngày" },
+  { key: "daily_reports.update", resource: "daily_reports", action: "update", description: "Cập nhật trạng thái việc của mình, thêm việc phát sinh" },
+  { key: "daily_reports.manage_templates", resource: "daily_reports", action: "manage_templates", description: "Quản lý mẫu đầu việc cố định theo vai trò" },
 
   // Ads Integration (Phase 6)
   { key: "ads.read", resource: "ads", action: "read", description: "Xem kết nối quảng cáo, tài khoản, chiến dịch, số liệu" },
@@ -135,4 +138,4 @@ export type PermissionKey = (typeof PERMISSIONS)[number]["key"];
  * mình, DEPARTMENT cho Trưởng phòng xem cả phòng ban, ALL cho HR/Admin xem toàn tổ
  * chức (xem lib/permissions/role-defaults.ts#DEFAULT_PERMISSION_SCOPES).
  */
-export const SCOPABLE_PERMISSIONS: PermissionKey[] = ["tasks.read", "leads.read", "attendance.read"];
+export const SCOPABLE_PERMISSIONS: PermissionKey[] = ["tasks.read", "leads.read", "attendance.read", "daily_reports.read"];
