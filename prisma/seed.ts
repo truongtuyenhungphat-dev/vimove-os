@@ -779,11 +779,11 @@ async function main() {
     {
       platform: "FACEBOOK",
       apifyActor: "apify/facebook-posts-scraper",
-      // resultsLimit=25 (không phải 10) — với 10, actor chỉ thấy 10 bài mới nhất/trang
-      // mỗi lần nên videosCount (cộng dồn postIds) gần như không tăng nếu trang đăng
-      // chậm hơn tốc độ quét — 25 giúp bắt kịp thực tế nhanh hơn, đổi lại chi phí Apify
-      // cao hơn (đã xác nhận với người dùng, chấp nhận đánh đổi để số liệu sát thật).
-      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { resultsLimit: 25 } },
+      // Giữ 10 (không tăng lên 25) — thử tăng thì phát hiện tài khoản Apify đang ở gói
+      // FREE, trần $5/tháng đã dùng hết chỉ sau ~5 ngày; tăng resultsLimit sẽ làm cạn
+      // ngân sách nhanh hơn, khiến SỐ NGÀY KHÔNG QUÉT ĐƯỢC trong tháng tăng lên — đổi
+      // lại không đáng vì lợi. Cần nâng cấp gói Apify trước khi cân nhắc tăng lại.
+      inputTemplate: { channel_key: "startUrls", channel_value: "url", wrap_url: true, extra: { resultsLimit: 10 } },
       isActive: false,
     },
     {
