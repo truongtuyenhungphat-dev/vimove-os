@@ -4,6 +4,8 @@ import { MapPin, Phone, Mail, Clock, UserRound, Truck } from "lucide-react";
 import { listPublishedProductsGlobal } from "@/services/sales/products";
 import { MobileNav } from "@/components/public/mobile-nav";
 import { FloatingContact } from "@/components/public/floating-contact";
+import { AnalyticsPixels } from "@/components/public/analytics-pixels";
+import { LeadLink } from "@/components/public/lead-link";
 import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const FOOTER_SUPPORT_LINKS = [
@@ -28,15 +30,17 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background">
+      <AnalyticsPixels />
+
       {/* Thanh thông báo mảnh phía trên header — hotline/email + cam kết miễn phí
        * vận chuyển, tham chiếu `.topbar` của bản Firebase cũ. Ẩn trên mobile để
        * không chiếm chỗ của thanh điều hướng chính trên màn hình hẹp. */}
       <div className="hidden border-b bg-neutral-950 text-neutral-300 sm:block">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-1.5 text-xs">
           <div className="flex items-center gap-4">
-            <a href="tel:0988512352" className="flex items-center gap-1.5 hover:text-white">
+            <LeadLink href="tel:0988512352" className="flex items-center gap-1.5 hover:text-white">
               <Phone className="size-3" aria-hidden="true" /> 0988 512 352
-            </a>
+            </LeadLink>
             <a href="mailto:info@vimove.com.vn" className="hidden items-center gap-1.5 hover:text-white md:flex">
               <Mail className="size-3" aria-hidden="true" /> info@vimove.com.vn
             </a>
@@ -118,9 +122,9 @@ export default async function PublicLayout({ children }: { children: React.React
                 <MapPin className="size-4 shrink-0" aria-hidden="true" /> Tầng 5, Toà nhà Hoa Đăng, số 290 Nguyễn
                 Trãi, P. Đại Mỗ, Hà Nội
               </span>
-              <a href="tel:0988512352" className="flex items-center gap-2 hover:text-white">
+              <LeadLink href="tel:0988512352" className="flex items-center gap-2 hover:text-white">
                 <Phone className="size-4 shrink-0" aria-hidden="true" /> 0988 512 352
-              </a>
+              </LeadLink>
               <a href="mailto:info@vimove.com.vn" className="flex items-center gap-2 hover:text-white">
                 <Mail className="size-4 shrink-0" aria-hidden="true" /> info@vimove.com.vn
               </a>
@@ -129,11 +133,23 @@ export default async function PublicLayout({ children }: { children: React.React
               </span>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
-              {SOCIAL_LINKS.map((s) => (
-                <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white">
-                  {s.label}
-                </a>
-              ))}
+              {SOCIAL_LINKS.map((s) =>
+                s.label === "Zalo" ? (
+                  <LeadLink
+                    key={s.href}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-neutral-400 hover:text-white"
+                  >
+                    {s.label}
+                  </LeadLink>
+                ) : (
+                  <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white">
+                    {s.label}
+                  </a>
+                )
+              )}
             </div>
           </div>
 

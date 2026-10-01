@@ -21,7 +21,7 @@ const INTERESTS = [
 ];
 const interestItems = Object.fromEntries(INTERESTS.map((i) => [i, i]));
 
-export function ContactForm() {
+export function ContactForm({ defaultMessage }: { defaultMessage?: string } = {}) {
   const [state, formAction, isPending] = useActionState<ContactFormState, FormData>(submitContactFormAction, undefined);
 
   if (state?.ok) {
@@ -67,7 +67,7 @@ export function ContactForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="contact-message">Nội dung cần tư vấn *</Label>
-        <Textarea id="contact-message" name="message" rows={4} required />
+        <Textarea id="contact-message" name="message" rows={4} required defaultValue={defaultMessage} />
       </div>
 
       {state?.error && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{state.error}</p>}

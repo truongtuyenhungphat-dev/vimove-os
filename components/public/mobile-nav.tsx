@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, Home, Package, ShieldCheck, Building2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { trackLeadEvent } from "@/components/public/lead-tracking";
 
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ", icon: Home },
@@ -71,7 +72,11 @@ export function MobileNav({ categoryLinks }: { categoryLinks: { href: string; la
           </div>
         )}
         <div className="mt-auto border-t p-4">
-          <a href="tel:0988512352" className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <a
+            href="tel:0988512352"
+            onClick={() => trackLeadEvent()}
+            className="flex items-center gap-2 text-sm font-semibold text-primary"
+          >
             <Phone className="size-4" aria-hidden="true" /> 0988 512 352
           </a>
         </div>

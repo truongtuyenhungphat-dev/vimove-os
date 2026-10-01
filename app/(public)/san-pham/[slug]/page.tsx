@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Phone, ChevronRight, ShieldCheck, Undo2, Truck, BadgeCheck } from "lucide-react";
+import { ChevronRight, ShieldCheck, Undo2, Truck, BadgeCheck } from "lucide-react";
 import { getPublishedProductBySlugGlobal, listPublishedProductsGlobal } from "@/services/sales/products";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/public/product-card";
+import { ProductCtaButtons } from "@/components/public/product-cta-buttons";
 import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const GUARANTEES = [
@@ -131,14 +131,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           )}
 
-          <div className="flex flex-col gap-2 pt-2 sm:flex-row">
-            <Button render={<a href="tel:0988512352" />} size="lg">
-              <Phone className="size-4" aria-hidden="true" /> Gọi đặt hàng: 0988 512 352
-            </Button>
-            <Button render={<Link href="/lien-he" />} size="lg" variant="outline">
-              Liên hệ tư vấn
-            </Button>
-          </div>
+          <ProductCtaButtons productSlug={slug} productName={product.name} />
 
           {/* Cam kết bán hàng — chính sách thật của Vimove (bảo hành 24 tháng, đổi trả
            * 30 ngày, freeship 500K) đã công bố ở footer/trang bảo hành, lặp lại ngay

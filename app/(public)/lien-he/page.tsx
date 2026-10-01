@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { LeadLink } from "@/components/public/lead-link";
 import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = { title: "Liên hệ — Vimove" };
@@ -18,7 +19,17 @@ const FAQS = [
   { q: "Vali có được bảo hành không?", a: "Tất cả sản phẩm Vimove đều được bảo hành chính hãng 24 tháng. Bảo hành bao gồm: lỗi khoá kéo, bánh xe, khoá TSA, thanh kéo và vỏ vali do lỗi sản xuất." },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ product?: string; name?: string }>;
+}) {
+  // Khách từ trang chi tiết sản phẩm bấm "Liên hệ tư vấn" mang theo ?product=<slug>&
+  // name=<tên> (xem product-cta-buttons.tsx) — điền sẵn vào ô "Nội dung cần tư vấn" để
+  // sale không mất ngữ cảnh sản phẩm khách đang quan tâm.
+  const { product, name } = await searchParams;
+  const defaultMessage = name ? `Tôi quan tâm đến sản phẩm: ${name}${product ? ` (mã: ${product})` : ""}` : undefined;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-10 text-center">
@@ -48,16 +59,16 @@ export default function ContactPage() {
           <p className="mb-5 text-sm text-muted-foreground">
             Điền thông tin bên dưới, chúng tôi sẽ liên hệ lại trong vòng 30 phút (giờ hành chính).
           </p>
-          <ContactForm />
+          <ContactForm defaultMessage={defaultMessage} />
 
           <div className="mt-6 flex flex-col items-center gap-3 rounded-xl border bg-card p-5 text-center">
             <p className="text-sm text-muted-foreground">Hoặc gọi ngay để được tư vấn nhanh nhất:</p>
-            <a
+            <LeadLink
               href="tel:0988512352"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground"
             >
               <Phone className="size-4" aria-hidden="true" /> 0988 512 352
-            </a>
+            </LeadLink>
           </div>
         </div>
 
