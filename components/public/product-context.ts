@@ -18,6 +18,23 @@ function notifyListeners() {
   for (const listener of listeners) listener();
 }
 
+function readFromStorage(): ActiveProductContext | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ActiveProductContext) : null;
+  } catch {
+    return null;
+  }
+}
+
+// useSyncExternalStore yêu cầu getSnapshot() trả về CÙNG MỘT reference giữa các lần gọi
+// khi dữ liệu chưa đổi (so sánh bằng Object.is) — getActiveProductContext() bản đầu gọi
+// JSON.parse() mỗi lần nên luôn trả object mới, khiến React nghĩ snapshot đổi liên tục
+// -> re-render vô hạn ("Maximum update depth exceeded", React error #185, vỡ trang sản
+// phẩm trên production). Cache lại 1 reference duy nhất, chỉ tạo mới khi thực sự set/clear.
+let cachedSnapshot: ActiveProductContext | null = readFromStorage();
+
 export function setActiveProductContext(product: ActiveProductContext) {
   if (typeof window === "undefined") return;
   try {
@@ -26,6 +43,7 @@ export function setActiveProductContext(product: ActiveProductContext) {
     // Bỏ qua — sessionStorage có thể bị chặn (chế độ ẩn danh nghiêm ngặt...), không
     // chặn trải nghiệm xem sản phẩm vì 1 tính năng tracking phụ.
   }
+  cachedSnapshot = product;
   notifyListeners();
 }
 
@@ -36,17 +54,12 @@ export function clearActiveProductContext() {
   } catch {
     // Bỏ qua, xem lý do ở trên.
   }
+  cachedSnapshot = null;
   notifyListeners();
 }
 
 export function getActiveProductContext(): ActiveProductContext | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ActiveProductContext) : null;
-  } catch {
-    return null;
-  }
+  return cachedSnapshot;
 }
 
 export function subscribeActiveProductContext(callback: () => void) {
