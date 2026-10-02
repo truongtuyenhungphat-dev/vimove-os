@@ -76,7 +76,7 @@ export async function findWarrantiesByPhoneGlobal(phone: string) {
 
 const WARRANTY_CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // bỏ ký tự dễ nhầm: I/O/0/1 — giữ nguyên bộ ký tự của cổng cũ (Firebase) để mã cũ/mới cùng "họ" VM-XXXXXX.
 
-async function generateWarrantyCode() {
+export async function generateWarrantyCode() {
   for (let attempt = 0; attempt < 10; attempt++) {
     let code = "VM-";
     for (let i = 0; i < 6; i++) code += WARRANTY_CODE_CHARS[Math.floor(Math.random() * WARRANTY_CODE_CHARS.length)];
