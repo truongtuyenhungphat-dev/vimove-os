@@ -27,10 +27,10 @@ export function ProductCtaButtons({ productSlug, productName }: { productSlug: s
 
   return (
     <div className="flex flex-col gap-2 pt-2 sm:flex-row">
-      <Button render={<a href="tel:0988512352" />} size="lg" onClick={() => trackLeadEvent(leadContext)}>
+      <Button render={<a href="tel:0988512352" />} nativeButton={false} size="lg" onClick={() => trackLeadEvent(leadContext)}>
         <Phone className="size-4" aria-hidden="true" /> Gọi đặt hàng: 0988 512 352
       </Button>
-      <Button render={<Link href={contactHref} />} size="lg" variant="outline" onClick={() => trackLeadEvent(leadContext)}>
+      <Button render={<Link href={contactHref} />} nativeButton={false} size="lg" variant="outline" onClick={() => trackLeadEvent(leadContext)}>
         Liên hệ tư vấn
       </Button>
     </div>

@@ -1183,6 +1183,11 @@ model OrderItem {
   quantity  Int
   unitPrice Decimal @db.Decimal(14, 2)
   lineTotal Decimal @db.Decimal(14, 2)
+  // Lựa chọn size/màu khách chọn công khai trên trang sản phẩm — chỉ ghi chú
+  // tham khảo (giống cách Warranty lưu color/size), KHÔNG phải SKU riêng biệt
+  // với tồn kho/giá riêng (Product chưa có model ProductVariant).
+  size      String?
+  color     String?
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)

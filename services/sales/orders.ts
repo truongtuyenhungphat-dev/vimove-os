@@ -111,6 +111,61 @@ export async function createOrder(
   return order;
 }
 
+// Channel "Website công ty" seed sẵn id cố định (xem prisma/seed.ts) — gắn mọi đơn
+// đặt công khai vào đúng kênh này, giống cách Lead công khai dùng
+// PUBLIC_LEAD_PIPELINE_ID/PUBLIC_LEAD_STAGE_ID ở services/crm/leads.ts.
+const PUBLIC_ORDER_CHANNEL_ID = "seed-channel-1";
+
+/** Đặt đơn công khai từ trang sản phẩm (Phase mia.vn-style storefront) — không có
+ * session/actorId, không lọc organizationId (hệ thống hiện chỉ có 1 tổ chức
+ * "vimove"), giống createLeadFromContactFormGlobal. Tìm Customer theo số điện
+ * thoại trong tổ chức, tạo mới nếu chưa có — tạo Order thật (status DRAFT, nhân
+ * viên Sales gọi xác nhận) để đơn hiện ngay trong /sales/orders, không phải hộp
+ * thư riêng dễ bị bỏ sót. size/color chỉ là ghi chú lựa chọn của khách (xem
+ * OrderItem.size/color) — không phải SKU tồn kho riêng. */
+export async function createPublicOrderGlobal(data: {
+  organizationId: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  productId: string;
+  quantity: number;
+  size?: string | null;
+  color?: string | null;
+  note?: string | null;
+}) {
+  const product = await prisma.product.findFirst({ where: { id: data.productId, organizationId: data.organizationId, isPublished: true } });
+  if (!product) throw new Error("Sản phẩm không hợp lệ");
+
+  const unitPrice = Number(product.price);
+  const lineTotal = unitPrice * data.quantity;
+
+  const order = await prisma.$transaction(async (tx) => {
+    const customer =
+      (await tx.customer.findFirst({ where: { organizationId: data.organizationId, phone: data.phone } })) ??
+      (await tx.customer.create({ data: { organizationId: data.organizationId, name: data.customerName, phone: data.phone, address: data.address } }));
+
+    return tx.order.create({
+      data: {
+        organizationId: data.organizationId,
+        customerId: customer.id,
+        channelId: PUBLIC_ORDER_CHANNEL_ID,
+        orderDate: new Date(),
+        notes: data.note || null,
+        totalAmount: lineTotal,
+        items: {
+          create: [{ productId: data.productId, quantity: data.quantity, unitPrice, lineTotal, size: data.size || null, color: data.color || null }],
+        },
+      },
+      include: { items: true },
+    });
+  });
+
+  await writeAuditLog({ organizationId: data.organizationId, actorId: null, action: "order.create_public", entityType: "Order", entityId: order.id, after: { totalAmount: lineTotal } });
+  await writeEvent({ organizationId: data.organizationId, type: "order.created", entityType: "Order", entityId: order.id, payload: { totalAmount: lineTotal, source: "website" }, occurredAt: order.orderDate });
+  return order;
+}
+
 export async function updateOrderStatus(organizationId: string, actorId: string, id: string, status: OrderStatus) {
   const before = await prisma.order.findFirst({ where: { id, organizationId } });
   if (!before) throw new Error("Không tìm thấy đơn hàng");

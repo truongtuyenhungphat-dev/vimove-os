@@ -1,11 +1,13 @@
 // Bắn sự kiện "Lead" (Meta Pixel), "Contact" (TikTok Pixel) và "generate_lead" (GA4) —
-// dùng ở MỌI CTA gọi điện/Zalo/"Liên hệ tư vấn" trên site công khai. Đây là điểm
-// "chuyển đổi" thật của mô hình bán hàng Vimove: chốt đơn qua điện thoại/Zalo rồi sale
-// nhập tay vào CRM, site KHÔNG có giỏ hàng/checkout online (xem floating-contact.tsx).
-// Thiếu các sự kiện này thì Facebook/TikTok/Google không biết ai đã thực sự "chuyển
-// đổi" sau khi bấm quảng cáo, nên không thể tối ưu phân phối/đo đúng chi phí trên mỗi
-// lead. Module thuần (không "use client") — chỉ an toàn khi được import từ Client
-// Component (những nơi có onClick), tự chặn bằng kiểm tra `typeof window`.
+// dùng ở MỌI CTA gọi điện/Zalo/"Liên hệ tư vấn"/"Đặt đơn" trên site công khai. Đây là
+// điểm "chuyển đổi" thật của mô hình bán hàng Vimove: khách để lại thông tin (gọi điện,
+// Zalo, hoặc form "Đặt đơn" ghi thẳng vào Order) rồi sale gọi xác nhận — site KHÔNG có
+// thanh toán online (chưa tích hợp cổng thanh toán, xem product-order-panel.tsx + CTA
+// khác ở floating-contact.tsx). Thiếu các sự kiện này thì Facebook/TikTok/Google không
+// biết ai đã thực sự "chuyển đổi" sau khi bấm quảng cáo, nên không thể tối ưu phân phối/
+// đo đúng chi phí trên mỗi lead. Module thuần (không "use client") — chỉ an toàn khi
+// được import từ Client Component (những nơi có onClick), tự chặn bằng kiểm tra
+// `typeof window`.
 
 declare global {
   interface Window {

@@ -7,6 +7,7 @@ import { getPublishedProductBySlugGlobal, listPublishedProductsGlobal } from "@/
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/public/product-card";
 import { ProductCtaButtons } from "@/components/public/product-cta-buttons";
+import { ProductOrderPanel } from "@/components/public/product-order-panel";
 import { CATEGORY_LABELS } from "@/lib/catalog/categories";
 
 const GUARANTEES = [
@@ -105,31 +106,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </p>
           )}
 
-          {product.sizes.length > 0 && (
-            <div>
-              <p className="mb-2 text-sm font-medium">Kích thước</p>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((s) => (
-                  <span key={s} className="rounded-lg border px-3 py-1.5 text-sm">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {product.colors.length > 0 && (
-            <div>
-              <p className="mb-2 text-sm font-medium">Màu sắc</p>
-              <div className="flex flex-wrap gap-2">
-                {product.colors.map((c) => (
-                  <span key={c} className="rounded-lg border px-3 py-1.5 text-sm">
-                    {c}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+          <ProductOrderPanel productId={product.id} productName={product.name} productSlug={slug} sizes={product.sizes} colors={product.colors} />
 
           <ProductCtaButtons productSlug={slug} productName={product.name} />
 
