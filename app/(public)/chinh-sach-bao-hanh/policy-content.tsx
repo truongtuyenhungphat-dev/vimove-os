@@ -1,6 +1,9 @@
 // Nội dung thật, port nguyên văn từ cổng bảo hành Firebase cũ
 // (chinh-sach-bao-hanh/index.html, tab "Chính sách bảo hành") — chỉ đổi cách
 // trình bày (bảng/HTML thô → component Tailwind), không đổi nội dung/số liệu.
+// Ngoại lệ: mục "Bao bể" cột Vali PP trung & cao cấp sửa từ "10 năm" (số liệu port
+// gốc, đã lỗi thời) thành "4 năm" theo xác nhận trực tiếp của chủ doanh nghiệp
+// (2026-10-08) — cả 2 dòng PP thường/trung&cao cấp cùng bảo hành bao bể 4 năm.
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="mb-4 rounded-lg bg-neutral-700 px-4 py-2.5 text-sm font-bold text-white">{children}</h3>;
@@ -49,7 +52,7 @@ export function PolicyContent() {
               <td className="border p-3">Bao bể (vỡ thân vali)</td>
               <td className="border p-3">30 ngày đầu</td>
               <td className="border p-3 font-semibold">4 năm</td>
-              <td className="border p-3 font-semibold">10 năm</td>
+              <td className="border p-3 font-semibold">4 năm</td>
             </tr>
           </tbody>
         </PolicyTable>
@@ -63,7 +66,7 @@ export function PolicyContent() {
               <strong className="text-foreground">Chính sách bao bể — chính sách duy nhất trên thị trường:</strong>
               <ul className="mt-1.5 list-disc space-y-1 pl-5">
                 <li>Nhựa ABS, ABS+PC, PC bị vỡ trong 30 ngày đầu: thay mặt mới.</li>
-                <li>Nhựa PP thường bị vỡ trong <strong className="text-foreground">4 năm</strong>, nhựa PP trung và cao cấp bị vỡ trong <strong className="text-foreground">10 năm</strong>: đổi mới 1 đổi 1.</li>
+                <li>Nhựa PP thường và nhựa PP trung, cao cấp bị vỡ trong <strong className="text-foreground">4 năm</strong>: đổi mới 1 đổi 1.</li>
               </ul>
             </li>
           </ul>
