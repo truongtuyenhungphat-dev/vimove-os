@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   // chế độ standalone khi cài trên iOS (Safari không đọc `display` trong manifest).
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "VIMOVE OS" },
+  // Xác minh tên miền vimove.net trên Facebook Business Manager (Brand Safety/
+  // domain verification) — thẻ meta Facebook cấp, không đổi.
+  other: { "facebook-domain-verification": "f1x3udv5nhyrp3c1ml14cmj4fkr0ys" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
