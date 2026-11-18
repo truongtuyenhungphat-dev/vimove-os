@@ -66,7 +66,16 @@ function formatVnd(n: number) {
 
 export async function generateMetadata(): Promise<Metadata> {
   const product = await getPublishedProductBySlugGlobal(SLUG);
-  return { title: product ? `${product.name} — Vimove` : "Không tìm thấy sản phẩm" };
+  if (!product) return { title: "Không tìm thấy sản phẩm" };
+
+  const description = `${product.name} — ${product.price.toLocaleString("vi-VN")}đ. Nhựa ABS chống trầy, khóa chống rạch, bảo hành phụ kiện trọn đời. Giao toàn quốc, COD.`;
+  const image = product.images.find((src) => !src.endsWith("-2.jpg")) ?? product.images[0];
+
+  return {
+    title: `${product.name} — Vimove`,
+    description,
+    openGraph: { title: product.name, description, images: image ? [image] : undefined },
+  };
 }
 
 export default async function VybeWaveupLandingPage() {
@@ -75,8 +84,11 @@ export default async function VybeWaveupLandingPage() {
 
   const discount = product.oldPrice && product.oldPrice > product.price ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
 
+  // Loại ảnh "-2.jpg" — banner khuyến mãi "Siêu Sale Shop Mới" đã hết hạn
+  // (15.07–22.07, voucher 200K không áp dụng cho flow đặt đơn này), không
+  // liên quan sản phẩm và gây hiểu nhầm nếu hiện trên trang bán hàng chạy ads.
   const galleryImages = [
-    ...product.images.map((src) => ({ src, alt: product.name })),
+    ...product.images.filter((src) => !src.endsWith("-2.jpg")).map((src) => ({ src, alt: product.name })),
     ...COLOUR_SHOTS.map((c) => ({ src: `/products/${c.file}`, alt: `Vybe Waveup VB-68 màu ${c.name}` })),
   ];
 
