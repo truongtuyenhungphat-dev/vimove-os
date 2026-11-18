@@ -28,7 +28,10 @@ const AUTH_PATHS = ["/login", "/forgot-password"];
 // đích redirect của domain vimove.net (in trên QR code sản phẩm, xem
 // _redirects ở repo web cũ) — ?tab=register phải luôn mở công khai không qua
 // đăng nhập.
-const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he", "/chinh-sach-bao-hanh"];
+// "/vybe-waveup-vb68" — landing page bán hàng riêng cho sản phẩm Vybe Waveup
+// VB-68 (chạy ads), dùng chung ProductOrderPanel/submitProductOrderAction với
+// "/san-pham/[slug]" nên cùng lý do mở công khai như các path trên.
+const OPEN_PATHS = ["/lp", "/offline", "/san-pham", "/ve-chung-toi", "/lien-he", "/chinh-sach-bao-hanh", "/vybe-waveup-vb68"];
 // Trang chủ công khai — so sánh CHÍNH XÁC "/" (không dùng startsWith như các path
 // khác ở trên) vì mọi pathname đều "bắt đầu bằng /", startsWith("/") sẽ vô tình mở
 // công khai toàn bộ ứng dụng kể cả /dashboard, /work, ...
